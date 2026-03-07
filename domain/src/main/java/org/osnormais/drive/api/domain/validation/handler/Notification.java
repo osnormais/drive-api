@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.osnormais.drive.api.domain.exception.DomainException;
 import org.osnormais.drive.api.domain.validation.ValidationError;
-import org.osnormais.drive.api.domain.validation.ValidationHandler;
 
 public class Notification implements ValidationHandler {
 

@@ -3,7 +3,7 @@ package org.osnormais.drive.api.domain;
 import java.util.Objects;
 
 import org.osnormais.drive.api.domain.validation.ValidationError;
-import org.osnormais.drive.api.domain.validation.ValidationHandler;
+import org.osnormais.drive.api.domain.validation.handler.ValidationHandler;
 
 public abstract class Identifier<T> implements ValueObject {
 
