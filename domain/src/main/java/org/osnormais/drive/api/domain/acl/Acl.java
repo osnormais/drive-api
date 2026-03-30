@@ -55,6 +55,17 @@ public class Acl extends AggregateRoot<AclId> implements DomainEventSource {
 
     }
 
+    public static Acl with(
+            final AclId id,
+            final AclResource<?> resource,
+            final Set<AclEntry> directEntries,
+            final Set<AclEntry> inheritedEntries,
+            final Instant createdAt,
+            final Instant updatedAt,
+            final Queue<DomainEvent<?>> events) {
+        return new Acl(id, resource, directEntries, inheritedEntries, createdAt, updatedAt, events);
+    }
+
     @Override
     public void validate(final ValidationHandler handler) {
 
@@ -110,15 +121,13 @@ public class Acl extends AggregateRoot<AclId> implements DomainEventSource {
 
         if (!hasPermission)
 
-            
-
+            // {...} //TODO exception domain-specific, with proper error code and details
             throw new SecurityException(
                     "User [%s] does not have required permission [%s] for resource [%s]".formatted(
                             user,
                             permission,
                             resource));
 
-        // {...}
         return this;
     }
 
