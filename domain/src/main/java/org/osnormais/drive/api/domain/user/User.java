@@ -50,6 +50,14 @@ public class User extends AggregateRoot<UserId> implements DomainEventSource {
 
     }
 
+    public static User with(
+            final UserId id,
+            final Quota quota,
+            final QuotaRequest quotaRequest,
+            final Queue<DomainEvent<?>> events) {
+        return new User(id, quota, Optional.ofNullable(quotaRequest), events);
+    }
+
     @Override
     public Optional<DomainEvent<?>> nextEvent() {
         return Optional.ofNullable(this.events.poll());
