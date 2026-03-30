@@ -1,17 +1,11 @@
 package org.osnormais.drive.api.application.gateway.file;
 
-import java.util.Optional;
-
-import org.osnormais.drive.api.domain.file.File;
-import org.osnormais.drive.api.domain.file.FileId;
 import org.osnormais.drive.api.domain.file.valueobject.FileName;
 import org.osnormais.drive.api.domain.file.valueobject.Size;
 import org.osnormais.drive.api.domain.folder.FolderId;
 import org.osnormais.drive.api.domain.user.UserId;
 
 public interface FileQueryGateway {
-
-    Optional<File> findById(FileId id);
 
     Size totalSizeByUserId(UserId userId);
 

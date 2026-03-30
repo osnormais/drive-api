@@ -1,11 +1,8 @@
 package org.osnormais.drive.api.infrastructure.file.gateway;
 
-import java.util.Optional;
-
 import org.osnormais.drive.api.application.gateway.file.FileCommandGateway;
 import org.osnormais.drive.api.application.gateway.file.FileQueryGateway;
 import org.osnormais.drive.api.domain.file.File;
-import org.osnormais.drive.api.domain.file.FileId;
 import org.osnormais.drive.api.domain.file.valueobject.FileName;
 import org.osnormais.drive.api.domain.file.valueobject.Size;
 import org.osnormais.drive.api.domain.folder.FolderId;
@@ -22,11 +19,6 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
 
     public FileJpaGateway(final FileJpaRepository fileJpaRepository) {
         this.fileRepository = fileJpaRepository;
-    }
-
-    @Override
-    public Optional<File> findById(final FileId id) {
-        return null; // TODO implement
     }
 
     @Override
