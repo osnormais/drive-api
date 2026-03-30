@@ -217,7 +217,7 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
     }
 
     public Set<FileSharing> getSharings() {
-        return sharings;
+        return Set.copyOf(sharings);
     }
 
 }

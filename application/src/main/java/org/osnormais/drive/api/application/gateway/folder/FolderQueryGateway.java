@@ -8,8 +8,6 @@ import org.osnormais.drive.api.domain.user.UserId;
 
 public interface FolderQueryGateway {
 
-    Optional<Folder> findById(FolderId id);
-
     Optional<Folder> findVisibleById(FolderId id, UserId userId);
 
 }

@@ -3,15 +3,18 @@ package org.osnormais.drive.api.domain.folder;
 import static java.util.Objects.isNull;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
 
 import org.osnormais.drive.api.domain.AggregateRoot;
 import org.osnormais.drive.api.domain.event.DomainEvent;
 import org.osnormais.drive.api.domain.event.DomainEventSource;
 import org.osnormais.drive.api.domain.exception.ValidationException;
 import org.osnormais.drive.api.domain.folder.valueobject.FolderName;
+import org.osnormais.drive.api.domain.folder.valueobject.FolderSharing;
 import org.osnormais.drive.api.domain.user.UserId;
 import org.osnormais.drive.api.domain.validation.ValidationError;
 import org.osnormais.drive.api.domain.validation.handler.Notification;
@@ -29,6 +32,8 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
     private Instant updatedAt;
     private Instant deletedAt;
 
+    private Set<FolderSharing> sharings;
+
     private final Queue<DomainEvent<?>> events;
 
     private Folder(
@@ -40,6 +45,7 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt,
+            final Set<FolderSharing> sharings,
             final Queue<DomainEvent<?>> events) {
         super(id);
         this.creator = creator;
@@ -49,6 +55,7 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
+        this.sharings = isNull(sharings) ? new HashSet<>() : new HashSet<>(sharings);
 
         this.events = isNull(events) ? new LinkedList<>() : new LinkedList<>(events);
 
@@ -80,6 +87,30 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
 
     }
 
+    public static Folder with(
+            final FolderId id,
+            final UserId creator,
+            final UserId owner,
+            final FolderId parentFolder,
+            final FolderName name,
+            final Instant createdAt,
+            final Instant updatedAt,
+            final Instant deletedAt,
+            final Set<FolderSharing> sharings,
+            final Queue<DomainEvent<?>> events) {
+        return new Folder(
+                id,
+                creator,
+                owner,
+                parentFolder,
+                name,
+                createdAt,
+                updatedAt,
+                deletedAt,
+                sharings,
+                events);
+    }
+
     public static Folder create(
             final UserId creator,
             final Folder parent,
@@ -95,6 +126,7 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
                 name,
                 now,
                 now,
+                null,
                 null,
                 null);
 
@@ -142,6 +174,10 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
 
     public Instant getDeletedAt() {
         return deletedAt;
+    }
+
+    public Set<FolderSharing> getSharings() {
+        return Set.copyOf(sharings);
     }
 
 }

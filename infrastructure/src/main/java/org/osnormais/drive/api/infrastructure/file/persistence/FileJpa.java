@@ -67,7 +67,7 @@ public class FileJpa {
 
     @ElementCollection
     @Fetch(FetchMode.SUBSELECT) // TODO testar com e sem
-    @CollectionTable(name = "file_sharing", joinColumns = @JoinColumn(name = "file_id"))
+    @CollectionTable(name = "file_sharings", joinColumns = @JoinColumn(name = "file_id"))
     private Set<FileSharingJpa> sharings;
 
     public FileJpa() {
