@@ -5,6 +5,7 @@ import static java.util.Objects.isNull;
 import org.osnormais.drive.api.domain.Identifier;
 import org.osnormais.drive.api.domain.ValueObject;
 import org.osnormais.drive.api.domain.acl.AclResourceType;
+import org.osnormais.drive.api.domain.file.File;
 import org.osnormais.drive.api.domain.file.FileId;
 import org.osnormais.drive.api.domain.folder.Folder;
 import org.osnormais.drive.api.domain.folder.FolderId;
@@ -16,6 +17,10 @@ public record AclResource<I extends Identifier<?>>(
         I resourceId,
         AclResourceType resourceType,
         UserId owner) implements ValueObject {
+
+    public static AclResource<FileId> of(final File file) {
+        return new AclResource<>(file.getId(), AclResourceType.FILE, file.getOwner());
+    }
 
     public static AclResource<FolderId> of(final Folder folder) {
         return new AclResource<>(folder.getId(), AclResourceType.FOLDER, folder.getOwner());

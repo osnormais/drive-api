@@ -2,6 +2,7 @@ package org.osnormais.drive.api.infrastructure.configuration.application.usecase
 
 import static java.util.Objects.requireNonNull;
 
+import org.osnormais.drive.api.application.gateway.acl.AclCommandGateway;
 import org.osnormais.drive.api.application.gateway.acl.AclQueryGateway;
 import org.osnormais.drive.api.application.gateway.file.FileCommandGateway;
 import org.osnormais.drive.api.application.gateway.file.FileQueryGateway;
@@ -21,6 +22,7 @@ public class FileUseCaseConfig {
     private final FileQueryGateway fileQueryGateway;
     private final FileCommandGateway fileCommandGateway;
     private final AclQueryGateway aclQueryGateway;
+    private final AclCommandGateway aclCommandGateway;
     private final DomainEventDispatcher eventDispatcher;
 
     public FileUseCaseConfig(
@@ -29,12 +31,14 @@ public class FileUseCaseConfig {
             FileQueryGateway fileQueryGateway,
             FileCommandGateway fileCommandGateway,
             AclQueryGateway aclQueryGateway,
+            AclCommandGateway aclCommandGateway,
             DomainEventDispatcher eventDispatcher) {
         this.userQueryGateway = requireNonNull(userQueryGateway);
         this.folderQueryGateway = requireNonNull(folderQueryGateway);
         this.fileQueryGateway = requireNonNull(fileQueryGateway);
         this.fileCommandGateway = requireNonNull(fileCommandGateway);
         this.aclQueryGateway = requireNonNull(aclQueryGateway);
+        this.aclCommandGateway = requireNonNull(aclCommandGateway);
         this.eventDispatcher = requireNonNull(eventDispatcher);
     }
 
@@ -46,6 +50,7 @@ public class FileUseCaseConfig {
                 fileQueryGateway,
                 fileCommandGateway,
                 aclQueryGateway,
+                aclCommandGateway,
                 eventDispatcher);
     }
 

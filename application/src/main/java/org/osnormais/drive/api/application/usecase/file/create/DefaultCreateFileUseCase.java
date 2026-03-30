@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.List;
 
 import org.osnormais.drive.api.application.exception.NotFoundException;
+import org.osnormais.drive.api.application.gateway.acl.AclCommandGateway;
 import org.osnormais.drive.api.application.gateway.acl.AclQueryGateway;
 import org.osnormais.drive.api.application.gateway.file.FileCommandGateway;
 import org.osnormais.drive.api.application.gateway.file.FileQueryGateway;
@@ -38,6 +39,7 @@ public class DefaultCreateFileUseCase extends CreateFileUseCase {
     private final FileQueryGateway fileQueryGateway;
     private final FileCommandGateway fileCommandGateway;
     private final AclQueryGateway aclQueryGateway;
+    private final AclCommandGateway aclCommandGateway;
 
     private final DomainEventDispatcher eventDispatcher;
 
@@ -47,12 +49,14 @@ public class DefaultCreateFileUseCase extends CreateFileUseCase {
             final FileQueryGateway fileQueryGateway,
             final FileCommandGateway fileCommandGateway,
             final AclQueryGateway aclQueryGateway,
+            final AclCommandGateway aclCommandGateway,
             final DomainEventDispatcher eventDispatcher) {
         this.userQueryGateway = requireNonNull(userQueryGateway);
         this.folderQueryGateway = requireNonNull(folderQueryGateway);
         this.fileQueryGateway = requireNonNull(fileQueryGateway);
         this.fileCommandGateway = requireNonNull(fileCommandGateway);
         this.aclQueryGateway = requireNonNull(aclQueryGateway);
+        this.aclCommandGateway = requireNonNull(aclCommandGateway);
         this.eventDispatcher = requireNonNull(eventDispatcher);
     }
 
@@ -116,6 +120,9 @@ public class DefaultCreateFileUseCase extends CreateFileUseCase {
                 size,
                 content);
 
+        final Acl fileAcl = parentFolderAcl.deriveFor(AclResource.of(file));
+
+        eventDispatcher.notify(aclCommandGateway.create(fileAcl));
         eventDispatcher.notify(fileCommandGateway.create(file));
 
         return CreateFileOutput.of(file);
