@@ -59,7 +59,7 @@ public class User extends AggregateRoot<UserId> implements DomainEventSource {
         final ValidationHandler notification = Notification.create();
         validate(notification);
         if (notification.hasErrors())
-            throw ValidationException.with("'File' validation failed", notification);
+            throw ValidationException.with("'User' validation failed", notification);
     }
 
     public Quota getQuota() {

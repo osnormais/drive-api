@@ -3,7 +3,10 @@ package org.osnormais.drive.api.domain.event;
 import static java.util.Objects.isNull;
 
 import java.time.Instant;
+import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.osnormais.drive.api.domain.Entity;
 import org.osnormais.drive.api.domain.Identifier;
@@ -24,13 +27,18 @@ public abstract class DomainEvent<I extends Identifier<?>> {
             final String subResource,
             final String action,
             final Instant occurredAt,
-            final Set<DomainEventEntity> relatedEntities) {
+            final Collection<DomainEventEntity> relatedEntities) {
+
         this.identifier = entity.getId();
         this.domain = DOMAIN;
         this.entity = DomainEvent.entity(entity.getClass(), subResource);
         this.action = action;
         this.occurredAt = occurredAt;
-        this.relatedEntities = isNull(relatedEntities) ? Set.of() : Set.copyOf(relatedEntities);
+        this.relatedEntities = isNull(relatedEntities) ? Set.of()
+                : relatedEntities
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
     }
 
     protected static String key(

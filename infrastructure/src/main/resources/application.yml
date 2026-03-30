@@ -1,0 +1,15 @@
+server:
+  port: ${application.server.port}
+spring:
+  profiles:
+    active:
+      - hibernate
+      - security
+      - ${application.vendor.database}
+
+application:
+  name: drive-api
+  server:
+    port: ${SERVER_PORT:8080}
+  vendor:
+    database: ${VENDOR_DATABASE:postgres}

@@ -1,11 +1,10 @@
-package org.osnormais.drive.api.application.usecase.file.create;
+package org.osnormais.drive.api.infrastructure.file.data.rest;
 
 import java.util.UUID;
 
 import org.osnormais.drive.api.domain.file.valueobject.Checksum;
 
-public record CreateFileInput(
-        UUID creatorId,
+public record CreateFileRequest(
         UUID parentFolderId,
         String name,
         String contentType,

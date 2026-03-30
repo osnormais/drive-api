@@ -3,9 +3,11 @@ package org.osnormais.drive.api.domain.file;
 import static java.util.Objects.isNull;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
 
 import org.osnormais.drive.api.domain.AggregateRoot;
 import org.osnormais.drive.api.domain.event.DomainEvent;
@@ -15,12 +17,20 @@ import org.osnormais.drive.api.domain.file.event.FileCreatedEvent;
 import org.osnormais.drive.api.domain.file.valueobject.Checksum;
 import org.osnormais.drive.api.domain.file.valueobject.Content;
 import org.osnormais.drive.api.domain.file.valueobject.FileName;
+import org.osnormais.drive.api.domain.file.valueobject.FileSharing;
 import org.osnormais.drive.api.domain.file.valueobject.Size;
+import org.osnormais.drive.api.domain.folder.FolderId;
+import org.osnormais.drive.api.domain.user.UserId;
 import org.osnormais.drive.api.domain.validation.ValidationError;
 import org.osnormais.drive.api.domain.validation.handler.Notification;
 import org.osnormais.drive.api.domain.validation.handler.ValidationHandler;
 
 public class File extends AggregateRoot<FileId> implements DomainEventSource {
+
+    private final UserId creator;
+    private final UserId owner;
+
+    private FolderId folder;
 
     private final Checksum checksum;
     private final Size size;
@@ -31,10 +41,15 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
     private Instant updatedAt;
     private Instant deletedAt;
 
+    private Set<FileSharing> sharings;
+
     private final Queue<DomainEvent<?>> events;
 
     private File(
             final FileId id,
+            final UserId creator,
+            final UserId owner,
+            final FolderId folder,
             final FileName name,
             final Checksum checksum,
             final Size size,
@@ -42,8 +57,12 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt,
+            final Set<FileSharing> sharings,
             final Queue<DomainEvent<?>> events) {
         super(id);
+        this.creator = creator;
+        this.owner = owner;
+        this.folder = folder;
         this.name = name;
         this.checksum = checksum;
         this.size = size;
@@ -51,13 +70,47 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
+        this.sharings = isNull(sharings) ? new HashSet<>() : new HashSet<>(sharings);
 
         this.events = isNull(events) ? new LinkedList<>() : new LinkedList<>(events);
 
         selfValidate();
     }
 
+    public static File with(
+            final FileId id,
+            final UserId creator,
+            final UserId owner,
+            final FolderId folder,
+            final FileName name,
+            final Checksum checksum,
+            final Size size,
+            final Content content,
+            final Instant createdAt,
+            final Instant updatedAt,
+            final Instant deletedAt,
+            final Set<FileSharing> sharings,
+            final Queue<DomainEvent<?>> events) {
+        return new File(
+                id,
+                creator,
+                owner,
+                folder,
+                name,
+                checksum,
+                size,
+                content,
+                createdAt,
+                updatedAt,
+                deletedAt,
+                sharings,
+                events);
+    }
+
     public static File create(
+            final UserId creator,
+            final UserId owner,
+            final FolderId folder,
             final FileName name,
             final Checksum checksum,
             final Size size,
@@ -67,12 +120,16 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
 
         final File file = new File(
                 FileId.unique(),
+                creator,
+                owner,
+                folder,
                 name,
                 checksum,
                 size,
                 content,
                 now,
                 now,
+                null,
                 null,
                 null);
 
@@ -119,6 +176,18 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
             throw ValidationException.with("'File' validation failed", notification);
     }
 
+    public UserId getCreator() {
+        return creator;
+    }
+
+    public UserId getOwner() {
+        return owner;
+    }
+
+    public FolderId getFolder() {
+        return folder;
+    }
+
     public Checksum getChecksum() {
         return checksum;
     }
@@ -145,6 +214,10 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
 
     public Instant getDeletedAt() {
         return deletedAt;
+    }
+
+    public Set<FileSharing> getSharings() {
+        return sharings;
     }
 
 }
