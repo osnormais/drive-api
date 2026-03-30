@@ -13,6 +13,7 @@ import org.osnormais.drive.api.domain.AggregateRoot;
 import org.osnormais.drive.api.domain.event.DomainEvent;
 import org.osnormais.drive.api.domain.event.DomainEventSource;
 import org.osnormais.drive.api.domain.exception.ValidationException;
+import org.osnormais.drive.api.domain.folder.event.FolderCreatedEvent;
 import org.osnormais.drive.api.domain.folder.valueobject.FolderName;
 import org.osnormais.drive.api.domain.folder.valueobject.FolderSharing;
 import org.osnormais.drive.api.domain.user.UserId;
@@ -66,24 +67,21 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
     public void validate(final ValidationHandler handler) {
 
         if (isNull(creator))
-            handler.append(new ValidationError("'Folder.creator' cannot be null."));
+            handler.append(new ValidationError("'Folder.creator' should not be null."));
         else
             creator.validate(handler);
 
         if (isNull(owner))
-            handler.append(new ValidationError("'Folder.owner' cannot be null."));
+            handler.append(new ValidationError("'Folder.owner' should not be null."));
         else
             owner.validate(handler);
 
-        if (isNull(parentFolder))
-            handler.append(new ValidationError("'Folder.parentFolder' cannot be null."));
-        else
-            parentFolder.ifPresent(folderId -> folderId.validate(handler));
-
         if (isNull(name))
-            handler.append(new ValidationError("'Folder.name' cannot be null."));
+            handler.append(new ValidationError("'Folder.name' should not be null."));
         else
             name.validate(handler);
+
+        parentFolder.ifPresent(folderId -> folderId.validate(handler));
 
     }
 
@@ -118,7 +116,7 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
 
         final Instant now = Instant.now();
 
-        return new Folder(
+        final Folder folder = new Folder(
                 FolderId.unique(),
                 creator,
                 parent.getOwner(),
@@ -129,6 +127,10 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
                 null,
                 null,
                 null);
+
+        folder.events.add(FolderCreatedEvent.create(folder));
+
+        return folder;
 
     }
 
