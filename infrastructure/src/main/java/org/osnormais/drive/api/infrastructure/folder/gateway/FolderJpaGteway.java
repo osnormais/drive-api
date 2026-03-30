@@ -26,6 +26,7 @@ public class FolderJpaGteway implements FolderCommandGateway, FolderQueryGateway
         this.folderRepository = folderRepository;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<Folder> findVisibleById(final FolderId id, final UserId userId) {
 

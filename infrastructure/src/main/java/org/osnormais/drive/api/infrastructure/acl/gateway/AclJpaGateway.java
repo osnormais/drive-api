@@ -20,6 +20,7 @@ public class AclJpaGateway implements AclCommandGateway, AclQueryGateway {
         this.aclRepository = aclRepository;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<Acl> findByResource(final AclResource<?> id) {
         return aclRepository
