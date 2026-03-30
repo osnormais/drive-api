@@ -18,6 +18,8 @@ import org.osnormais.drive.api.domain.acl.valueobject.AclResource;
 import org.osnormais.drive.api.domain.event.DomainEvent;
 import org.osnormais.drive.api.domain.event.DomainEventSource;
 import org.osnormais.drive.api.domain.exception.AccessDeniedException;
+import org.osnormais.drive.api.domain.exception.DomainException;
+import org.osnormais.drive.api.domain.exception.InvalidArgumentException;
 import org.osnormais.drive.api.domain.exception.ValidationException;
 import org.osnormais.drive.api.domain.user.UserId;
 import org.osnormais.drive.api.domain.validation.ValidationError;
@@ -45,8 +47,8 @@ public class Acl extends AggregateRoot<AclId> implements DomainEventSource {
             final Queue<DomainEvent<?>> events) {
         super(id);
         this.resource = resource;
-        this.directEntries = isNull(events) ? new HashSet<>() : new HashSet<>(directEntries);
-        this.inheritedEntries = isNull(events) ? new HashSet<>() : new HashSet<>(inheritedEntries);
+        this.directEntries = isNull(directEntries) ? new HashSet<>() : new HashSet<>(directEntries);
+        this.inheritedEntries = isNull(inheritedEntries) ? new HashSet<>() : new HashSet<>(inheritedEntries);
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
 
@@ -71,25 +73,25 @@ public class Acl extends AggregateRoot<AclId> implements DomainEventSource {
     public void validate(final ValidationHandler handler) {
 
         if (isNull(resource))
-            handler.append(new ValidationError("'Acl.resource' cannot be null."));
+            handler.append(new ValidationError("'Acl.resource' should not be null."));
         else
             resource.validate(handler);
 
         if (isNull(directEntries))
-            handler.append(new ValidationError("'Acl.directEntries' cannot be null."));
+            handler.append(new ValidationError("'Acl.directEntries' should not be null."));
         else
             directEntries.forEach(entry -> entry.validate(handler));
 
         if (isNull(inheritedEntries))
-            handler.append(new ValidationError("'Acl.inheritedEntries' cannot be null."));
+            handler.append(new ValidationError("'Acl.inheritedEntries' should not be null."));
         else
             inheritedEntries.forEach(entry -> entry.validate(handler));
 
         if (isNull(createdAt))
-            handler.append(new ValidationError("'Acl.createdAt' cannot be null."));
+            handler.append(new ValidationError("'Acl.createdAt' should not be null."));
 
         if (isNull(updatedAt))
-            handler.append(new ValidationError("'Acl.updatedAt' cannot be null."));
+            handler.append(new ValidationError("'Acl.updatedAt' should not be null."));
 
     }
 
@@ -113,6 +115,10 @@ public class Acl extends AggregateRoot<AclId> implements DomainEventSource {
 
     public Acl requiredPermission(final UserId user, final Permission permission) {
 
+        if (isNull(permission) || isNull(user))
+            throw InvalidArgumentException
+                    .with(DomainException.Error.with("'permission' and 'user' should not be null."));
+
         if (resource.owner().equals(user))
             return this;
 
@@ -127,6 +133,18 @@ public class Acl extends AggregateRoot<AclId> implements DomainEventSource {
     }
 
     public Acl deriveFor(final AclResource<?> resource) {
+
+        if (isNull(resource))
+            throw InvalidArgumentException
+                    .with(DomainException.Error.with("'resource' should not be null."));
+
+        if (!this.resource.owner().equals(resource.owner()))
+            throw InvalidArgumentException
+                    .with(DomainException.Error.with("'resource' should belong to the same owner as the current ACL."));
+
+        if (this.resource.equals(resource))
+            return this;
+
         return create(resource).inheritFrom(this);
     }
 
