@@ -29,29 +29,29 @@ public record FileName(String value) implements ValueObject {
     }
 
     @Override
-    public void validate(final ValidationHandler aHandler) {
+    public void validate(final ValidationHandler handler) {
 
         if (value == null) {
-            aHandler.append(ValidationError.with("'FileName.value' cannot be null."));
+            handler.append(ValidationError.with("'FileName.value' cannot be null."));
             return;
         }
 
         if (value.trim().isEmpty())
-            aHandler.append(ValidationError.with("'FileName.value' cannot be empty."));
+            handler.append(ValidationError.with("'FileName.value' cannot be empty."));
 
         if (value.length() < MIN_LENGTH || value.length() > MAX_LENGTH)
-            aHandler.append(
+            handler.append(
                     ValidationError.with(
                             "'FileName.value' must be between " + MIN_LENGTH + " and " + MAX_LENGTH + " characters."));
 
         if (isReservedName(value.trim()))
-            aHandler.append(ValidationError.with("'FileName.value' cannot be a reserved name: " + value.trim()));
+            handler.append(ValidationError.with("'FileName.value' cannot be a reserved name: " + value.trim()));
     }
 
     private static boolean isReservedName(final String name) {
         return List.of(RESERVED_NAMES)
                 .stream()
-                .anyMatch(reservedName -> reservedName.equalsIgnoreCase(name));
+                .anyMatch(reservedName -> reservedName.equalsIgnoreCase(name.trim()));
     }
 
 }
