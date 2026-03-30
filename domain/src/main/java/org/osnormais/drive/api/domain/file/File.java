@@ -162,6 +162,12 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
         else
             content.validate(handler);
 
+        if (isNull(createdAt))
+            handler.append(new ValidationError("'File.createdAt' should not be null"));
+
+        if (isNull(updatedAt))
+            handler.append(new ValidationError("'File.updatedAt' should not be null"));
+
     }
 
     @Override
