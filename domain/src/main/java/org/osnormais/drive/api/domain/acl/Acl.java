@@ -17,6 +17,7 @@ import org.osnormais.drive.api.domain.acl.valueobject.AclEntry;
 import org.osnormais.drive.api.domain.acl.valueobject.AclResource;
 import org.osnormais.drive.api.domain.event.DomainEvent;
 import org.osnormais.drive.api.domain.event.DomainEventSource;
+import org.osnormais.drive.api.domain.exception.AccessDeniedException;
 import org.osnormais.drive.api.domain.exception.ValidationException;
 import org.osnormais.drive.api.domain.user.UserId;
 import org.osnormais.drive.api.domain.validation.ValidationError;
@@ -120,13 +121,7 @@ public class Acl extends AggregateRoot<AclId> implements DomainEventSource {
                 .anyMatch(entry -> entry.user().equals(user) && entry.permission().includes(permission));
 
         if (!hasPermission)
-
-            // {...} //TODO exception domain-specific, with proper error code and details
-            throw new SecurityException(
-                    "User [%s] does not have required permission [%s] for resource [%s]".formatted(
-                            user,
-                            permission,
-                            resource));
+            throw AccessDeniedException.with(user, permission, resource);
 
         return this;
     }
