@@ -1,5 +1,7 @@
 package org.osnormais.drive.api.infrastructure.event.outbox.gateway;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -14,8 +16,8 @@ public class OutboxJpaGateway {
 
     private final OutboxJpaRepository outboxRepository;
 
-    public OutboxJpaGateway(OutboxJpaRepository outboxRepository) {
-        this.outboxRepository = outboxRepository;
+    public OutboxJpaGateway(final OutboxJpaRepository outboxRepository) {
+        this.outboxRepository = requireNonNull(outboxRepository);
     }
 
     @Transactional(propagation = Propagation.MANDATORY)

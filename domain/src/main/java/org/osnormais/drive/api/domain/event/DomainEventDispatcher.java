@@ -1,21 +1,42 @@
 package org.osnormais.drive.api.domain.event;
 
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.osnormais.drive.api.domain.Identifier;
 
-public interface DomainEventDispatcher {
+public abstract class DomainEventDispatcher {
 
-    void register(final String eventKey, final DomainEventHandler<?> handler);
+    protected final ConcurrentHashMap<String, List<DomainEventHandler<?>>> handlers = new ConcurrentHashMap<>();
 
-    void unregister(final String eventKey, final DomainEventHandler<?> handler);
+    public abstract void dispatch(final DomainEventContext... context);
 
-    void unregisterAll(final String eventKey);
+    public abstract <I extends Identifier<?>> DomainEventContext append(
+            final DomainEventContext context,
+            final DomainEvent<I> event);
 
-    <I extends Identifier<?>> void notify(final DomainEventContext context, final DomainEvent<I> event);
+    public abstract <I extends Identifier<?>> DomainEventContext append(
+            final DomainEventContext context,
+            final DomainEventSource source);
 
-    <I extends Identifier<?>> void notify(final DomainEventContext context, final DomainEventSource source);
+    public DomainEventContext append(final DomainEventSource source) {
+        return append(DomainEventContext.create(), source);
+    }
 
-    default void notify(final DomainEventSource source) {
-        notify(DomainEventContext.create(), source);
+    public void register(final String eventKey, final DomainEventHandler<?> handler) {
+        this.handlers.computeIfAbsent(eventKey, k -> new CopyOnWriteArrayList<>()).add(handler);
+    }
+
+    public void unregister(final String eventKey, final DomainEventHandler<?> handler) {
+        this.handlers.computeIfPresent(eventKey, (k, v) -> {
+            v.remove(handler);
+            return v.isEmpty() ? null : v;
+        });
+    }
+
+    public void unregisterAll(final String eventKey) {
+        this.handlers.remove(eventKey);
     }
 
 }

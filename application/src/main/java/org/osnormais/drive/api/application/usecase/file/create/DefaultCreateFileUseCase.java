@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 
+import org.osnormais.drive.api.application.common.annotation.Transactional;
 import org.osnormais.drive.api.application.exception.NotFoundException;
 import org.osnormais.drive.api.application.gateway.acl.AclCommandGateway;
 import org.osnormais.drive.api.application.gateway.acl.AclQueryGateway;
@@ -60,6 +61,7 @@ public class DefaultCreateFileUseCase extends CreateFileUseCase {
         this.eventDispatcher = requireNonNull(eventDispatcher);
     }
 
+    @Transactional
     @Override
     public CreateFileOutput execute(final CreateFileInput input) {
 
@@ -122,8 +124,9 @@ public class DefaultCreateFileUseCase extends CreateFileUseCase {
 
         final Acl fileAcl = parentFolderAcl.deriveFor(AclResource.of(file));
 
-        eventDispatcher.notify(aclCommandGateway.create(fileAcl));
-        eventDispatcher.notify(fileCommandGateway.create(file));
+        eventDispatcher.dispatch(
+                eventDispatcher.append(aclCommandGateway.create(fileAcl)),
+                eventDispatcher.append(fileCommandGateway.create(file)));
 
         return CreateFileOutput.of(file);
 
