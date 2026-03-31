@@ -124,10 +124,9 @@ public class DefaultCreateFileUseCase extends CreateFileUseCase {
 
         final Acl fileAcl = parentFolderAcl.deriveFor(AclResource.of(file));
 
-        final var context0 = eventDispatcher.append(aclCommandGateway.create(fileAcl));
-        final var context1 = eventDispatcher.append(fileCommandGateway.create(file));
-
-        eventDispatcher.dispatch(context0, context1);
+        eventDispatcher.dispatch(
+                eventDispatcher.append(aclCommandGateway.create(fileAcl)),
+                eventDispatcher.append(fileCommandGateway.create(file)));
 
         return CreateFileOutput.of(file);
 
