@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class FileCreatedIntegrationProducer extends SpringCloudMessageProducer<FileIntegrationMessage> {
 
-    private static final String BINDING_NAME = "file-created-integration-out-0";
+    private static final String BINDING_NAME = "fileCreatedIntegration-out-0";
 
     public FileCreatedIntegrationProducer(final StreamBridge streamBridge) {
         super(streamBridge, BINDING_NAME);
