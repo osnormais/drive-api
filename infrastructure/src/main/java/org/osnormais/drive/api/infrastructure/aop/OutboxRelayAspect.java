@@ -21,15 +21,13 @@ public class OutboxRelayAspect {
         this.dispatcher = dispatcher;
     }
 
-    @AfterReturning(pointcut = "execution(org.osnormais.drive.api.domain.event.DomainEventContext org.osnormais.drive.api.domain.event.DomainEventDispatcher.append(..))", returning = "result")
-    public void captureResult(JoinPoint joinPoint, Object result) {
+    @AfterReturning(pointcut = "execution(org.osnormais.drive.api.domain.event.DomainEventContext org.osnormais.drive.api.domain.event.DomainEventDispatcher.append(..))", returning = "context")
+    public void captureResult(JoinPoint joinPoint, DomainEventContext context) {
 
-        if (result instanceof DomainEventContext context) {
-            if (TransactionSynchronizationManager.isActualTransactionActive())
-                TransactionSynchronizationManager.registerSynchronization(new PostCommitEventDispatcher(context));
-            else
-                dispatcher.dispatch(context);
-        }
+        if (TransactionSynchronizationManager.isActualTransactionActive())
+            TransactionSynchronizationManager.registerSynchronization(new PostCommitEventDispatcher(context));
+        else
+            dispatcher.dispatch(context);
 
     }
 

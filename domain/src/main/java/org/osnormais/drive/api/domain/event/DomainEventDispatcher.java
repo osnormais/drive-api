@@ -39,4 +39,8 @@ public abstract class DomainEventDispatcher {
         this.handlers.remove(eventKey);
     }
 
+    protected List<DomainEventHandler<?>> handlerFor(final String eventKey) {
+        return this.handlers.getOrDefault(eventKey, List.of());
+    }
+
 }
