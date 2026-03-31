@@ -10,6 +10,7 @@ import org.osnormais.drive.api.domain.Identifier;
 import org.osnormais.drive.api.domain.event.DomainEvent;
 import org.osnormais.drive.api.domain.event.DomainEventContext;
 import org.osnormais.drive.api.domain.event.DomainEventDispatcher;
+import org.osnormais.drive.api.domain.event.DomainEventHandler;
 import org.osnormais.drive.api.domain.event.DomainEventSource;
 import org.osnormais.drive.api.infrastructure.configuration.mapper.Mapper;
 import org.osnormais.drive.api.infrastructure.event.outbox.gateway.OutboxJpaGateway;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class OutboxEventDispatcher extends DomainEventDispatcher {
@@ -68,7 +70,7 @@ public class OutboxEventDispatcher extends DomainEventDispatcher {
     @Override
     public void dispatch(DomainEventContext... contexts) {
 
-        for (DomainEventContext context : contexts) {
+        for (final var context : contexts) {
 
             final var outBoxEvents = outboxGateway
                     .findByContextId(context.id())
@@ -77,12 +79,33 @@ public class OutboxEventDispatcher extends DomainEventDispatcher {
 
             outBoxEvents.forEach(
                     event -> {
-                        // var handler = handlerFor(event);
-                        // if (handler.isEmpty()) {
-                        // return;
-                        // }
-                        // handler.get().handle(event);
+
+                        final var handlers = handlerFor(event.getEventKey());
+
+                        handlers
+                                .stream()
+                                .filter(handler -> handler.supports(event.getEventKey()))
+                                .forEach(handler -> {
+
+                                    JsonNode payloadNode = mapper.valueToTree(event.getPayload());
+
+                                    mapper.convertValue(payloadNode, event.getPayloadClass());
+
+                                    // DomainEvent payload1 = payloadNode.require();
+                                    // payloadNode
+
+                                    DomainEvent<?> payload = (DomainEvent<?>) mapper.convertValue(
+                                            event.getPayload(),
+                                            event.getPayloadClass());
+
+                                    @SuppressWarnings("unchecked")
+                                    var typedHandler = (DomainEventHandler<DomainEvent<?>>) handler;
+                                    typedHandler.handle(payload);
+
+                                });
+
                         outboxGateway.delete(event.getId());
+
                     });
 
         }
@@ -102,6 +125,7 @@ public class OutboxEventDispatcher extends DomainEventDispatcher {
                 context.position(),
                 event.key(),
                 handlerId,
+                event.getClass(),
                 payload));
     }
 

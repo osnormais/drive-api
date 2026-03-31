@@ -34,6 +34,9 @@ public class OutboxJpa {
     @Column(nullable = false)
     private UUID handlerId;
 
+    @Column(nullable = false)
+    private Class<?> payloadClass;
+
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> payload;
 
@@ -49,11 +52,13 @@ public class OutboxJpa {
             final Long contextPosition,
             final String eventKey,
             final UUID handlerId,
+            final Class<?> payloadClass,
             final Map<String, Object> payload) {
         this.contextId = contextId;
         this.contextPosition = contextPosition;
         this.eventKey = eventKey;
         this.handlerId = handlerId;
+        this.payloadClass = payloadClass;
         this.payload = payload;
         this.processed = Boolean.FALSE;
     }
@@ -99,6 +104,14 @@ public class OutboxJpa {
 
     public void setHandlerId(UUID handlerId) {
         this.handlerId = handlerId;
+    }
+
+    public Class<?> getPayloadClass() {
+        return payloadClass;
+    }
+
+    public void setPayloadClass(Class<?> payloadClass) {
+        this.payloadClass = payloadClass;
     }
 
     public Map<String, Object> getPayload() {

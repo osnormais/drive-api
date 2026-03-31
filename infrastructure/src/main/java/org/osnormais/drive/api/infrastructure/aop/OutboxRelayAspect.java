@@ -1,13 +1,12 @@
 package org.osnormais.drive.api.infrastructure.aop;
 
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.osnormais.drive.api.domain.event.DomainEventContext;
-import org.osnormais.drive.api.domain.event.DomainEventDispatcher;
+import org.osnormais.drive.api.infrastructure.commons.ExceptionWrapper;
+import org.osnormais.drive.api.infrastructure.commons.transaction.AfterCommitRunnable;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Aspect
@@ -15,35 +14,32 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @Order(value = 0)
 public class OutboxRelayAspect {
 
-    private final DomainEventDispatcher dispatcher;
-
-    public OutboxRelayAspect(final DomainEventDispatcher dispatcher) {
-        this.dispatcher = dispatcher;
-    }
-
-    @AfterReturning(pointcut = "execution(org.osnormais.drive.api.domain.event.DomainEventContext org.osnormais.drive.api.domain.event.DomainEventDispatcher.append(..))", returning = "context")
-    public void captureResult(JoinPoint joinPoint, DomainEventContext context) {
-
+    @Around("execution(void org.osnormais.drive.api.domain.event.DomainEventDispatcher.dispatch(..))")
+    public Object execute(ProceedingJoinPoint joinPoint) throws Throwable {
         if (TransactionSynchronizationManager.isActualTransactionActive())
-            TransactionSynchronizationManager.registerSynchronization(new PostCommitEventDispatcher(context));
+            scheduleDispatch(joinPoint);
         else
-            dispatcher.dispatch(context);
+            return joinPoint.proceed();
 
+        return null;
     }
 
-    private class PostCommitEventDispatcher implements TransactionSynchronization {
+    private void scheduleDispatch(ProceedingJoinPoint joinPoint) throws Throwable {
 
-        final DomainEventContext context;
-
-        PostCommitEventDispatcher(final DomainEventContext context) {
-            this.context = context;
-        }
-
-        @Override
-        public void afterCommit() {
-            dispatcher.dispatch(context);
+        try {
+            TransactionSynchronizationManager
+                    .registerSynchronization(
+                            AfterCommitRunnable.of(
+                                    () -> {
+                                        try {
+                                            joinPoint.proceed();
+                                        } catch (final Throwable e) {
+                                            throw ExceptionWrapper.wrap(e);
+                                        }
+                                    }));
+        } catch (final ExceptionWrapper e) {
+            throw e.getCause();
         }
 
     }
-
 }
