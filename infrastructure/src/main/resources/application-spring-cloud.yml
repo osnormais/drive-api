@@ -31,5 +31,6 @@ spring:
         ## --------------------------------------- ##
         # Outgoing -> File Created                  #
         fileCreatedIntegration-out-0:
+          binder: public-binder
           destination: integration.exchange
         ## --------------------------------------- ##

@@ -56,8 +56,7 @@ spring:
           ## --------------------------------------- ##
           ###### ------- PUBLIC MESSAGES ------- ######
           # Outgoing -> File Created                  #
-          fileCreatedIntegration-out-0:
-            binder: public-binder
+          fileCreatedIntegration-out-0:            
             producer:
               exchangeType: topic
               destination: integration.exchange
