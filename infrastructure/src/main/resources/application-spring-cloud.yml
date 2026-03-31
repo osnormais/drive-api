@@ -1,0 +1,35 @@
+spring:
+  cloud:
+    function:
+      definition: fileCreatedConsumer
+    stream:
+      function:
+        bindings:
+          fileCreatedConsumer-in-0: fileCreated-in-0
+      default:
+        content-type: application/json
+      bindings:
+        ###### -------- DOMAIN EVENTS -------- ######
+        ## RabbitMQ bindings                       ##
+        # Incoming <- File Created                  #
+        fileCreated-in-0:
+          destination: drive.exchange
+          group: drive.file.created.queue
+          consumer:
+            max-attempts: 1
+            concurrency: ${application.messaging.private.consumer.file-created.concurrency}
+        ## --------------------------------------- ##
+        # Outgoing -> File Created                  #
+        fileCreated-out-0:
+          destination: drive.exchange
+        fileCreatedError-out-0:
+          destination: drive.exchange.error
+          producer:
+            requiredGroups: drive.file.created.queue.error
+        ## --------------------------------------- ##
+        ###### ------- PUBLIC MESSAGES ------- ######
+        ## --------------------------------------- ##
+        # Outgoing -> File Created                  #
+        fileCreatedIntegration-out-0:
+          destination: integration.exchange
+        ## --------------------------------------- ##

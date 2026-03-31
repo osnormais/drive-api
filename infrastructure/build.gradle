@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":application"))
 
     implementation platform(gav('org.springframework.boot', 'spring-boot-dependencies', libs.versions.spring.boot))
+    implementation platform('org.springframework.cloud:spring-cloud-dependencies:2025.1.1')
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
@@ -27,6 +28,11 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.postgresql:postgresql:42.7.10'
+
+    implementation 'org.springframework.cloud:spring-cloud-stream'
+    implementation 'org.springframework.cloud:spring-cloud-starter-stream-rabbit'
+
+    implementation 'com.jhonatapers:aop:0.0.1'
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2'
 

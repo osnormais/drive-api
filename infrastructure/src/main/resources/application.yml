@@ -5,11 +5,20 @@ spring:
     active:
       - hibernate
       - security
+      - spring-cloud
       - ${application.vendor.database}
 
 application:
   name: drive-api
   server:
     port: ${SERVER_PORT:8080}
+  messaging:
+    private:
+      consumer:
+        file-created:
+          concurrency: ${PRIVATE_CONSUMER_FILE_CREATED_CONCURRENCY:1}
+          max-attempts: ${PRIVATE_CONSUMER_FILE_CREATED_MAX_ATTEMPTS:5}
+
   vendor:
     database: ${VENDOR_DATABASE:postgres}
+    messaging: ${VENDOR_MESSAGING:rabbitmq}

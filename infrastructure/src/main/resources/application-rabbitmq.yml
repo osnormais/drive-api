@@ -1,0 +1,73 @@
+spring:
+  cloud:
+    stream:
+      binders:
+        private-binder:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                host: ${rabbitmq.host}
+                port: ${rabbitmq.port}
+                virtual-host: ${rabbitmq.private-virtual-host}
+                username: ${rabbitmq.username}
+                password: ${rabbitmq.password}
+        public-binder:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                host: ${rabbitmq.host}
+                port: ${rabbitmq.port}
+                virtual-host: ${rabbitmq.public-virtual-host}
+                username: ${rabbitmq.username}
+                password: ${rabbitmq.password}
+      default-binder: private-binder
+      rabbit:
+        bindings:
+          ###### -------- DOMAIN EVENTS -------- ######
+          ## RabbitMQ bindings                       ##
+          # Incoming <- File Created                  #
+          fileCreated-in-0:
+            consumer:
+              exchangeType: topic
+              bindingRoutingKey: drive.file.created
+              queueNameGroupOnly: true
+              autoBindDlq: true
+              deadLetterExchange: drive.exchange.wait
+              deadLetterQueueName: drive.file.created.queue.wait
+              dlqDeadLetterExchange: drive.exchange
+              dlqDeadLetterRoutingKey: drive.file.created
+              republishToDlq: false
+              dlqTtl: 1000
+          ## --------------------------------------- ##
+          # Outgoing -> File Created                  #
+          fileCreated-out-0:
+            producer:
+              exchangeType: topic
+              destination: drive.exchange
+              routingKeyExpression: "'drive.file.created'"
+          fileCreatedError-out-0:
+            producer:
+              exchangeType: topic
+              destination: drive.exchange.error
+              routingKeyExpression: "'drive.file.created'"
+              queueNameGroupOnly: true
+          ## --------------------------------------- ##
+          ###### ------- PUBLIC MESSAGES ------- ######
+          # Outgoing -> File Created                  #
+          fileCreatedIntegration-out-0:
+            binder: public-binder
+            producer:
+              exchangeType: topic
+              destination: integration.exchange
+              routingKeyExpression: "'drive.file.created'"
+          ## --------------------------------------- ##
+
+rabbitmq:
+  host: ${RABBITMQ_HOST:localhost}
+  port: ${RABBITMQ_PORT:5672}
+  public-virtual-host: ${RABBITMQ_PUBLIC_VIRTUAL_HOST:/}
+  private-virtual-host: ${RABBITMQ_PRIVATE_VIRTUAL_HOST:/}
+  username: ${RABBITMQ_USERNAME:rabbitmq}
+  password: ${RABBITMQ_PASSWORD:rabbitmq}
