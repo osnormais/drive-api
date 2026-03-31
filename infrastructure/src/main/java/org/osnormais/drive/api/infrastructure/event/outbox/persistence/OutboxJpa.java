@@ -1,7 +1,6 @@
 package org.osnormais.drive.api.infrastructure.event.outbox.persistence;
 
 import java.time.Instant;
-import java.util.Map;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -38,7 +37,7 @@ public class OutboxJpa {
     private Class<?> payloadClass;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    private Map<String, Object> payload;
+    private Object payload;
 
     @CreationTimestamp
     @Column(nullable = false)
@@ -53,7 +52,7 @@ public class OutboxJpa {
             final String eventKey,
             final UUID handlerId,
             final Class<?> payloadClass,
-            final Map<String, Object> payload) {
+            final Object payload) {
         this.contextId = contextId;
         this.contextPosition = contextPosition;
         this.eventKey = eventKey;
@@ -114,11 +113,11 @@ public class OutboxJpa {
         this.payloadClass = payloadClass;
     }
 
-    public Map<String, Object> getPayload() {
+    public Object getPayload() {
         return payload;
     }
 
-    public void setPayload(Map<String, Object> payload) {
+    public void setPayload(Object payload) {
         this.payload = payload;
     }
 

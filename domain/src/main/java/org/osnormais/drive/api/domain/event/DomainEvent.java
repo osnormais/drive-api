@@ -15,12 +15,15 @@ public abstract class DomainEvent<I extends Identifier<?>> {
 
     private static final String DOMAIN = "drive";
 
-    private final I identifier;
-    private final String domain;
-    private final String entity;
-    private final String action;
-    private final Instant occurredAt;
-    private final Set<DomainEventEntity> relatedEntities;
+    private I identifier;
+    private String domain;
+    private String entity;
+    private String action;
+    private Instant occurredAt;
+    private Set<DomainEventEntity> relatedEntities;
+
+    protected DomainEvent() {
+    }
 
     protected <E extends Entity<I>> DomainEvent(
             final E entity,

@@ -6,6 +6,9 @@ import org.osnormais.drive.api.domain.Identifier;
 
 public class FolderId extends Identifier<UUID> {
 
+    public FolderId() {
+    }
+
     private FolderId(UUID id) {
         super(id);
     }
@@ -20,7 +23,7 @@ public class FolderId extends Identifier<UUID> {
 
     @Override
     public String getStringValue() {
-        return id.toString();
+        return value.toString();
     }
 
 }

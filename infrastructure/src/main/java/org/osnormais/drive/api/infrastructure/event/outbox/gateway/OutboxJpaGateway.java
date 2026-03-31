@@ -21,8 +21,8 @@ public class OutboxJpaGateway {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public void save(final OutboxJpa outbox) {
-        outboxRepository.save(outbox);
+    public void save(final List<OutboxJpa> outboxes) {
+        outboxRepository.saveAll(outboxes);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

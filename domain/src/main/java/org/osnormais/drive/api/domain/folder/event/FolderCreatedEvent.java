@@ -14,6 +14,9 @@ public class FolderCreatedEvent extends DomainEvent<FolderId> {
     private static final Class<Folder> ENTITY_CLASS = Folder.class;
     private static final String ACTION = "created";
 
+    public FolderCreatedEvent() {
+    }
+
     private FolderCreatedEvent(
             final Folder folder,
             final Instant occurredAt,

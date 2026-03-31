@@ -20,7 +20,7 @@ public class UserId extends Identifier<UUID> {
 
     @Override
     public String getStringValue() {
-        return id.toString();
+        return value.toString();
     }
 
 }

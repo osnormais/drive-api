@@ -3,23 +3,21 @@ package org.osnormais.drive.api.infrastructure.event.outbox.dispatcher;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Comparator;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 import org.osnormais.drive.api.domain.Identifier;
 import org.osnormais.drive.api.domain.event.DomainEvent;
 import org.osnormais.drive.api.domain.event.DomainEventContext;
 import org.osnormais.drive.api.domain.event.DomainEventDispatcher;
-import org.osnormais.drive.api.domain.event.DomainEventHandler;
 import org.osnormais.drive.api.domain.event.DomainEventSource;
+import org.osnormais.drive.api.infrastructure.commons.ExceptionWrapper;
 import org.osnormais.drive.api.infrastructure.configuration.mapper.Mapper;
 import org.osnormais.drive.api.infrastructure.event.outbox.gateway.OutboxJpaGateway;
 import org.osnormais.drive.api.infrastructure.event.outbox.persistence.OutboxJpa;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class OutboxEventDispatcher extends DomainEventDispatcher {
@@ -37,7 +35,10 @@ public class OutboxEventDispatcher extends DomainEventDispatcher {
             final DomainEventContext context,
             final DomainEvent<I> event) {
 
-        handlerFor(event.key()).forEach(handler -> save(handler.id(), context, event));
+        save(handlerFor(event.key())
+                .stream()
+                .map(outbox -> toOutboxJpa(outbox.id(), context, event))
+                .toList());
 
         return context;
     }
@@ -56,7 +57,10 @@ public class OutboxEventDispatcher extends DomainEventDispatcher {
             final var actualEvent = event.get();
             final var actualContext = nextContext;
 
-            handlerFor(actualEvent.key()).forEach(handler -> save(handler.id(), actualContext, actualEvent));
+            save(handlerFor(actualEvent.key())
+                    .stream()
+                    .map(outbox -> toOutboxJpa(outbox.id(), actualContext, actualEvent))
+                    .toList());
 
             event = source.nextEvent();
             nextContext = nextContext.createNext();
@@ -80,29 +84,10 @@ public class OutboxEventDispatcher extends DomainEventDispatcher {
             outBoxEvents.forEach(
                     event -> {
 
-                        final var handlers = handlerFor(event.getEventKey());
-
-                        handlers
+                        handlerFor(event.getEventKey())
                                 .stream()
                                 .filter(handler -> handler.supports(event.getEventKey()))
-                                .forEach(handler -> {
-
-                                    JsonNode payloadNode = mapper.valueToTree(event.getPayload());
-
-                                    mapper.convertValue(payloadNode, event.getPayloadClass());
-
-                                    // DomainEvent payload1 = payloadNode.require();
-                                    // payloadNode
-
-                                    DomainEvent<?> payload = (DomainEvent<?>) mapper.convertValue(
-                                            event.getPayload(),
-                                            event.getPayloadClass());
-
-                                    @SuppressWarnings("unchecked")
-                                    var typedHandler = (DomainEventHandler<DomainEvent<?>>) handler;
-                                    typedHandler.handle(payload);
-
-                                });
+                                .forEach(handler -> handler.handle(convert(event)));
 
                         outboxGateway.delete(event.getId());
 
@@ -112,21 +97,36 @@ public class OutboxEventDispatcher extends DomainEventDispatcher {
 
     }
 
-    private <I extends Identifier<?>> void save(
+    private void save(final List<OutboxJpa> events) {
+        outboxGateway.save(events);
+    }
+
+    private static OutboxJpa toOutboxJpa(
             final UUID handlerId,
             final DomainEventContext context,
-            final DomainEvent<I> event) {
+            final DomainEvent<?> event) {
 
-        final Map<String, Object> payload = mapper.convertValue(event, new TypeReference<>() {
-        });
-
-        outboxGateway.save(new OutboxJpa(
+        return new OutboxJpa(
                 context.id(),
                 context.position(),
                 event.key(),
                 handlerId,
                 event.getClass(),
-                payload));
+                event);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <E extends DomainEvent<?>> E convert(final OutboxJpa event) {
+        try {
+            return mapper.convertValue(event.getPayload(), (Class<E>) event.getPayloadClass());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                    "Failed to convert OutboxJpa to DomainEvent. payloadClass="
+                            + event.getPayloadClass().getName(),
+                    e);
+        } catch (Exception e) {
+            throw ExceptionWrapper.wrap(e);
+        }
     }
 
 }
