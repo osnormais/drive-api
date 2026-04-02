@@ -4,7 +4,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 
 import org.osnormais.drive.api.domain.Identifier;
 import org.osnormais.drive.api.domain.event.DomainEvent;
@@ -37,7 +36,7 @@ public class OutboxEventDispatcher extends DomainEventDispatcher {
 
         save(handlerFor(event.key())
                 .stream()
-                .map(outbox -> toOutboxJpa(outbox.id(), context, event))
+                .map(outbox -> toOutboxJpa(context, event))
                 .toList());
 
         return context;
@@ -59,7 +58,7 @@ public class OutboxEventDispatcher extends DomainEventDispatcher {
 
             save(handlerFor(actualEvent.key())
                     .stream()
-                    .map(outbox -> toOutboxJpa(outbox.id(), actualContext, actualEvent))
+                    .map(outbox -> toOutboxJpa(actualContext, actualEvent))
                     .toList());
 
             event = source.nextEvent();
@@ -102,7 +101,6 @@ public class OutboxEventDispatcher extends DomainEventDispatcher {
     }
 
     private static OutboxJpa toOutboxJpa(
-            final UUID handlerId,
             final DomainEventContext context,
             final DomainEvent<?> event) {
 
@@ -110,7 +108,6 @@ public class OutboxEventDispatcher extends DomainEventDispatcher {
                 context.id(),
                 context.position(),
                 event.key(),
-                handlerId,
                 event.getClass(),
                 event);
     }

@@ -2,9 +2,11 @@ package org.osnormais.drive.api.infrastructure.event.outbox.gateway;
 
 import static java.util.Objects.requireNonNull;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import org.osnormais.drive.api.domain.event.DomainEventContext;
 import org.osnormais.drive.api.infrastructure.event.outbox.persistence.OutboxJpa;
 import org.osnormais.drive.api.infrastructure.event.outbox.persistence.OutboxJpaRepository;
 import org.springframework.stereotype.Component;
@@ -33,6 +35,10 @@ public class OutboxJpaGateway {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void delete(final UUID id) {
         outboxRepository.deleteById(id);
+    }
+
+    public List<DomainEventContext> findAllContextPending(final Instant cutoff) {
+        return outboxRepository.findAllContextPending(cutoff);
     }
 
 }

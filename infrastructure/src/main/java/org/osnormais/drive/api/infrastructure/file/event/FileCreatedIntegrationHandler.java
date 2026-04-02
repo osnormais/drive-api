@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class FileCreatedIntegrationHandler extends DomainEventHandler<FileCreatedEvent> {
 
-    private static final UUID UNIQUE_ID = UUID.randomUUID();
+    private static final UUID UNIQUE_ID = UUID.fromString("bedf635b-f8a2-4ccf-9eb6-5791a3ff95f7");
     private final FileQueryGateway fileQueryGateway;
     private final FileCreatedIntegrationProducer fileCreatedIntegrationProducer;
 
