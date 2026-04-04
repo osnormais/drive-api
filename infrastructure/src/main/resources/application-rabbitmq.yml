@@ -59,7 +59,6 @@ spring:
           fileCreatedIntegration-out-0:            
             producer:
               exchangeType: topic
-              destination: integration.exchange
               routingKeyExpression: "'drive.file.created'"
           ## --------------------------------------- ##
 
