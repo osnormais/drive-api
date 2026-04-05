@@ -46,9 +46,8 @@ public class RedisConfig {
     @Bean
     ConcurrencyTracker.Port redisConcurrencyTracker(
             final RedisTemplate<String, Integer> redisTemplate,
-            final RedisScript<Integer> decrementPositiveScript,
             final @Value("${redis.concurrency.tracker.ttl-seconds}") Long ttlSeconds) {
-        return new RedisConcurrencyTrackerPort(redisTemplate, decrementPositiveScript, Duration.ofSeconds(ttlSeconds));
+        return new RedisConcurrencyTrackerPort(redisTemplate, Duration.ofSeconds(ttlSeconds));
     }
 
 }

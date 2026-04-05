@@ -10,29 +10,46 @@ import org.osnormais.drive.api.application.port.ConcurrencyTracker;
 import org.osnormais.drive.api.domain.Identifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 
 public class RedisConcurrencyTrackerPort implements ConcurrencyTracker.Port {
 
     private final RedisTemplate<String, Integer> redisTemplate;
+    private final RedisScript<Boolean> tryIncrementScript;
+    private final RedisScript<Integer> incrementScript;
     private final RedisScript<Integer> decrementPositiveScript;
     private final ValueOperations<String, Integer> valueOperations;
-    private final Duration ttl;
+    private final String ttl;
 
     public RedisConcurrencyTrackerPort(
             final RedisTemplate<String, Integer> redisTemplate,
-            final RedisScript<Integer> decrementPositiveScript,
             final Duration ttl) {
         this.redisTemplate = requireNonNull(redisTemplate);
-        this.decrementPositiveScript = requireNonNull(decrementPositiveScript);
         this.valueOperations = this.redisTemplate.opsForValue();
-        this.ttl = requireNonNull(ttl);
+        this.ttl = String.valueOf(Math.max(1, requireNonNull(ttl).getSeconds()));
+        this.tryIncrementScript = tryIncrementScript();
+        this.incrementScript = incrementScript();
+        this.decrementPositiveScript = decrementPositiveScript();
+    }
+
+    @Override
+    public Boolean tryIncrement(Identifier<?> key, int maxConcurrent, String... tags) {
+        return Boolean.TRUE.equals(redisTemplate.execute(
+                tryIncrementScript,
+                Collections.singletonList(buildKey(key, tags)),
+                String.valueOf(maxConcurrent),
+                ttl));
     }
 
     @Override
     public void increment(Identifier<?> key, String... tags) {
-        valueOperations.increment(buildKey(key, tags));
-        setTtl(buildKey(key, tags));
+
+        redisTemplate.execute(
+                incrementScript,
+                Collections.singletonList(buildKey(key, tags)),
+                ttl);
+
     }
 
     @Override
@@ -40,7 +57,6 @@ public class RedisConcurrencyTrackerPort implements ConcurrencyTracker.Port {
         redisTemplate.execute(
                 decrementPositiveScript,
                 Collections.singletonList(buildKey(key, tags)));
-        setTtl(buildKey(key, tags));
     }
 
     @Override
@@ -58,8 +74,44 @@ public class RedisConcurrencyTrackerPort implements ConcurrencyTracker.Port {
         return sb.toString();
     }
 
-    private void setTtl(final String key) {
-        redisTemplate.expire(key, ttl);
+    private static RedisScript<Boolean> tryIncrementScript() {
+        return new DefaultRedisScript<>("""
+                local current = tonumber(redis.call('get', KEYS[1])) or 0
+                local max = tonumber(ARGV[1])
+                if current < max then
+                    redis.call('incr', KEYS[1])
+                    redis.call('expire', KEYS[1], ARGV[2])
+                    return 1
+                end
+                return 0
+                """, Boolean.class);
+    }
+
+    private static RedisScript<Integer> decrementPositiveScript() {
+
+        final String script = """
+                local val = redis.call('decr', KEYS[1])
+
+                if val <= 0 then
+                    redis.call('del', KEYS[1])
+                    return 0
+                end
+
+                return val
+                """;
+
+        return new DefaultRedisScript<>(script, Integer.class);
+    }
+
+    private static RedisScript<Integer> incrementScript() {
+
+        final String script = """
+                local val = redis.call('incr', KEYS[1])
+                redis.call('expire', KEYS[1], ARGV[1])
+                return val
+                """;
+
+        return new DefaultRedisScript<>(script, Integer.class);
     }
 
 }
