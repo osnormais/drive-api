@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface FileJpaRepository extends JpaRepository<FileJpa, UUID>, JpaSpecificationExecutor<FileJpa> {
 
@@ -17,6 +18,6 @@ public interface FileJpaRepository extends JpaRepository<FileJpa, UUID>, JpaSpec
                 where f.ownerId = :ownerId
                 and f.deletedAt is null
             """)
-    Long sumSizeInBytesByOwnerId(UUID ownerId);
+    Long sumSizeInBytesByOwnerId(@Param("ownerId") UUID ownerId);
 
 }
