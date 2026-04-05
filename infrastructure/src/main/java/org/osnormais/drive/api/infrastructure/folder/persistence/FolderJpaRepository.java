@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface FolderJpaRepository extends JpaRepository<FolderJpa, UUID>, JpaSpecificationExecutor<FolderJpa> {
 
+    Boolean existsByParentFolderIdAndName(UUID parentFolderId, String name);
+
 }

@@ -9,6 +9,8 @@ import org.osnormais.drive.api.domain.acl.valueobject.AclResource;
 import org.osnormais.drive.api.infrastructure.acl.persistence.AclJpa;
 import org.osnormais.drive.api.infrastructure.acl.persistence.AclJpaRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class AclJpaGateway implements AclCommandGateway, AclQueryGateway {
@@ -19,7 +21,7 @@ public class AclJpaGateway implements AclCommandGateway, AclQueryGateway {
         this.aclRepository = aclRepository;
     }
 
-    // @Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Optional<Acl> findByResource(final AclResource<?> id) {
         return aclRepository
@@ -27,7 +29,7 @@ public class AclJpaGateway implements AclCommandGateway, AclQueryGateway {
                 .map(AclJpa::toDomain);
     }
 
-    // @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     @Override
     public Acl create(final Acl acl) {
 
@@ -39,7 +41,7 @@ public class AclJpaGateway implements AclCommandGateway, AclQueryGateway {
         return acl;
     }
 
-    // @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     @Override
     public Acl update(final Acl acl) {
 

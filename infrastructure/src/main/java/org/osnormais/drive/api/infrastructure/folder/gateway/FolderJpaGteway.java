@@ -9,6 +9,7 @@ import org.osnormais.drive.api.application.gateway.folder.FolderCommandGateway;
 import org.osnormais.drive.api.application.gateway.folder.FolderQueryGateway;
 import org.osnormais.drive.api.domain.folder.Folder;
 import org.osnormais.drive.api.domain.folder.FolderId;
+import org.osnormais.drive.api.domain.folder.valueobject.FolderName;
 import org.osnormais.drive.api.domain.user.UserId;
 import org.osnormais.drive.api.infrastructure.acl.persistence.AclJpa;
 import org.osnormais.drive.api.infrastructure.folder.persistence.FolderJpa;
@@ -36,6 +37,12 @@ public class FolderJpaGteway implements FolderCommandGateway, FolderQueryGateway
         return folderRepository
                 .findOne(withId(idValue).and(isOwnedByUser(userIdValue).or(hasAccessByUser(userIdValue))))
                 .map(FolderJpa::toDomain);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Boolean existsByParentIdAndName(final FolderId parentFolderId, final FolderName name) {
+        return folderRepository.existsByParentFolderIdAndName(parentFolderId.getValue(), name.value());
     }
 
     @Transactional

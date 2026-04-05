@@ -4,10 +4,13 @@ import java.util.Optional;
 
 import org.osnormais.drive.api.domain.folder.Folder;
 import org.osnormais.drive.api.domain.folder.FolderId;
+import org.osnormais.drive.api.domain.folder.valueobject.FolderName;
 import org.osnormais.drive.api.domain.user.UserId;
 
 public interface FolderQueryGateway {
 
     Optional<Folder> findVisibleById(FolderId id, UserId userId);
+
+    Boolean existsByParentIdAndName(FolderId parentFolderId, FolderName name);
 
 }
