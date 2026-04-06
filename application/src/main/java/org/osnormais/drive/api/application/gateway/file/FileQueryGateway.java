@@ -1,6 +1,7 @@
 package org.osnormais.drive.api.application.gateway.file;
 
 import java.util.Optional;
+import java.util.Set;
 
 import org.osnormais.drive.api.domain.file.File;
 import org.osnormais.drive.api.domain.file.FileId;
@@ -16,5 +17,7 @@ public interface FileQueryGateway {
     Size totalSizeByUserId(UserId userId);
 
     Boolean existsByFolderIdAndName(FolderId parentFolderId, FileName fileName);
+
+    Set<File> findAllByFolder(FolderId id);
 
 }

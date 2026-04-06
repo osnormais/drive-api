@@ -1,6 +1,8 @@
 package org.osnormais.drive.api.infrastructure.file.gateway;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.osnormais.drive.api.application.gateway.file.FileCommandGateway;
 import org.osnormais.drive.api.application.gateway.file.FileQueryGateway;
@@ -39,6 +41,14 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
     @Override
     public Boolean existsByFolderIdAndName(final FolderId parentFolderId, final FileName fileName) {
         return fileRepository.existsByNameAndFolderId(fileName.value(), parentFolderId.getValue());
+    }
+
+    @Override
+    public Set<File> findAllByFolder(FolderId id) {
+        return fileRepository.findAllByFolderId(id.getValue())
+                .stream()
+                .map(FileJpa::toDomain)
+                .collect(Collectors.toSet());
     }
 
     @Transactional

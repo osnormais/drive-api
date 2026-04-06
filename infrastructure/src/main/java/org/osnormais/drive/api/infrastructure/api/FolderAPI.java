@@ -1,7 +1,9 @@
 package org.osnormais.drive.api.infrastructure.api;
 
 import org.osnormais.drive.api.infrastructure.folder.data.rest.CreateFolderRequest;
+import org.osnormais.drive.api.infrastructure.folder.data.rest.GetFolderResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +15,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Folders")
 @RequestMapping("folders")
 public interface FolderAPI {
+
+    @Operation(summary = "Get root folder", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping
+    ResponseEntity<GetFolderResponse> getRootFolder();
 
     @Operation(summary = "Create folder", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping

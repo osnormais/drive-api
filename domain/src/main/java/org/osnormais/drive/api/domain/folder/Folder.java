@@ -109,6 +109,27 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
                 events);
     }
 
+    public static Folder createRoot(final UserId owner) {
+
+        final Instant now = Instant.now();
+
+        final Folder folder = new Folder(
+                FolderId.unique(),
+                owner,
+                owner,
+                null,
+                FolderName.of("root"),
+                now,
+                now,
+                null,
+                null,
+                null);
+
+        folder.events.add(FolderCreatedEvent.create(folder));
+
+        return folder;
+    }
+
     public static Folder create(
             final UserId creator,
             final Folder parent,

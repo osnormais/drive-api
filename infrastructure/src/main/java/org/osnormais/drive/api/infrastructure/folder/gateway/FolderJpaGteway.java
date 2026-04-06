@@ -3,7 +3,9 @@ package org.osnormais.drive.api.infrastructure.folder.gateway;
 import static java.util.Objects.isNull;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.osnormais.drive.api.application.gateway.folder.FolderCommandGateway;
 import org.osnormais.drive.api.application.gateway.folder.FolderQueryGateway;
@@ -27,6 +29,13 @@ public class FolderJpaGteway implements FolderCommandGateway, FolderQueryGateway
         this.folderRepository = folderRepository;
     }
 
+    @Override
+    public Optional<Folder> findRootByOwner(final UserId ownerId) {
+        return folderRepository
+                .findByOwnerIdAndIsRootTrue(ownerId.getValue())
+                .map(FolderJpa::toDomain);
+    }
+
     @Transactional(readOnly = true)
     @Override
     public Optional<Folder> findVisibleById(final FolderId id, final UserId userId) {
@@ -43,6 +52,14 @@ public class FolderJpaGteway implements FolderCommandGateway, FolderQueryGateway
     @Override
     public Boolean existsByParentIdAndName(final FolderId parentFolderId, final FolderName name) {
         return folderRepository.existsByParentFolderIdAndName(parentFolderId.getValue(), name.value());
+    }
+
+    @Override
+    public Set<Folder> findAllByParent(final FolderId id) {
+        return folderRepository.findAllByParentFolderId(id.getValue())
+                .stream()
+                .map(FolderJpa::toDomain)
+                .collect(Collectors.toSet());
     }
 
     @Transactional

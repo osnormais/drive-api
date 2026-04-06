@@ -53,6 +53,9 @@ public class FolderJpa {
     @CollectionTable(name = "folder_sharings", joinColumns = @JoinColumn(name = "folder_id"))
     private Set<FolderSharingJpa> sharings;
 
+    @Column(nullable = false)
+    private Boolean isRoot;
+
     private FolderJpa(
             final UUID id,
             final UUID creatorId,
@@ -62,7 +65,8 @@ public class FolderJpa {
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt,
-            final Set<FolderSharingJpa> sharings) {
+            final Set<FolderSharingJpa> sharings,
+            final Boolean isRoot) {
         this.id = id;
         this.creatorId = creatorId;
         this.ownerId = ownerId;
@@ -72,6 +76,7 @@ public class FolderJpa {
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
         this.sharings = sharings;
+        this.isRoot = isRoot;
     }
 
     public Folder toDomain() {
@@ -99,7 +104,8 @@ public class FolderJpa {
                 folder.getCreatedAt(),
                 folder.getUpdatedAt(),
                 folder.getDeletedAt(),
-                folder.getSharings().stream().map(FolderSharingJpa::fromDomain).collect(Collectors.toSet()));
+                folder.getSharings().stream().map(FolderSharingJpa::fromDomain).collect(Collectors.toSet()),
+                folder.isRoot());
     }
 
     public FolderJpa() {
@@ -175,6 +181,14 @@ public class FolderJpa {
 
     public void setSharings(Set<FolderSharingJpa> sharings) {
         this.sharings = sharings;
+    }
+
+    public Boolean getIsRoot() {
+        return isRoot;
+    }
+
+    public void setIsRoot(Boolean isRoot) {
+        this.isRoot = isRoot;
     }
 
 }
