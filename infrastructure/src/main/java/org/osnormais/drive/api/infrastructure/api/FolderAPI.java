@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public interface FolderAPI {
 
     @Operation(summary = "Get root folder", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping
+    @GetMapping("root")
     ResponseEntity<GetFolderResponse> getRootFolder();
 
     @Operation(summary = "Create folder", security = @SecurityRequirement(name = "bearerAuth"))
