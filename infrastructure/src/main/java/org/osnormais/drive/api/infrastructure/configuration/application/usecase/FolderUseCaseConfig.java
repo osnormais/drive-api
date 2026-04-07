@@ -10,6 +10,8 @@ import org.osnormais.drive.api.application.gateway.folder.FolderQueryGateway;
 import org.osnormais.drive.api.application.gateway.user.UserQueryGateway;
 import org.osnormais.drive.api.application.usecase.folder.create.CreateFolderUseCase;
 import org.osnormais.drive.api.application.usecase.folder.create.DefaultCreateFolderUseCase;
+import org.osnormais.drive.api.application.usecase.folder.retrieve.get.DefaultGetFolderUseCase;
+import org.osnormais.drive.api.application.usecase.folder.retrieve.get.GetFolderUseCase;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.root.DefaultGetRootFolderUseCase;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.root.GetRootFolderUseCase;
 import org.osnormais.drive.api.domain.event.DomainEventDispatcher;
@@ -64,6 +66,13 @@ public class FolderUseCaseConfig {
                 aclQueryGateway,
                 aclCommandGateway,
                 eventDispatcher);
+    }
+
+    @Bean
+    GetFolderUseCase getFolderUseCase() {
+        return new DefaultGetFolderUseCase(
+                folderQueryGateway,
+                fileQueryGateway);
     }
 
 }

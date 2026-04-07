@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public record GetFolderResponse(
         UUID id,
+        UUID parentId,
         Boolean isRoot,
         UUID ownerId,
         String name,

@@ -3,7 +3,10 @@ package org.osnormais.drive.api.infrastructure.api.controller;
 import static java.util.Objects.requireNonNull;
 import static org.osnormais.drive.api.infrastructure.commons.RestLocationBuilder.buildLocation;
 
+import java.util.UUID;
+
 import org.osnormais.drive.api.application.usecase.folder.create.CreateFolderUseCase;
+import org.osnormais.drive.api.application.usecase.folder.retrieve.get.GetFolderUseCase;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.root.GetRootFolderUseCase;
 import org.osnormais.drive.api.infrastructure.api.FolderAPI;
 import org.osnormais.drive.api.infrastructure.commons.SecurityContext;
@@ -18,12 +21,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class FolderController implements FolderAPI {
 
     private final GetRootFolderUseCase getRootFolderUseCase;
+    private final GetFolderUseCase getFolderUseCase;
     private final CreateFolderUseCase createFolderUseCase;
 
     public FolderController(
             final GetRootFolderUseCase getRootFolderUseCase,
+            final GetFolderUseCase getFolderUseCase,
             final CreateFolderUseCase createFolderUseCase) {
         this.getRootFolderUseCase = requireNonNull(getRootFolderUseCase);
+        this.getFolderUseCase = requireNonNull(getFolderUseCase);
         this.createFolderUseCase = requireNonNull(createFolderUseCase);
     }
 
@@ -32,6 +38,15 @@ public class FolderController implements FolderAPI {
 
         final var output = getRootFolderUseCase
                 .execute(FolderRequestMapper.map(SecurityContext.getAuthenticatedUserId()));
+
+        return ResponseEntity.ok(FolderResponsePresenter.map(output));
+    }
+
+    @Override
+    public ResponseEntity<GetFolderResponse> getFolder(final UUID id) {
+
+        final var output = getFolderUseCase
+                .execute(FolderRequestMapper.map(id, SecurityContext.getAuthenticatedUserId()));
 
         return ResponseEntity.ok(FolderResponsePresenter.map(output));
     }
