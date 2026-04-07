@@ -14,6 +14,8 @@ public interface FileQueryGateway {
 
     Optional<File> findById(FileId id);
 
+    Optional<File> findVisibleById(FileId id, UserId userId);
+
     Size totalSizeByUserId(UserId userId);
 
     Boolean existsByFolderIdAndName(FolderId parentFolderId, FileName fileName);

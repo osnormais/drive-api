@@ -170,6 +170,20 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
 
     }
 
+    public FolderId getFolderFor(final UserId user) {
+
+        if (owner.equals(user))
+            return folder;
+
+        return sharings
+                .stream()
+                .filter(sharing -> sharing.sharedTo().equals(user))
+                .findFirst()
+                .map(FileSharing::virtuaFolder)
+                .orElse(folder);
+
+    }
+
     @Override
     public Optional<DomainEvent<?>> nextEvent() {
         return Optional.ofNullable(this.events.poll());

@@ -10,6 +10,8 @@ import org.osnormais.drive.api.application.gateway.folder.FolderQueryGateway;
 import org.osnormais.drive.api.application.gateway.user.UserQueryGateway;
 import org.osnormais.drive.api.application.usecase.file.create.CreateFileUseCase;
 import org.osnormais.drive.api.application.usecase.file.create.DefaultCreateFileUseCase;
+import org.osnormais.drive.api.application.usecase.file.retrieve.get.DefaultGetFileUseCase;
+import org.osnormais.drive.api.application.usecase.file.retrieve.get.GetFileUseCase;
 import org.osnormais.drive.api.domain.event.DomainEventDispatcher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,6 +54,13 @@ public class FileUseCaseConfig {
                 aclQueryGateway,
                 aclCommandGateway,
                 eventDispatcher);
+    }
+
+    @Bean
+    GetFileUseCase getFileUseCase() {
+        return new DefaultGetFileUseCase(
+                fileQueryGateway,
+                aclQueryGateway);
     }
 
 }
