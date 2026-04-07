@@ -21,13 +21,11 @@ public record GetRootFolderOutput(
             final Set<Folder> subFolders,
             final Set<org.osnormais.drive.api.domain.file.File> files) {
 
-        final var filesOutput = files != null ? files.stream().map(GetRootFolderOutput.File::from).toList() : null;
-
         return new GetRootFolderOutput(
                 folder.getId().getValue(),
                 folder.getName().value(),
                 subFolders.stream().map(GetRootFolderOutput.SubFolder::from).toList(),
-                filesOutput,
+                files.stream().map(GetRootFolderOutput.File::from).toList(),
                 folder.getOwner().getValue(),
                 folder.getCreatedAt(),
                 folder.getUpdatedAt());
