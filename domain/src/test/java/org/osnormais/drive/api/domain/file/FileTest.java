@@ -181,4 +181,138 @@ public class FileTest {
 
     }
 
+    @Nested
+    class GetFolderFor {
+
+        @Test
+        void givenOwnerUser_whenCallsGetFolderFor_thenShouldReturnActualFolder() {
+
+            final var expectedCreator = UserId.unique();
+            final var expectedOwner = UserId.unique();
+            final var expectedFolder = FolderId.unique();
+            final var now = Instant.now();
+
+            final var file = File.with(
+                    FileId.unique(),
+                    expectedCreator,
+                    expectedOwner,
+                    expectedFolder,
+                    FileName.of("file.txt"),
+                    Checksum.of(Checksum.Algorithm.CRC_32, "ABC123"),
+                    Size.of(512L),
+                    Content.of("text/plain"),
+                    now,
+                    now,
+                    null,
+                    Set.of(),
+                    null);
+
+            final var actualFolder = file.getFolderFor(expectedOwner);
+
+            assertEquals(expectedFolder, actualFolder);
+
+        }
+
+        @Test
+        void givenSharedUser_whenCallsGetFolderFor_thenShouldReturnVirtualFolder() {
+
+            final var expectedCreator = UserId.unique();
+            final var expectedOwner = UserId.unique();
+            final var expectedSharedUser = UserId.unique();
+            final var expectedActualFolder = FolderId.unique();
+            final var expectedVirtualFolder = FolderId.unique();
+            final var now = Instant.now();
+
+            final var file = File.with(
+                    FileId.unique(),
+                    expectedCreator,
+                    expectedOwner,
+                    expectedActualFolder,
+                    FileName.of("file.txt"),
+                    Checksum.of(Checksum.Algorithm.CRC_32, "ABC123"),
+                    Size.of(512L),
+                    Content.of("text/plain"),
+                    now,
+                    now,
+                    null,
+                    Set.of(FileSharing.with(
+                            expectedSharedUser,
+                            expectedOwner,
+                            expectedVirtualFolder,
+                            now)),
+                    null);
+
+            final var actualFolder = file.getFolderFor(expectedSharedUser);
+
+            assertEquals(expectedVirtualFolder, actualFolder);
+
+        }
+
+        @Test
+        void givenUnrelatedUser_whenCallsGetFolderFor_thenShouldReturnActualFolder() {
+
+            final var expectedCreator = UserId.unique();
+            final var expectedOwner = UserId.unique();
+            final var expectedUnrelatedUser = UserId.unique();
+            final var expectedActualFolder = FolderId.unique();
+            final var expectedVirtualFolder = FolderId.unique();
+            final var now = Instant.now();
+
+            final var file = File.with(
+                    FileId.unique(),
+                    expectedCreator,
+                    expectedOwner,
+                    expectedActualFolder,
+                    FileName.of("file.txt"),
+                    Checksum.of(Checksum.Algorithm.CRC_32, "ABC123"),
+                    Size.of(512L),
+                    Content.of("text/plain"),
+                    now,
+                    now,
+                    null,
+                    Set.of(FileSharing.with(
+                            UserId.unique(),
+                            expectedOwner,
+                            expectedVirtualFolder,
+                            now)),
+                    null);
+
+            final var actualFolder = file.getFolderFor(expectedUnrelatedUser);
+
+            assertEquals(expectedActualFolder, actualFolder);
+
+        }
+
+        @Test
+        void givenEmptySharings_whenCallsGetFolderFor_thenShouldReturnActualFolder() {
+
+            final var expectedCreator = UserId.unique();
+            final var expectedOwner = UserId.unique();
+            final var expectedSharedUser = UserId.unique();
+            final var expectedActualFolder = FolderId.unique();
+            final var now = Instant.now();
+
+            final var file = File.with(
+                    FileId.unique(),
+                    expectedCreator,
+                    expectedOwner,
+                    expectedActualFolder,
+                    FileName.of("file.txt"),
+                    Checksum.of(Checksum.Algorithm.CRC_32, "ABC123"),
+                    Size.of(512L),
+                    Content.of("text/plain"),
+                    now,
+                    now,
+                    null,
+                    Set.of(),
+                    null);
+
+            final var actualFolder = file.getFolderFor(expectedSharedUser);
+
+            assertEquals(expectedActualFolder, actualFolder);
+
+        }
+
+    }
+
 }
