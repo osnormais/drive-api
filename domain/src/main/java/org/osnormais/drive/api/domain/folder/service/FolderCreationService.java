@@ -7,6 +7,9 @@ import org.osnormais.drive.api.domain.user.User;
 
 public final class FolderCreationService {
 
+    private FolderCreationService() {
+    }
+
     public static Folder createFolder(
             final Boolean hasSiblingsWithSameName,
             final User creator,
