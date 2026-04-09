@@ -5,6 +5,7 @@ import static java.util.Objects.isNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -18,7 +19,7 @@ import org.springframework.data.domain.Sort.Direction;
 
 public interface QueryAdapter {
 
-    static final String FILTER_PATTERN = "(?i)(AND|OR)\\((.*?)\\)";
+    static final String FILTER_PATTERN = "(?i)(?:(AND|OR))?\\((.*?)\\)";
     static final Pattern FILTER_REGEX = Pattern.compile(FILTER_PATTERN);
 
     static PageRequest of(final Pagination pagination) {
@@ -48,7 +49,11 @@ public interface QueryAdapter {
 
         while (matcher.find()) {
 
-            final String operatorGroup = matcher.group(1);
+            final String operatorGroup = Optional
+                    .ofNullable(matcher.group(1))
+                    .orElse("AND")
+                    .toUpperCase();
+
             final String filterGroup = matcher.group(2);
 
             final Filter.Operator operator = Filter.Operator
