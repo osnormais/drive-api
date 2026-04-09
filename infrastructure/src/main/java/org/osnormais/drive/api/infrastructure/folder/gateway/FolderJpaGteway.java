@@ -55,6 +55,7 @@ public class FolderJpaGteway implements FolderCommandGateway, FolderQueryGateway
         return folderRepository.existsByParentFolderIdAndName(parentFolderId.getValue(), name.value());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Set<Folder> findAllByParent(final FolderId id) {
         return folderRepository.findAllByParentFolderId(id.getValue())
