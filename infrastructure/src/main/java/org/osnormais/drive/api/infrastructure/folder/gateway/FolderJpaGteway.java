@@ -18,6 +18,7 @@ import org.osnormais.drive.api.infrastructure.folder.persistence.FolderJpa;
 import org.osnormais.drive.api.infrastructure.folder.persistence.FolderJpaRepository;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
@@ -62,7 +63,7 @@ public class FolderJpaGteway implements FolderCommandGateway, FolderQueryGateway
                 .collect(Collectors.toSet());
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     @Override
     public Folder create(final Folder folder) {
         if (folderRepository.existsById(folder.getId().getValue()))
@@ -74,7 +75,7 @@ public class FolderJpaGteway implements FolderCommandGateway, FolderQueryGateway
         return folder;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     @Override
     public Folder update(final Folder folder) {
         if (!folderRepository.existsById(folder.getId().getValue()))
