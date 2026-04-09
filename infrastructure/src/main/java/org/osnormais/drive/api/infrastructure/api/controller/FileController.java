@@ -1,5 +1,6 @@
 package org.osnormais.drive.api.infrastructure.api.controller;
 
+import static java.util.Objects.isNull;
 import static org.osnormais.drive.api.infrastructure.commons.RestLocationBuilder.buildLocation;
 
 import java.util.List;
@@ -73,12 +74,13 @@ public class FileController implements FileAPI {
             final Operator filterOperator,
             final List<String> filterGroups) {
 
-        final List<Filter.Group> searchFilterGroups = filterGroups == null ? List.of()
+        final List<Filter.Group> searchFilterGroups = isNull(filterGroups) ? List.of()
                 : filterGroups
                         .stream()
                         .map(source -> QueryAdapter.of(
                                 source,
                                 List.of(FileField.values())))
+                        .filter(group -> !group.elements().isEmpty())
                         .toList();
 
         final SearchQuery query = SearchQuery.of(
