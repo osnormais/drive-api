@@ -14,23 +14,33 @@ import org.osnormais.drive.api.domain.file.FileId;
 import org.osnormais.drive.api.domain.file.valueobject.FileName;
 import org.osnormais.drive.api.domain.file.valueobject.Size;
 import org.osnormais.drive.api.domain.folder.FolderId;
+import org.osnormais.drive.api.domain.pagination.Page;
+import org.osnormais.drive.api.domain.pagination.SearchQuery;
 import org.osnormais.drive.api.domain.user.UserId;
 import org.osnormais.drive.api.infrastructure.acl.persistence.AclJpa;
 import org.osnormais.drive.api.infrastructure.file.persistence.FileJpa;
 import org.osnormais.drive.api.infrastructure.file.persistence.FileJpaRepository;
+import org.osnormais.drive.api.infrastructure.filter.FilterService;
+import org.osnormais.drive.api.infrastructure.filter.adapter.QueryAdapter;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
 
     private final FileJpaRepository fileRepository;
+    private final FilterService filterService;
 
-    public FileJpaGateway(final FileJpaRepository fileJpaRepository) {
+    public FileJpaGateway(
+            final FileJpaRepository fileJpaRepository,
+            final FilterService filterService) {
         this.fileRepository = fileJpaRepository;
+        this.filterService = filterService;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<File> findById(final FileId id) {
         return fileRepository
@@ -38,6 +48,7 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
                 .map(FileJpa::toDomain);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<File> findVisibleById(FileId id, UserId userId) {
         final UUID idValue = id.getValue();
@@ -48,16 +59,19 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
                 .map(FileJpa::toDomain);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Size totalSizeByUserId(final UserId userId) {
         return Size.of(fileRepository.sumSizeInBytesByOwnerId(userId.getValue()));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Boolean existsByFolderIdAndName(final FolderId parentFolderId, final FileName fileName) {
         return fileRepository.existsByNameAndFolderId(fileName.value(), parentFolderId.getValue());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Set<File> findAllByFolder(FolderId id) {
         return fileRepository.findAllByFolderId(id.getValue())
@@ -66,7 +80,31 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
                 .collect(Collectors.toSet());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    @Override
+    public Page<File> searchVisible(final SearchQuery query, final UserId userId) {
+
+        final var page = QueryAdapter.of(query.pagination());
+
+        final Specification<FileJpa> specification = hasAccessByUser(userId.getValue())
+                .and(filterService.build(
+                        FileJpa.class,
+                        query.filterMethod(),
+                        query.filters()));
+
+        final var pageResult = this.fileRepository.findAll(specification, page);
+
+        return new Page<>(
+                pageResult.getNumber(),
+                pageResult.getSize(),
+                pageResult.getTotalPages(),
+                pageResult.getTotalElements(),
+                pageResult.toList())
+                .map(FileJpa::toDomain);
+
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
     @Override
     public File create(final File file) {
 
@@ -78,7 +116,7 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
         return file;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     @Override
     public File update(final File file) {
         if (!fileRepository.existsById(file.getId().getValue()))
