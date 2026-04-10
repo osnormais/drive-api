@@ -22,7 +22,6 @@ spring:
                 virtual-host: ${rabbitmq.public-virtual-host}
                 username: ${rabbitmq.username}
                 password: ${rabbitmq.password}
-      default-binder: private-binder
       rabbit:
         bindings:
           ###### -------- DOMAIN EVENTS -------- ######
@@ -41,6 +40,20 @@ spring:
               republishToDlq: false
               dlqTtl: 1000
           ## --------------------------------------- ##
+          # Incoming <- Acl Direct Entry Granted      #
+          aclDirectEntryGranted-in-0:
+            consumer:
+              exchangeType: topic
+              bindingRoutingKey: drive.acl:direct_entry.granted
+              queueNameGroupOnly: true
+              autoBindDlq: true
+              deadLetterExchange: drive.exchange.wait
+              deadLetterQueueName: drive.acl:direct_entry.granted.queue.wait
+              dlqDeadLetterExchange: drive.exchange
+              dlqDeadLetterRoutingKey: drive.acl:direct_entry.granted
+              republishToDlq: false
+              dlqTtl: 1000
+          ## --------------------------------------- ##
           # Outgoing -> File Created                  #
           fileCreated-out-0:
             producer:
@@ -52,6 +65,19 @@ spring:
               exchangeType: topic
               destination: drive.exchange.error
               routingKeyExpression: "'drive.file.created'"
+              queueNameGroupOnly: true
+          ## --------------------------------------- ##
+          # Outgoing -> Acl Direct Entry Granted      #
+          aclDirectEntryGranted-out-0:
+            producer:
+              exchangeType: topic
+              destination: drive.exchange
+              routingKeyExpression: "'drive.acl:direct_entry.granted'"
+          aclDirectEntryGrantedError-out-0:
+            producer:
+              exchangeType: topic
+              destination: drive.exchange.error
+              routingKeyExpression: "'drive.acl:direct_entry.granted'"
               queueNameGroupOnly: true
           ## --------------------------------------- ##
           ###### ------- PUBLIC MESSAGES ------- ######

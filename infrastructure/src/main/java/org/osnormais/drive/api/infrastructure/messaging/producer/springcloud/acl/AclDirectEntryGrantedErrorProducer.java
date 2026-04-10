@@ -6,11 +6,11 @@ import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AclDirectEntryGrantedProducer extends SpringCloudMessageProducer<AclDomainEventMessage> {
+public class AclDirectEntryGrantedErrorProducer extends SpringCloudMessageProducer<AclDomainEventMessage> {
 
-    private static final String BINDING_NAME = "aclDirectEntryGranted-out-0";
+    private static final String BINDING_NAME = "aclDirectEntryGrantedError-out-0";
 
-    public AclDirectEntryGrantedProducer(final StreamBridge streamBridge) {
+    public AclDirectEntryGrantedErrorProducer(final StreamBridge streamBridge) {
         super(streamBridge, BINDING_NAME);
     }
 

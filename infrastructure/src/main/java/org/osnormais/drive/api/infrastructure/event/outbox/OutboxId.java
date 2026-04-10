@@ -6,6 +6,9 @@ import org.osnormais.drive.api.domain.Identifier;
 
 public class OutboxId extends Identifier<UUID> {
 
+    protected OutboxId() {
+    }
+
     public OutboxId(UUID id) {
         super(id);
     }

@@ -1,11 +1,13 @@
 spring:
   cloud:
     function:
-      definition: fileCreatedConsumer
+      definition: fileCreatedConsumer;aclDirectEntryGrantedConsumer
     stream:
       function:
         bindings:
           fileCreatedConsumer-in-0: fileCreated-in-0
+          aclDirectEntryGrantedConsumer-in-0: aclDirectEntryGranted-in-0
+      default-binder: private-binder
       default:
         content-type: application/json
       bindings:
@@ -19,6 +21,14 @@ spring:
             max-attempts: 1
             concurrency: ${application.messaging.private.consumer.file-created.concurrency}
         ## --------------------------------------- ##
+        # Incoming <- Acl Direct Entry Granted      #
+        aclDirectEntryGranted-in-0:
+          destination: drive.exchange
+          group: drive.acl:direct_entry.granted.queue
+          consumer:
+            max-attempts: 1
+            concurrency: ${application.messaging.private.consumer.acl-direct-entry-granted.concurrency}
+        ## --------------------------------------- ##
         # Outgoing -> File Created                  #
         fileCreated-out-0:
           destination: drive.exchange
@@ -26,6 +36,14 @@ spring:
           destination: drive.exchange.error
           producer:
             requiredGroups: drive.file.created.queue.error
+        ## --------------------------------------- ##
+        # Outgoing -> Acl Direct Entry Granted      #
+        aclDirectEntryGranted-out-0:
+          destination: drive.exchange
+        aclDirectEntryGrantedError-out-0:
+          destination: drive.exchange.error
+          producer:
+            requiredGroups: drive.acl:direct_entry.granted.queue.error
         ## --------------------------------------- ##
         ###### ------- PUBLIC MESSAGES ------- ######
         ## --------------------------------------- ##

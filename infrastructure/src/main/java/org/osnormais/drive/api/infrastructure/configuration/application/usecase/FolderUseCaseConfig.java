@@ -14,6 +14,8 @@ import org.osnormais.drive.api.application.usecase.folder.retrieve.get.DefaultGe
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.GetFolderUseCase;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.root.DefaultGetRootFolderUseCase;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.root.GetRootFolderUseCase;
+import org.osnormais.drive.api.application.usecase.folder.sharings.create.DefaultShareFolderUseCase;
+import org.osnormais.drive.api.application.usecase.folder.sharings.create.ShareFolderUseCase;
 import org.osnormais.drive.api.domain.event.DomainEventDispatcher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -73,6 +75,16 @@ public class FolderUseCaseConfig {
         return new DefaultGetFolderUseCase(
                 folderQueryGateway,
                 fileQueryGateway);
+    }
+
+    @Bean
+    ShareFolderUseCase shareFolderUseCase() {
+        return new DefaultShareFolderUseCase(
+                folderQueryGateway,
+                folderCommandGateway,
+                aclQueryGateway,
+                aclCommandGateway,
+                eventDispatcher);
     }
 
 }

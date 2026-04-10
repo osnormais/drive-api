@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.osnormais.drive.api.application.usecase.folder.create.CreateFolderInput;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.GetFolderInput;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.root.GetRootFolderInput;
+import org.osnormais.drive.api.application.usecase.folder.sharings.create.ShareFolderInput;
 
 public interface FolderRequestMapper {
 
@@ -21,6 +22,14 @@ public interface FolderRequestMapper {
 
     static GetFolderInput map(final UUID folderId, final UUID userId) {
         return new GetFolderInput(folderId, userId);
+    }
+
+    static ShareFolderInput map(final ShareFolderRequest request, final UUID ownerId, final UUID folderId) {
+        return new ShareFolderInput(
+                folderId,
+                request.userId(),
+                ownerId,
+                request.permission());
     }
 
 }

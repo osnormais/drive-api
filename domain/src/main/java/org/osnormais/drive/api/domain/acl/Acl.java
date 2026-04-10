@@ -159,7 +159,7 @@ public class Acl extends AggregateRoot<AclId> implements DomainEventSource {
                     .with(DomainException.Error.with("'granter', 'grantee' and 'permission' should not be null."));
 
         effectivePermissionFor(granter)
-                .filter(Permission.MANAGE::includes)
+                .filter(p -> p.includes(Permission.MANAGE))
                 .orElseThrow(() -> AccessDeniedException.with(granter, permission, resource));
 
         if (directEntries

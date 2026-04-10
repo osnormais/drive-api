@@ -14,6 +14,9 @@ public class AclCreatedEvent extends DomainEvent<AclId> {
     private static final Class<Acl> ENTITY_CLASS = Acl.class;
     private static final String ACTION = "created";
 
+    public AclCreatedEvent() {
+    }
+
     private AclCreatedEvent(
             final Acl acl,
             final Instant occurredAt,

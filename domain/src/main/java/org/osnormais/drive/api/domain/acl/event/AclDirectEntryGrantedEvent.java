@@ -15,6 +15,9 @@ public class AclDirectEntryGrantedEvent extends DomainEvent<AclId> {
     private static final String SUB_RESOURCE = "direct_entry";
     private static final String ACTION = "granted";
 
+    public AclDirectEntryGrantedEvent() {
+    }
+
     private AclDirectEntryGrantedEvent(
             final Acl acl,
             final Instant occurredAt,
@@ -40,6 +43,6 @@ public class AclDirectEntryGrantedEvent extends DomainEvent<AclId> {
     }
 
     public static String eventKey() {
-        return DomainEvent.key(ENTITY_CLASS, null, ACTION);
+        return DomainEvent.key(ENTITY_CLASS, SUB_RESOURCE, ACTION);
     }
 }

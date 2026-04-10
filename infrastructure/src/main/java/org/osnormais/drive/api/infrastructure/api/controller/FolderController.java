@@ -8,12 +8,14 @@ import java.util.UUID;
 import org.osnormais.drive.api.application.usecase.folder.create.CreateFolderUseCase;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.GetFolderUseCase;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.root.GetRootFolderUseCase;
+import org.osnormais.drive.api.application.usecase.folder.sharings.create.ShareFolderUseCase;
 import org.osnormais.drive.api.infrastructure.api.FolderAPI;
 import org.osnormais.drive.api.infrastructure.commons.SecurityContext;
 import org.osnormais.drive.api.infrastructure.folder.data.rest.CreateFolderRequest;
 import org.osnormais.drive.api.infrastructure.folder.data.rest.FolderRequestMapper;
 import org.osnormais.drive.api.infrastructure.folder.data.rest.FolderResponsePresenter;
 import org.osnormais.drive.api.infrastructure.folder.data.rest.GetFolderResponse;
+import org.osnormais.drive.api.infrastructure.folder.data.rest.ShareFolderRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,14 +25,17 @@ public class FolderController implements FolderAPI {
     private final GetRootFolderUseCase getRootFolderUseCase;
     private final GetFolderUseCase getFolderUseCase;
     private final CreateFolderUseCase createFolderUseCase;
+    private final ShareFolderUseCase shareFolderUseCase;
 
     public FolderController(
             final GetRootFolderUseCase getRootFolderUseCase,
             final GetFolderUseCase getFolderUseCase,
-            final CreateFolderUseCase createFolderUseCase) {
+            final CreateFolderUseCase createFolderUseCase,
+            final ShareFolderUseCase shareFolderUseCase) {
         this.getRootFolderUseCase = requireNonNull(getRootFolderUseCase);
         this.getFolderUseCase = requireNonNull(getFolderUseCase);
         this.createFolderUseCase = requireNonNull(createFolderUseCase);
+        this.shareFolderUseCase = requireNonNull(shareFolderUseCase);
     }
 
     @Override
@@ -59,6 +64,16 @@ public class FolderController implements FolderAPI {
 
         return ResponseEntity
                 .created(buildLocation("/{id}", output.id()))
+                .build();
+    }
+
+    @Override
+    public ResponseEntity<Void> share(final UUID id, final ShareFolderRequest request) {
+
+        shareFolderUseCase.execute(FolderRequestMapper.map(request, SecurityContext.getAuthenticatedUserId(), id));
+
+        return ResponseEntity
+                .noContent()
                 .build();
     }
 

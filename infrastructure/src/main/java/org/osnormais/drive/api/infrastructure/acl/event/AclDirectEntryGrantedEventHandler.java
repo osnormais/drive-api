@@ -4,7 +4,6 @@ import static java.util.Objects.requireNonNull;
 
 import org.osnormais.drive.api.domain.acl.event.AclDirectEntryGrantedEvent;
 import org.osnormais.drive.api.domain.event.DomainEventHandler;
-import org.osnormais.drive.api.domain.file.event.FileCreatedEvent;
 import org.osnormais.drive.api.infrastructure.acl.data.message.AclDomainEventMessage;
 import org.osnormais.drive.api.infrastructure.messaging.producer.springcloud.acl.AclDirectEntryGrantedProducer;
 import org.springframework.stereotype.Component;
@@ -15,7 +14,7 @@ public class AclDirectEntryGrantedEventHandler extends DomainEventHandler<AclDir
     private final AclDirectEntryGrantedProducer aclDirectEntryGrantedProducer;
 
     protected AclDirectEntryGrantedEventHandler(final AclDirectEntryGrantedProducer aclDirectEntryGrantedProducer) {
-        super(FileCreatedEvent.eventKey());
+        super(AclDirectEntryGrantedEvent.eventKey());
         this.aclDirectEntryGrantedProducer = requireNonNull(aclDirectEntryGrantedProducer);
     }
 

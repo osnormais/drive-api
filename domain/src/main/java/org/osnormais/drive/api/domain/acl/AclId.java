@@ -6,6 +6,9 @@ import org.osnormais.drive.api.domain.Identifier;
 
 public class AclId extends Identifier<UUID> {
 
+    protected AclId() {
+    }
+
     public AclId(UUID value) {
         super(value);
     }
