@@ -14,6 +14,7 @@ import org.osnormais.drive.api.domain.event.DomainEvent;
 import org.osnormais.drive.api.domain.event.DomainEventSource;
 import org.osnormais.drive.api.domain.exception.ValidationException;
 import org.osnormais.drive.api.domain.folder.event.FolderCreatedEvent;
+import org.osnormais.drive.api.domain.folder.event.FolderSharedEvent;
 import org.osnormais.drive.api.domain.folder.valueobject.FolderName;
 import org.osnormais.drive.api.domain.folder.valueobject.FolderSharing;
 import org.osnormais.drive.api.domain.user.UserId;
@@ -153,6 +154,24 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
 
         return folder;
 
+    }
+
+    public Folder share(final UserId sharedTo, final UserId sharedBy, final FolderId virtualFolder) {
+
+        if (isNull(sharedTo) || isNull(sharedBy) || isNull(virtualFolder))
+            throw ValidationException.with("'Folder' sharing failed",
+                    ValidationError.with("Shared to user, shared by user and virtual folder are required"));
+
+        if (owner.equals(sharedTo) || sharedBy.equals(sharedTo))
+            throw ValidationException.with("'Folder' sharing failed", ValidationError
+                    .with("Shared to user should not be the same as the owner or the user sharing the folder"));
+
+        if (sharings.add(FolderSharing.create(sharedTo, sharedBy, virtualFolder))) {
+            updatedAt = Instant.now();
+            events.add(FolderSharedEvent.create(this, sharedTo, sharedBy, virtualFolder));
+        }
+
+        return this;
     }
 
     public Boolean isRoot() {

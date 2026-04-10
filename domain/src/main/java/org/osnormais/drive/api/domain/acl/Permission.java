@@ -7,14 +7,18 @@ public enum Permission {
     WRITE(2),
     READ(3);
 
-    private final int level;
+    private final Integer level;
 
-    Permission(int level) {
+    Permission(Integer level) {
         this.level = level;
     }
 
     public boolean includes(final Permission requiredPermission) {
         return this.level <= requiredPermission.level;
+    }
+
+    public Integer getLevel() {
+        return level;
     }
 
 }

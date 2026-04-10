@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 
 import org.osnormais.drive.api.domain.AggregateRoot;
 import org.osnormais.drive.api.domain.acl.event.AclCreatedEvent;
+import org.osnormais.drive.api.domain.acl.event.AclDirectEntryGrantedEvent;
 import org.osnormais.drive.api.domain.acl.valueobject.AclEntry;
 import org.osnormais.drive.api.domain.acl.valueobject.AclResource;
 import org.osnormais.drive.api.domain.event.DomainEvent;
@@ -146,6 +147,47 @@ public class Acl extends AggregateRoot<AclId> implements DomainEventSource {
             return this;
 
         return create(resource).inheritFrom(this);
+    }
+
+    public Acl grantDirectEntry(
+            final UserId granter,
+            final UserId grantee,
+            final Permission permission) {
+
+        if (isNull(granter) || isNull(grantee) || isNull(permission))
+            throw InvalidArgumentException
+                    .with(DomainException.Error.with("'granter', 'grantee' and 'permission' should not be null."));
+
+        effectivePermissionFor(granter)
+                .filter(Permission.MANAGE::includes)
+                .orElseThrow(() -> AccessDeniedException.with(granter, permission, resource));
+
+        if (directEntries
+                .stream()
+                .anyMatch(entry -> entry.user().equals(grantee) && entry.permission().equals(permission)))
+            return this;
+
+        directEntries.removeIf(entry -> entry.user().equals(grantee));
+        directEntries.add(AclEntry.create(grantee, permission));
+
+        updatedAt = Instant.now();
+
+        events.add(AclDirectEntryGrantedEvent.create(this));
+
+        return this;
+
+    }
+
+    private Optional<Permission> effectivePermissionFor(final UserId user) {
+
+        if (resource.owner().equals(user))
+            return Optional.of(Permission.OWNER);
+
+        return Stream
+                .concat(directEntries.stream(), inheritedEntries.stream())
+                .filter(entry -> entry.user().equals(user))
+                .map(AclEntry::permission)
+                .min((e1, e2) -> e1.getLevel().compareTo(e2.getLevel()));
     }
 
     @Override
