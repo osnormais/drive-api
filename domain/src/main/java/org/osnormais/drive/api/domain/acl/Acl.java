@@ -152,7 +152,8 @@ public class Acl extends AggregateRoot<AclId> implements DomainEventSource {
     public Acl grantDirectEntry(
             final UserId granter,
             final UserId grantee,
-            final Permission permission) {
+            final Permission permission,
+            final Instant expiresAt) {
 
         if (isNull(granter) || isNull(grantee) || isNull(permission))
             throw InvalidArgumentException
@@ -168,7 +169,7 @@ public class Acl extends AggregateRoot<AclId> implements DomainEventSource {
             return this;
 
         directEntries.removeIf(entry -> entry.user().equals(grantee));
-        directEntries.add(AclEntry.create(grantee, permission));
+        directEntries.add(AclEntry.grantUntil(grantee, permission, expiresAt));
 
         updatedAt = Instant.now();
 

@@ -39,8 +39,8 @@ public class AclTest {
 
             final var expectedAclId = AclId.unique();
             final var expectedResource = AclResource.create(FileId.unique(), userId);
-            final var expectedDirectEntries = Set.of(AclEntry.create(userId, Permission.READ));
-            final var expectedInheritedEntries = Set.of(AclEntry.create(userId, Permission.READ));
+            final var expectedDirectEntries = Set.of(AclEntry.grant(userId, Permission.READ));
+            final var expectedInheritedEntries = Set.of(AclEntry.grant(userId, Permission.READ));
             final var expectedCreatedAt = Instant.now();
             final var expectedUpdatedAt = expectedCreatedAt;
             final Queue<DomainEvent<?>> expectedEvents = null;
@@ -169,8 +169,8 @@ public class AclTest {
 
             final var expectedAclId = AclId.unique();
             final var expectedResource = AclResource.create(FileId.unique(), ownerUserId);
-            final var expectedDirectEntries = Set.of(AclEntry.create(userId, Permission.READ));
-            final var expectedInheritedEntries = Set.of(AclEntry.create(userId, Permission.READ));
+            final var expectedDirectEntries = Set.of(AclEntry.grant(userId, Permission.READ));
+            final var expectedInheritedEntries = Set.of(AclEntry.grant(userId, Permission.READ));
             final var expectedCreatedAt = Instant.now();
             final var expectedUpdatedAt = expectedCreatedAt;
             final Queue<DomainEvent<?>> expectedEvents = null;
@@ -197,8 +197,8 @@ public class AclTest {
 
             final var expectedAclId = AclId.unique();
             final var expectedResource = AclResource.create(FileId.unique(), ownerUserId);
-            final var expectedDirectEntries = Set.of(AclEntry.create(userId, Permission.READ));
-            final var expectedInheritedEntries = Set.of(AclEntry.create(userId, Permission.READ));
+            final var expectedDirectEntries = Set.of(AclEntry.grant(userId, Permission.READ));
+            final var expectedInheritedEntries = Set.of(AclEntry.grant(userId, Permission.READ));
             final var expectedCreatedAt = Instant.now();
             final var expectedUpdatedAt = expectedCreatedAt;
             final Queue<DomainEvent<?>> expectedEvents = null;
@@ -252,9 +252,9 @@ public class AclTest {
             final var expectedResource = AclResource.create(originalResourceId, ownerUserId);
 
             final var originalDirectEntries = Set.of(
-                    AclEntry.create(anotherUserId0, Permission.READ),
-                    AclEntry.create(anotherUserId1, Permission.READ));
-            final var originalInheritedEntries = Set.of(AclEntry.create(anotherUserId0, Permission.WRITE));
+                    AclEntry.grant(anotherUserId0, Permission.READ),
+                    AclEntry.grant(anotherUserId1, Permission.READ));
+            final var originalInheritedEntries = Set.of(AclEntry.grant(anotherUserId0, Permission.WRITE));
 
             final Set<AclEntry> expectedDirectEntries = originalDirectEntries;
             final var expectedInheritedEntries = originalInheritedEntries;
@@ -299,9 +299,9 @@ public class AclTest {
             final var originalResource = AclResource.create(FolderId.unique(), ownerUserId);
             final var expectedResource = AclResource.create(FileId.unique(), ownerUserId);
             final var originalDirectEntries = Set.of(
-                    AclEntry.create(anotherUserId0, Permission.READ),
-                    AclEntry.create(anotherUserId1, Permission.READ));
-            final var originalInheritedEntries = Set.of(AclEntry.create(anotherUserId0, Permission.WRITE));
+                    AclEntry.grant(anotherUserId0, Permission.READ),
+                    AclEntry.grant(anotherUserId1, Permission.READ));
+            final var originalInheritedEntries = Set.of(AclEntry.grant(anotherUserId0, Permission.WRITE));
 
             final Set<AclEntry> expectedDirectEntries = Set.of();
             final var expectedInheritedEntries = Stream
@@ -352,9 +352,9 @@ public class AclTest {
             final var originalResource = AclResource.create(FolderId.unique(), ownerUserId);
             final var expectedResource = AclResource.create(FileId.unique(), anotherUserId0);
             final var originalDirectEntries = Set.of(
-                    AclEntry.create(anotherUserId0, Permission.READ),
-                    AclEntry.create(anotherUserId1, Permission.READ));
-            final var originalInheritedEntries = Set.of(AclEntry.create(anotherUserId0, Permission.WRITE));
+                    AclEntry.grant(anotherUserId0, Permission.READ),
+                    AclEntry.grant(anotherUserId1, Permission.READ));
+            final var originalInheritedEntries = Set.of(AclEntry.grant(anotherUserId0, Permission.WRITE));
 
             final var expectedCreatedAt = Instant.now();
             final var expectedUpdatedAt = expectedCreatedAt;

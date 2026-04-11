@@ -3,6 +3,7 @@ package org.osnormais.drive.api.domain.acl.valueobject;
 import static java.util.Objects.isNull;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import org.osnormais.drive.api.domain.ValueObject;
 import org.osnormais.drive.api.domain.acl.Permission;
@@ -10,10 +11,18 @@ import org.osnormais.drive.api.domain.user.UserId;
 import org.osnormais.drive.api.domain.validation.ValidationError;
 import org.osnormais.drive.api.domain.validation.handler.ValidationHandler;
 
-public record AclEntry(UserId user, Permission permission, Instant grantedAt) implements ValueObject {
+public record AclEntry(
+        UserId user,
+        Permission permission,
+        Instant grantedAt,
+        Optional<Instant> expiresAt) implements ValueObject {
 
-    public static AclEntry create(final UserId user, final Permission permission) {
-        return new AclEntry(user, permission, Instant.now());
+    public static AclEntry grant(final UserId user, final Permission permission) {
+        return new AclEntry(user, permission, Instant.now(), Optional.empty());
+    }
+
+    public static AclEntry grantUntil(final UserId user, final Permission permission, final Instant expiresAt) {
+        return new AclEntry(user, permission, Instant.now(), Optional.ofNullable(expiresAt));
     }
 
     @Override
@@ -30,6 +39,13 @@ public record AclEntry(UserId user, Permission permission, Instant grantedAt) im
         if (isNull(grantedAt))
             handler.append(new ValidationError("'AclEntry.grantedAt' cannot be null."));
 
+        if (isNull(expiresAt))
+            handler.append(new ValidationError("'AclEntry.expiresAt' cannot be null."));
+
+    }
+
+    public Boolean isActive() {
+        return expiresAt.isEmpty() || expiresAt.get().isAfter(Instant.now());
     }
 
 }

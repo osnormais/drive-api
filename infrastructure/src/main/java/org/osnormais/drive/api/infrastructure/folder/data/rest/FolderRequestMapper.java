@@ -29,7 +29,8 @@ public interface FolderRequestMapper {
                 folderId,
                 request.userId(),
                 ownerId,
-                request.permission());
+                request.permission(),
+                request.expiresAt());
     }
 
 }

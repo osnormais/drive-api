@@ -60,7 +60,7 @@ public class DefaultShareFolderUseCase extends ShareFolderUseCase {
 
         folderAcl
                 .requiredPermission(sharedBy, Permission.MANAGE)
-                .grantDirectEntry(sharedBy, sharedTo, input.permission());
+                .grantDirectEntry(sharedBy, sharedTo, input.permission(), input.expiresAt());
 
         folder.share(sharedTo, sharedBy, FolderId.unique());
 

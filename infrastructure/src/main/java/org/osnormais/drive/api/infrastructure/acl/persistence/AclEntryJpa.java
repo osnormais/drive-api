@@ -1,6 +1,7 @@
 package org.osnormais.drive.api.infrastructure.acl.persistence;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.osnormais.drive.api.domain.acl.Permission;
@@ -15,6 +16,8 @@ public class AclEntryJpa {
     private UUID userId;
     private Permission permission;
     private Instant grantedAt;
+    private Instant expiresAt;
+    private Boolean hasExpiration;
 
     public AclEntryJpa() {
     }
@@ -22,24 +25,31 @@ public class AclEntryJpa {
     private AclEntryJpa(
             final UUID userId,
             final Permission permission,
-            final Instant grantedAt) {
+            final Instant grantedAt,
+            final Instant expiresAt,
+            final Boolean hasExpiration) {
         this.userId = userId;
         this.permission = permission;
         this.grantedAt = grantedAt;
+        this.expiresAt = expiresAt;
+        this.hasExpiration = hasExpiration;
     }
 
     public static AclEntryJpa fromDomain(final AclEntry aclEntry) {
         return new AclEntryJpa(
                 aclEntry.user().getValue(),
                 aclEntry.permission(),
-                aclEntry.grantedAt());
+                aclEntry.grantedAt(),
+                aclEntry.expiresAt().orElse(null),
+                aclEntry.expiresAt().isPresent());
     }
 
     public AclEntry toDomain() {
         return new AclEntry(
                 UserId.of(getUserId()),
                 getPermission(),
-                getGrantedAt());
+                getGrantedAt(),
+                Optional.ofNullable(getExpiresAt()));
     }
 
     public UUID getUserId() {
@@ -64,6 +74,22 @@ public class AclEntryJpa {
 
     public void setGrantedAt(Instant grantedAt) {
         this.grantedAt = grantedAt;
+    }
+
+    public Instant getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(Instant expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
+    public Boolean getHasExpiration() {
+        return hasExpiration;
+    }
+
+    public void setHasExpiration(Boolean hasExpiration) {
+        this.hasExpiration = hasExpiration;
     }
 
     @Override
