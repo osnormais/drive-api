@@ -3,26 +3,21 @@ package org.osnormais.drive.api.infrastructure.acl.persistence;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.osnormais.drive.api.domain.acl.Acl;
 import org.osnormais.drive.api.domain.acl.AclId;
 import org.osnormais.drive.api.domain.acl.AclResourceType;
+import org.osnormais.drive.api.domain.acl.valueobject.AclEntry;
 import org.osnormais.drive.api.domain.acl.valueobject.AclResource;
 import org.osnormais.drive.api.domain.file.FileId;
 import org.osnormais.drive.api.domain.folder.FolderId;
 import org.osnormais.drive.api.domain.user.UserId;
 
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 
 @Entity(name = "Acl")
@@ -42,18 +37,10 @@ public class AclJpa {
     @Column(nullable = false)
     private UUID resourceOwnerId;
 
-    @ElementCollection
-    @Fetch(FetchMode.SUBSELECT) // TODO testar com e sem
-    @CollectionTable(name = "acl_direct_entries", joinColumns = @JoinColumn(name = "acl_id"))
-    private Set<AclEntryJpa> directEntries;
-
-    @ElementCollection
-    @Fetch(FetchMode.SUBSELECT) // TODO testar com e sem
-    @CollectionTable(name = "acl_inherited_entries", joinColumns = @JoinColumn(name = "acl_id"))
-    private Set<AclEntryJpa> inheritedEntries;
-
+    @Column(nullable = false)
     private Instant createdAt;
 
+    @Column(nullable = false)
     private Instant updatedAt;
 
     private AclJpa(
@@ -61,16 +48,12 @@ public class AclJpa {
             final String resourceId,
             final AclResourceType resourceType,
             final UUID resourceOwnerId,
-            final Set<AclEntryJpa> directEntries,
-            final Set<AclEntryJpa> inheritedEntries,
             final Instant createdAt,
             final Instant updatedAt) {
         this.id = id;
         this.resourceId = resourceId;
         this.resourceType = resourceType;
         this.resourceOwnerId = resourceOwnerId;
-        this.directEntries = directEntries;
-        this.inheritedEntries = inheritedEntries;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -82,20 +65,14 @@ public class AclJpa {
                 acl.getResource().resourceId().getStringValue(),
                 acl.getResource().resourceType(),
                 acl.getResource().owner().getValue(),
-                acl.getDirectEntries()
-                        .stream()
-                        .map(AclEntryJpa::fromDomain)
-                        .collect(Collectors.toSet()),
-                acl.getInheritedEntries()
-                        .stream()
-                        .map(AclEntryJpa::fromDomain)
-                        .collect(Collectors.toSet()),
                 acl.getCreatedAt(),
                 acl.getUpdatedAt());
 
     }
 
-    public Acl toDomain() {
+    public Acl toDomain(
+            final Set<AclEntry> directEntries,
+            final Set<AclEntry> inheritedEntries) {
 
         final AclResource<?> resource = switch (getResourceType()) {
             case FILE -> new AclResource<>(
@@ -114,14 +91,8 @@ public class AclJpa {
         return Acl.with(
                 AclId.of(getId()),
                 resource,
-                getDirectEntries()
-                        .stream()
-                        .map(AclEntryJpa::toDomain)
-                        .collect(Collectors.toSet()),
-                getInheritedEntries()
-                        .stream()
-                        .map(AclEntryJpa::toDomain)
-                        .collect(Collectors.toSet()),
+                directEntries,
+                inheritedEntries,
                 createdAt,
                 updatedAt,
                 null);
@@ -161,22 +132,6 @@ public class AclJpa {
 
     public void setResourceOwnerId(UUID resourceOwnerId) {
         this.resourceOwnerId = resourceOwnerId;
-    }
-
-    public Set<AclEntryJpa> getDirectEntries() {
-        return directEntries;
-    }
-
-    public void setDirectEntries(Set<AclEntryJpa> directEntries) {
-        this.directEntries = directEntries;
-    }
-
-    public Set<AclEntryJpa> getInheritedEntries() {
-        return inheritedEntries;
-    }
-
-    public void setInheritedEntries(Set<AclEntryJpa> inheritedEntries) {
-        this.inheritedEntries = inheritedEntries;
     }
 
     public Instant getCreatedAt() {

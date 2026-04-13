@@ -8,36 +8,80 @@ import org.osnormais.drive.api.domain.acl.Permission;
 import org.osnormais.drive.api.domain.acl.valueobject.AclEntry;
 import org.osnormais.drive.api.domain.user.UserId;
 
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
-@Embeddable
+@Entity(name = "AclEntry")
+@Table(name = "acl_entries")
 public class AclEntryJpa {
 
+    @EmbeddedId
+    private AclEntryIdJpa id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "acl_id", insertable = false, updatable = false)
+    private AclJpa acl;
+
+    @Column(name = "user_id", insertable = false, updatable = false)
     private UUID userId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(insertable = false, updatable = false)
+    private AclEntryType type;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Permission permission;
+
+    @Column(nullable = false)
     private Instant grantedAt;
+
     private Instant expiresAt;
+
+    @Column(nullable = false)
     private Boolean hasExpiration;
 
-    public AclEntryJpa() {
-    }
-
-    private AclEntryJpa(
+    public AclEntryJpa(
+            final AclEntryIdJpa id,
+            final AclJpa acl,
             final UUID userId,
+            final AclEntryType type,
             final Permission permission,
             final Instant grantedAt,
             final Instant expiresAt,
             final Boolean hasExpiration) {
+        this.id = id;
+        this.acl = acl;
         this.userId = userId;
+        this.type = type;
         this.permission = permission;
         this.grantedAt = grantedAt;
         this.expiresAt = expiresAt;
         this.hasExpiration = hasExpiration;
     }
 
-    public static AclEntryJpa fromDomain(final AclEntry aclEntry) {
-        return new AclEntryJpa(
+    public AclEntryJpa() {
+    }
+
+    public static AclEntryJpa fromDomain(final AclJpa acl, final AclEntryType type, final AclEntry aclEntry) {
+
+        final AclEntryIdJpa id = new AclEntryIdJpa(
+                acl.getId(),
                 aclEntry.user().getValue(),
+                type);
+
+        return new AclEntryJpa(
+                id,
+                acl,
+                aclEntry.user().getValue(),
+                type,
                 aclEntry.permission(),
                 aclEntry.grantedAt(),
                 aclEntry.expiresAt().orElse(null),
@@ -52,12 +96,36 @@ public class AclEntryJpa {
                 Optional.ofNullable(getExpiresAt()));
     }
 
+    public AclEntryIdJpa getId() {
+        return id;
+    }
+
+    public void setId(AclEntryIdJpa id) {
+        this.id = id;
+    }
+
+    public AclJpa getAcl() {
+        return acl;
+    }
+
+    public void setAcl(AclJpa acl) {
+        this.acl = acl;
+    }
+
     public UUID getUserId() {
         return userId;
     }
 
     public void setUserId(UUID userId) {
         this.userId = userId;
+    }
+
+    public AclEntryType getType() {
+        return type;
+    }
+
+    public void setType(AclEntryType type) {
+        this.type = type;
     }
 
     public Permission getPermission() {
@@ -96,8 +164,7 @@ public class AclEntryJpa {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((userId == null) ? 0 : userId.hashCode());
-        result = prime * result + ((permission == null) ? 0 : permission.hashCode());
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
         return result;
     }
 
@@ -110,12 +177,10 @@ public class AclEntryJpa {
         if (getClass() != obj.getClass())
             return false;
         AclEntryJpa other = (AclEntryJpa) obj;
-        if (userId == null) {
-            if (other.userId != null)
+        if (id == null) {
+            if (other.id != null)
                 return false;
-        } else if (!userId.equals(other.userId))
-            return false;
-        if (permission != other.permission)
+        } else if (!id.equals(other.id))
             return false;
         return true;
     }
