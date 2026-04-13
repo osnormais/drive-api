@@ -154,7 +154,7 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
                             cb.equal(aclRoot.get("resourceOwnerId"), userId),
                             cb.equal(
                                     root.get("id"),
-                                    aclRoot.get("resourceId").cast(UUID.class))));
+                                    aclRoot.get("resourceId"))));
 
             return cb.exists(subQuery);
         };

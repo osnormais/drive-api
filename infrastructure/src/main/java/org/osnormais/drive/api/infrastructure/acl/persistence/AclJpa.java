@@ -28,7 +28,7 @@ public class AclJpa {
     private UUID id;
 
     @Column(nullable = false)
-    private String resourceId;
+    private UUID resourceId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -45,7 +45,7 @@ public class AclJpa {
 
     private AclJpa(
             final UUID id,
-            final String resourceId,
+            final UUID resourceId,
             final AclResourceType resourceType,
             final UUID resourceOwnerId,
             final Instant createdAt,
@@ -62,7 +62,7 @@ public class AclJpa {
 
         return new AclJpa(
                 acl.getId().getValue(),
-                acl.getResource().resourceId().getStringValue(),
+                acl.getResource().resourceId().getValue(),
                 acl.getResource().resourceType(),
                 acl.getResource().owner().getValue(),
                 acl.getCreatedAt(),
@@ -76,12 +76,12 @@ public class AclJpa {
 
         final AclResource<?> resource = switch (getResourceType()) {
             case FILE -> new AclResource<>(
-                    FileId.of(UUID.fromString(getResourceId())),
+                    FileId.of(getResourceId()),
                     getResourceType(),
                     UserId.of(getResourceOwnerId()));
 
             case FOLDER -> new AclResource<>(
-                    FolderId.of(UUID.fromString(getResourceId())),
+                    FolderId.of(getResourceId()),
                     getResourceType(),
                     UserId.of(getResourceOwnerId()));
 
@@ -110,11 +110,11 @@ public class AclJpa {
         this.id = id;
     }
 
-    public String getResourceId() {
+    public UUID getResourceId() {
         return resourceId;
     }
 
-    public void setResourceId(String resourceId) {
+    public void setResourceId(UUID resourceId) {
         this.resourceId = resourceId;
     }
 

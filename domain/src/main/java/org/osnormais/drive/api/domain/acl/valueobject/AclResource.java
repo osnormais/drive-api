@@ -2,6 +2,8 @@ package org.osnormais.drive.api.domain.acl.valueobject;
 
 import static java.util.Objects.isNull;
 
+import java.util.UUID;
+
 import org.osnormais.drive.api.domain.Identifier;
 import org.osnormais.drive.api.domain.ValueObject;
 import org.osnormais.drive.api.domain.acl.AclResourceType;
@@ -13,7 +15,7 @@ import org.osnormais.drive.api.domain.user.UserId;
 import org.osnormais.drive.api.domain.validation.ValidationError;
 import org.osnormais.drive.api.domain.validation.handler.ValidationHandler;
 
-public record AclResource<I extends Identifier<?>>(
+public record AclResource<I extends Identifier<UUID>>(
         I resourceId,
         AclResourceType resourceType,
         UserId owner) implements ValueObject {
