@@ -13,6 +13,7 @@ import org.osnormais.drive.api.domain.acl.Acl;
 import org.osnormais.drive.api.domain.acl.valueobject.AclResource;
 import org.osnormais.drive.api.domain.event.DomainEventDispatcher;
 import org.osnormais.drive.api.domain.folder.Folder;
+import org.osnormais.drive.api.domain.folder.FolderType;
 import org.osnormais.drive.api.domain.user.User;
 import org.osnormais.drive.api.domain.user.UserId;
 
@@ -52,7 +53,7 @@ public class DefaultGetRootFolderUseCase extends GetRootFolderUseCase {
                 .orElseThrow(() -> NotFoundException.create(User.class, ownerId));
 
         final Folder rootFolder = folderQueryGateway
-                .findRootByOwner(owner.getId())
+                .findByOwnerAndType(owner.getId(), FolderType.ROOT)
                 .orElseGet(() -> createRootFolder(owner.getId()));
 
         return GetRootFolderOutput.from(

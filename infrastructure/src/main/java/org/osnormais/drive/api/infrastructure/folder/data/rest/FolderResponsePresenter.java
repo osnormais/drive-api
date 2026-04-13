@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.GetFolderOutput;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.root.GetRootFolderOutput;
+import org.osnormais.drive.api.domain.folder.FolderType;
 
 public interface FolderResponsePresenter {
 
@@ -13,7 +14,7 @@ public interface FolderResponsePresenter {
         return new GetFolderResponse(
                 output.id(),
                 output.id(),
-                Boolean.TRUE,
+                FolderType.ROOT,
                 output.ownerId(),
                 output.name(),
                 mapRootSubFolders(output.subFolders()),
@@ -26,7 +27,7 @@ public interface FolderResponsePresenter {
         return new GetFolderResponse(
                 output.id(),
                 output.parentId(),
-                output.isRoot(),
+                output.type(),
                 output.ownerId(),
                 output.name(),
                 mapSubFolders(output.subFolders()),

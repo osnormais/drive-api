@@ -27,6 +27,8 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
     private final UserId creator;
     private final UserId owner;
 
+    private final FolderType type;
+
     private Optional<FolderId> parentFolder;
     private FolderName name;
 
@@ -44,6 +46,7 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
             final UserId owner,
             final FolderId parentFolder,
             final FolderName name,
+            final FolderType type,
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt,
@@ -54,6 +57,7 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
         this.owner = owner;
         this.parentFolder = Optional.ofNullable(parentFolder);
         this.name = name;
+        this.type = type;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
@@ -82,6 +86,9 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
         else
             name.validate(handler);
 
+        if (isNull(type))
+            handler.append(new ValidationError("'Folder.type' should not be null."));
+
         parentFolder.ifPresent(folderId -> folderId.validate(handler));
 
     }
@@ -90,6 +97,7 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
             final FolderId id,
             final UserId creator,
             final UserId owner,
+            final FolderType type,
             final FolderId parentFolder,
             final FolderName name,
             final Instant createdAt,
@@ -103,6 +111,7 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
                 owner,
                 parentFolder,
                 name,
+                type,
                 createdAt,
                 updatedAt,
                 deletedAt,
@@ -120,6 +129,29 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
                 owner,
                 null,
                 FolderName.of("root"),
+                FolderType.ROOT,
+                now,
+                now,
+                null,
+                null,
+                null);
+
+        folder.events.add(FolderCreatedEvent.create(folder));
+
+        return folder;
+    }
+
+    public static Folder createInbox(final UserId owner) {
+
+        final Instant now = Instant.now();
+
+        final Folder folder = new Folder(
+                FolderId.unique(),
+                owner,
+                owner,
+                null,
+                FolderName.of("inbox"),
+                FolderType.INBOX,
                 now,
                 now,
                 null,
@@ -144,6 +176,7 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
                 parent.getOwner(),
                 parent.getId(),
                 name,
+                FolderType.NORMAL,
                 now,
                 now,
                 null,
@@ -174,8 +207,18 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
         return this;
     }
 
-    public Boolean isRoot() {
-        return parentFolder.isEmpty();
+    public FolderId getParentFolderFor(final UserId user) {
+
+        if (owner.equals(user))
+            return parentFolder.orElse(getId());
+
+        return sharings
+                .stream()
+                .filter(sharing -> sharing.sharedTo().equals(user))
+                .findFirst()
+                .map(FolderSharing::virtuaFolder)
+                .orElse(parentFolder.orElse(getId()));
+
     }
 
     private void selfValidate() {
@@ -196,6 +239,10 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
 
     public UserId getOwner() {
         return owner;
+    }
+
+    public FolderType getType() {
+        return type;
     }
 
     public Optional<FolderId> getParentFolder() {
@@ -219,7 +266,7 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
     }
 
     public Set<FolderSharing> getSharings() {
-        return Set.copyOf(sharings);
+        return sharings;
     }
 
 }

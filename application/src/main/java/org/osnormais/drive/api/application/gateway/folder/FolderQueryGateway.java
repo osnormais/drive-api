@@ -5,12 +5,13 @@ import java.util.Set;
 
 import org.osnormais.drive.api.domain.folder.Folder;
 import org.osnormais.drive.api.domain.folder.FolderId;
+import org.osnormais.drive.api.domain.folder.FolderType;
 import org.osnormais.drive.api.domain.folder.valueobject.FolderName;
 import org.osnormais.drive.api.domain.user.UserId;
 
 public interface FolderQueryGateway {
 
-    Optional<Folder> findRootByOwner(UserId ownerId);
+    Optional<Folder> findByOwnerAndType(UserId ownerId, FolderType type);
 
     Optional<Folder> findVisibleById(FolderId id, UserId userId);
 

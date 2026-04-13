@@ -41,6 +41,7 @@ import org.osnormais.drive.api.domain.file.valueobject.FileName;
 import org.osnormais.drive.api.domain.file.valueobject.Size;
 import org.osnormais.drive.api.domain.folder.Folder;
 import org.osnormais.drive.api.domain.folder.FolderId;
+import org.osnormais.drive.api.domain.folder.FolderType;
 import org.osnormais.drive.api.domain.folder.valueobject.FolderName;
 import org.osnormais.drive.api.domain.user.User;
 import org.osnormais.drive.api.domain.user.UserId;
@@ -90,7 +91,7 @@ public class DefaultGetRootFolderUseCaseTest {
         when(userQueryGateway.findById(expectedOwnerId))
                 .thenReturn(Optional.of(expectedOwner));
 
-        when(folderQueryGateway.findRootByOwner(expectedOwnerId))
+        when(folderQueryGateway.findByOwnerAndType(expectedOwnerId, FolderType.ROOT))
                 .thenReturn(Optional.empty());
 
         when(aclCommandGateway.create(any()))
@@ -122,8 +123,8 @@ public class DefaultGetRootFolderUseCaseTest {
         verify(userQueryGateway, times(1)).findById(any());
         verify(userQueryGateway, times(1)).findById(expectedOwnerId);
 
-        verify(folderQueryGateway, times(1)).findRootByOwner(any());
-        verify(folderQueryGateway, times(1)).findRootByOwner(expectedOwnerId);
+        verify(folderQueryGateway, times(1)).findByOwnerAndType(any(), any());
+        verify(folderQueryGateway, times(1)).findByOwnerAndType(expectedOwnerId, FolderType.ROOT);
 
         verify(aclCommandGateway, times(1)).create(any());
         verify(folderCommandGateway, times(1)).create(any());
@@ -132,7 +133,6 @@ public class DefaultGetRootFolderUseCaseTest {
             assertEquals(expectedRootFolderCreator, rootFolder.getCreator());
             assertEquals(expectedRootFolderOwner, rootFolder.getOwner());
             assertEquals(expectedRootFolderParent, rootFolder.getParentFolder());
-            assertTrue(rootFolder.isRoot());
             assertEquals(expectedRootFolderName, rootFolder.getName());
 
             return true;
@@ -173,6 +173,7 @@ public class DefaultGetRootFolderUseCaseTest {
                 expectedRootFolderId,
                 expectedRootFolderCreator,
                 expectedRootFolderOwner,
+                FolderType.ROOT,
                 null,
                 expectedRootFolderName,
                 now.minus(2, ChronoUnit.DAYS),
@@ -185,6 +186,7 @@ public class DefaultGetRootFolderUseCaseTest {
                 FolderId.unique(),
                 expectedRootFolderCreator,
                 expectedRootFolderOwner,
+                FolderType.NORMAL,
                 expectedRootFolderId,
                 FolderName.of("subFolder0"),
                 now,
@@ -211,7 +213,7 @@ public class DefaultGetRootFolderUseCaseTest {
         when(userQueryGateway.findById(expectedOwnerId))
                 .thenReturn(Optional.of(expectedOwner));
 
-        when(folderQueryGateway.findRootByOwner(expectedOwnerId))
+        when(folderQueryGateway.findByOwnerAndType(expectedOwnerId, FolderType.ROOT))
                 .thenReturn(Optional.of(expectedRootFolder));
 
         when(folderQueryGateway.findAllByParent(any()))
@@ -240,8 +242,8 @@ public class DefaultGetRootFolderUseCaseTest {
         verify(userQueryGateway, times(1)).findById(any());
         verify(userQueryGateway, times(1)).findById(expectedOwnerId);
 
-        verify(folderQueryGateway, times(1)).findRootByOwner(any());
-        verify(folderQueryGateway, times(1)).findRootByOwner(expectedOwnerId);
+        verify(folderQueryGateway, times(1)).findByOwnerAndType(any(), any());
+        verify(folderQueryGateway, times(1)).findByOwnerAndType(expectedOwnerId, FolderType.ROOT);
 
         verify(folderQueryGateway, times(1)).findAllByParent(any());
         verify(fileQueryGateway, times(1)).findAllByFolder(any());

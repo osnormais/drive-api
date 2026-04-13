@@ -37,6 +37,7 @@ import org.osnormais.drive.api.domain.exception.FolderAlreadyExistsException;
 import org.osnormais.drive.api.domain.exception.InconsistentStateException;
 import org.osnormais.drive.api.domain.folder.Folder;
 import org.osnormais.drive.api.domain.folder.FolderId;
+import org.osnormais.drive.api.domain.folder.FolderType;
 import org.osnormais.drive.api.domain.folder.valueobject.FolderName;
 import org.osnormais.drive.api.domain.user.User;
 import org.osnormais.drive.api.domain.user.UserId;
@@ -87,6 +88,7 @@ public class DefaultCreateFolderUseCaseTest {
                 expectedParentFolderId,
                 expectedCreatorId,
                 expectedCreatorId,
+                FolderType.NORMAL,
                 expectedParentFolderId,
                 FolderName.of("parent folder name"),
                 now.minus(1L, ChronoUnit.HOURS),
@@ -249,6 +251,7 @@ public class DefaultCreateFolderUseCaseTest {
                 expectedParentFolderId,
                 expectedCreatorId,
                 expectedCreatorId,
+                FolderType.NORMAL,
                 expectedParentFolderId,
                 FolderName.of("parent folder name"),
                 now.minus(1L, ChronoUnit.HOURS),
@@ -310,6 +313,7 @@ public class DefaultCreateFolderUseCaseTest {
                 expectedParentFolderId,
                 expectedOtherUserId,
                 expectedOtherUserId,
+                FolderType.NORMAL,
                 expectedParentFolderId,
                 FolderName.of("parent folder name"),
                 now.minus(1L, ChronoUnit.HOURS),
@@ -379,6 +383,7 @@ public class DefaultCreateFolderUseCaseTest {
                 expectedParentFolderId,
                 expectedCreatorId,
                 expectedCreatorId,
+                FolderType.NORMAL,
                 expectedParentFolderId,
                 FolderName.of("parent folder name"),
                 now.minus(1L, ChronoUnit.HOURS),

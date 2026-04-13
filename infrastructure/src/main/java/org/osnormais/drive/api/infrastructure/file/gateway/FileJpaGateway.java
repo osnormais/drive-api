@@ -2,6 +2,7 @@ package org.osnormais.drive.api.infrastructure.file.gateway;
 
 import static java.util.Objects.isNull;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.osnormais.drive.api.application.gateway.file.FileCommandGateway;
 import org.osnormais.drive.api.application.gateway.file.FileQueryGateway;
+import org.osnormais.drive.api.domain.acl.AclResourceType;
 import org.osnormais.drive.api.domain.file.File;
 import org.osnormais.drive.api.domain.file.FileId;
 import org.osnormais.drive.api.domain.file.valueobject.FileName;
@@ -26,6 +28,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.JoinType;
 
 @Component
 public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
@@ -51,11 +55,13 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
     @Transactional(readOnly = true)
     @Override
     public Optional<File> findVisibleById(FileId id, UserId userId) {
+
         final UUID idValue = id.getValue();
         final UUID userIdValue = userId.getValue();
+        final Instant now = Instant.now();
 
         return fileRepository
-                .findOne(withId(idValue).and(isOwnedByUser(userIdValue).or(hasAccessByUser(userIdValue))))
+                .findOne(withId(idValue).and(isOwnedByUser(userIdValue).or(hasAccessByUser(userIdValue, now))))
                 .map(FileJpa::toDomain);
     }
 
@@ -86,7 +92,9 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
 
         final var page = QueryAdapter.of(query.pagination());
 
-        final Specification<FileJpa> specification = hasAccessByUser(userId.getValue())
+        final Instant now = Instant.now();
+
+        final Specification<FileJpa> specification = hasAccessByUser(userId.getValue(), now)
                 .and(filterService.build(
                         FileJpa.class,
                         query.filterMethod(),
@@ -139,22 +147,35 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
         return (root, query, cb) -> cb.equal(root.get("ownerId"), userId);
     }
 
-    private static Specification<FileJpa> hasAccessByUser(final UUID userId) {
+    private static Specification<FileJpa> hasAccessByUser(final UUID userId, final Instant now) {
         return (root, query, cb) -> {
 
             if (isNull(query))
                 return cb.conjunction();
 
-            final var subQuery = query.subquery(String.class);
+            final var subQuery = query.subquery(UUID.class);
             final var aclRoot = subQuery.from(AclJpa.class);
+
+            final var aclEntry = aclRoot.join("entries", JoinType.LEFT);
+
+            final var isResourceAclMatched = cb.and(
+                    cb.equal(aclRoot.get("resourceId"), root.get("id")),
+                    cb.equal(aclRoot.get("resourceType"), AclResourceType.FILE));
+
+            final var isOwner = cb.equal(aclRoot.get("resourceOwnerId"), userId);
+
+            final var isEntryForUser = cb.equal(aclEntry.get("userId"), userId);
+            final var entryNotExpired = cb.or(
+                    cb.isFalse(aclEntry.get("hasExpiration")),
+                    cb.greaterThan(aclEntry.get("expiresAt"), now));
+
+            final var hasValidAclEntry = cb.and(
+                    isEntryForUser,
+                    entryNotExpired);
 
             subQuery
                     .select(aclRoot.get("resourceOwnerId"))
-                    .where(cb.and(
-                            cb.equal(aclRoot.get("resourceOwnerId"), userId),
-                            cb.equal(
-                                    root.get("id"),
-                                    aclRoot.get("resourceId"))));
+                    .where(cb.and(isResourceAclMatched, cb.or(isOwner, hasValidAclEntry)));
 
             return cb.exists(subQuery);
         };

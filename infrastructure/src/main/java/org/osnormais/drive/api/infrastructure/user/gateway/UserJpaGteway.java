@@ -9,6 +9,7 @@ import org.osnormais.drive.api.domain.user.UserId;
 import org.osnormais.drive.api.infrastructure.user.persistence.UserJpa;
 import org.osnormais.drive.api.infrastructure.user.persistence.UserJpaRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
@@ -20,6 +21,13 @@ public class UserJpaGteway implements UserCommandGateway, UserQueryGateway {
         this.userRepository = userRepository;
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Boolean existsById(final UserId id) {
+        return userRepository.existsById(id.getValue());
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public Optional<User> findById(final UserId id) {
         return userRepository
@@ -27,7 +35,7 @@ public class UserJpaGteway implements UserCommandGateway, UserQueryGateway {
                 .map(UserJpa::toDomain);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     @Override
     public User create(final User user) {
         if (userRepository.existsById(user.getId().getValue()))
@@ -38,7 +46,7 @@ public class UserJpaGteway implements UserCommandGateway, UserQueryGateway {
         return user;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     @Override
     public User update(final User user) {
         if (!userRepository.existsById(user.getId().getValue()))

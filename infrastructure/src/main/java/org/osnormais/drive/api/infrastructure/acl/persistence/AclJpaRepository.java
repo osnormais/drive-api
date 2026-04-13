@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AclJpaRepository extends JpaRepository<AclJpa, UUID> {
 
-    Optional<AclJpa> findByResourceIdAndResourceType(String resourceId, AclResourceType resourceType);
+    Optional<AclJpa> findByResourceIdAndResourceType(UUID resourceId, AclResourceType resourceType);
 
 }

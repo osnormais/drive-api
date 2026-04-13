@@ -2,7 +2,6 @@ package org.osnormais.drive.api.domain.folder;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -34,6 +33,7 @@ public class FolderTest {
             final var expectedId = FolderId.unique();
             final var expectedCreator = UserId.unique();
             final var expectedOwner = UserId.unique();
+            final var expectedFolderType = FolderType.NORMAL;
             final var expectedParentFolder = FolderId.unique();
             final var expectedName = FolderName.of("Test Folder");
             final var expectedCreatedAt = Instant.now();
@@ -46,6 +46,7 @@ public class FolderTest {
                     expectedId,
                     expectedCreator,
                     expectedOwner,
+                    expectedFolderType,
                     expectedParentFolder,
                     expectedName,
                     expectedCreatedAt,
@@ -58,6 +59,7 @@ public class FolderTest {
             assertEquals(expectedId, actualFolder.getId());
             assertEquals(expectedCreator, actualFolder.getCreator());
             assertEquals(expectedOwner, actualFolder.getOwner());
+            assertEquals(expectedFolderType, actualFolder.getType());
             assertTrue(actualFolder.getParentFolder().isPresent());
             assertEquals(expectedParentFolder, actualFolder.getParentFolder().get());
             assertEquals(expectedName, actualFolder.getName());
@@ -72,15 +74,17 @@ public class FolderTest {
         void givenAnInvalidNullArguments_whenInstantiateUsingWith_thenShouldThrowsValidationException() {
 
             final var expectedExceptionMessage = "'Folder' validation failed";
-            final var expectedExpcectedErrorsCount = 3;
+            final var expectedExpcectedErrorsCount = 4;
 
             final var expectedErrorMessage0 = "'Folder.creator' should not be null.";
             final var expectedErrorMessage1 = "'Folder.owner' should not be null.";
             final var expectedErrorMessage2 = "'Folder.name' should not be null.";
+            final var expectedErrorMessage3 = "'Folder.type' should not be null.";
 
             final FolderId expectedId = FolderId.unique();
             final UserId expectedCreator = null;
             final UserId expectedOwner = null;
+            final FolderType expectedFolderType = null;
             final FolderId expectedParentFolder = null;
             final FolderName expectedName = null;
             final Instant expectedCreatedAt = null;
@@ -95,6 +99,7 @@ public class FolderTest {
                             expectedId,
                             expectedCreator,
                             expectedOwner,
+                            expectedFolderType,
                             expectedParentFolder,
                             expectedName,
                             expectedCreatedAt,
@@ -108,6 +113,7 @@ public class FolderTest {
             assertEquals(expectedErrorMessage0, actualException.getErrors().get(0).message());
             assertEquals(expectedErrorMessage1, actualException.getErrors().get(1).message());
             assertEquals(expectedErrorMessage2, actualException.getErrors().get(2).message());
+            assertEquals(expectedErrorMessage3, actualException.getErrors().get(3).message());
 
         }
 
@@ -126,6 +132,7 @@ public class FolderTest {
                     FolderId.unique(),
                     UserId.unique(),
                     UserId.unique(),
+                    FolderType.NORMAL,
                     null,
                     FolderName.of("Parent Folder"),
                     twoHoursAgo,
@@ -163,71 +170,6 @@ public class FolderTest {
             assertTrue(actualEvent0 instanceof FolderCreatedEvent);
             final var actualFolderCreatedEvent = (FolderCreatedEvent) actualEvent0;
             assertEquals(actualFolder.getId(), actualFolderCreatedEvent.getIdentifier());
-
-        }
-
-    }
-
-    @Nested
-    class IsRoot {
-
-        @Test
-        void givenAEmptyParentFolder_whenCallsIsRoot_thenShouldReturnTrue() {
-
-            final var expectedId = FolderId.unique();
-            final var expectedCreator = UserId.unique();
-            final var expectedOwner = UserId.unique();
-            final FolderId expectedParentFolder = null;
-            final var expectedName = FolderName.of("Test Folder");
-            final var expectedCreatedAt = Instant.now();
-            final var expectedUpdatedAt = expectedCreatedAt;
-            final Instant expectedDeletedAt = null;
-            final Set<FolderSharing> expectedSharings = Set.of();
-            final Queue<DomainEvent<?>> expectedEvents = null;
-
-            final Folder actualFolder = Folder.with(
-                    expectedId,
-                    expectedCreator,
-                    expectedOwner,
-                    expectedParentFolder,
-                    expectedName,
-                    expectedCreatedAt,
-                    expectedUpdatedAt,
-                    expectedDeletedAt,
-                    expectedSharings,
-                    expectedEvents);
-
-            assertTrue(actualFolder.isRoot());
-
-        }
-
-        @Test
-        void givenAParentFolder_whenCallsIsRoot_thenShouldReturnFalse() {
-
-            final var expectedId = FolderId.unique();
-            final var expectedCreator = UserId.unique();
-            final var expectedOwner = UserId.unique();
-            final FolderId expectedParentFolder = FolderId.unique();
-            final var expectedName = FolderName.of("Test Folder");
-            final var expectedCreatedAt = Instant.now();
-            final var expectedUpdatedAt = expectedCreatedAt;
-            final Instant expectedDeletedAt = null;
-            final Set<FolderSharing> expectedSharings = Set.of();
-            final Queue<DomainEvent<?>> expectedEvents = null;
-
-            final Folder actualFolder = Folder.with(
-                    expectedId,
-                    expectedCreator,
-                    expectedOwner,
-                    expectedParentFolder,
-                    expectedName,
-                    expectedCreatedAt,
-                    expectedUpdatedAt,
-                    expectedDeletedAt,
-                    expectedSharings,
-                    expectedEvents);
-
-            assertFalse(actualFolder.isRoot());
 
         }
 

@@ -11,6 +11,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.osnormais.drive.api.domain.folder.Folder;
 import org.osnormais.drive.api.domain.folder.FolderId;
+import org.osnormais.drive.api.domain.folder.FolderType;
 import org.osnormais.drive.api.domain.folder.valueobject.FolderName;
 import org.osnormais.drive.api.domain.user.UserId;
 
@@ -18,6 +19,8 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
@@ -34,6 +37,10 @@ public class FolderJpa {
 
     @Column(nullable = false)
     private UUID ownerId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private FolderType type;
 
     private UUID parentFolderId;
 
@@ -53,30 +60,27 @@ public class FolderJpa {
     @CollectionTable(name = "folder_sharings", joinColumns = @JoinColumn(name = "folder_id"))
     private Set<FolderSharingJpa> sharings;
 
-    @Column(nullable = false)
-    private Boolean isRoot;
-
-    private FolderJpa(
+    public FolderJpa(
             final UUID id,
             final UUID creatorId,
             final UUID ownerId,
+            final FolderType type,
             final UUID parentFolderId,
             final String name,
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt,
-            final Set<FolderSharingJpa> sharings,
-            final Boolean isRoot) {
+            final Set<FolderSharingJpa> sharings) {
         this.id = id;
         this.creatorId = creatorId;
         this.ownerId = ownerId;
         this.parentFolderId = parentFolderId;
+        this.type = type;
         this.name = name;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
         this.sharings = sharings;
-        this.isRoot = isRoot;
     }
 
     public Folder toDomain() {
@@ -85,6 +89,7 @@ public class FolderJpa {
                 FolderId.of(getId()),
                 UserId.of(getCreatorId()),
                 UserId.of(getOwnerId()),
+                getType(),
                 isNull(getParentFolderId()) ? null : FolderId.of(getParentFolderId()),
                 FolderName.of(getName()),
                 createdAt,
@@ -99,13 +104,13 @@ public class FolderJpa {
                 folder.getId().getValue(),
                 folder.getCreator().getValue(),
                 folder.getOwner().getValue(),
+                folder.getType(),
                 folder.getParentFolder().map(FolderId::getValue).orElse(null),
                 folder.getName().value(),
                 folder.getCreatedAt(),
                 folder.getUpdatedAt(),
                 folder.getDeletedAt(),
-                folder.getSharings().stream().map(FolderSharingJpa::fromDomain).collect(Collectors.toSet()),
-                folder.isRoot());
+                folder.getSharings().stream().map(FolderSharingJpa::fromDomain).collect(Collectors.toSet()));
     }
 
     public FolderJpa() {
@@ -141,6 +146,14 @@ public class FolderJpa {
 
     public void setParentFolderId(UUID parentFolderId) {
         this.parentFolderId = parentFolderId;
+    }
+
+    public FolderType getType() {
+        return type;
+    }
+
+    public void setType(FolderType type) {
+        this.type = type;
     }
 
     public String getName() {
@@ -181,14 +194,6 @@ public class FolderJpa {
 
     public void setSharings(Set<FolderSharingJpa> sharings) {
         this.sharings = sharings;
-    }
-
-    public Boolean getIsRoot() {
-        return isRoot;
-    }
-
-    public void setIsRoot(Boolean isRoot) {
-        this.isRoot = isRoot;
     }
 
 }

@@ -165,7 +165,9 @@ public class Acl extends AggregateRoot<AclId> implements DomainEventSource {
 
         if (directEntries
                 .stream()
-                .anyMatch(entry -> entry.user().equals(grantee) && entry.permission().equals(permission)))
+                .anyMatch(entry -> entry.user().equals(grantee)
+                        && entry.permission().equals(permission)
+                        && entry.expiresAt().equals(Optional.ofNullable(expiresAt))))
             return this;
 
         directEntries.removeIf(entry -> entry.user().equals(grantee));

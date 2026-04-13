@@ -31,7 +31,7 @@ public class AclJpaGateway implements AclCommandGateway, AclQueryGateway {
     @Override
     public Optional<Acl> findByResource(final AclResource<?> id) {
         return aclRepository
-                .findByResourceIdAndResourceType(id.resourceId().getStringValue(), id.resourceType())
+                .findByResourceIdAndResourceType(id.resourceId().getValue(), id.resourceType())
                 .map(this::toDomain);
     }
 
@@ -61,7 +61,7 @@ public class AclJpaGateway implements AclCommandGateway, AclQueryGateway {
 
     private void save(final Acl acl) {
 
-        final AclJpa aclJpa = aclRepository.save(AclJpa.fromDomain(acl));
+        final AclJpa aclJpa = AclJpa.fromDomain(acl);
 
         aclEntryRepository
                 .saveAll(
@@ -75,6 +75,8 @@ public class AclJpaGateway implements AclCommandGateway, AclQueryGateway {
                                 .stream()
                                 .map(entry -> AclEntryJpa.fromDomain(aclJpa, AclEntryType.INHERITED, entry))
                                 .collect(Collectors.toList()));
+
+        aclRepository.save(aclJpa);
 
     }
 

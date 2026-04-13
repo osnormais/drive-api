@@ -7,6 +7,8 @@ import org.osnormais.drive.api.domain.user.UserId;
 
 public interface UserQueryGateway {
 
+    Boolean existsById(UserId id);
+
     Optional<User> findById(UserId id);
 
 }

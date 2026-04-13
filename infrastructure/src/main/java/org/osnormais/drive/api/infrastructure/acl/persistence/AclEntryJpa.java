@@ -13,9 +13,6 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity(name = "AclEntry")
@@ -25,9 +22,8 @@ public class AclEntryJpa {
     @EmbeddedId
     private AclEntryIdJpa id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "acl_id", insertable = false, updatable = false)
-    private AclJpa acl;
+    @Column(name = "acl_id", insertable = false, updatable = false)
+    private UUID aclId;
 
     @Column(name = "user_id", insertable = false, updatable = false)
     private UUID userId;
@@ -48,9 +44,12 @@ public class AclEntryJpa {
     @Column(nullable = false)
     private Boolean hasExpiration;
 
+    public AclEntryJpa() {
+    }
+
     public AclEntryJpa(
             final AclEntryIdJpa id,
-            final AclJpa acl,
+            final UUID aclId,
             final UUID userId,
             final AclEntryType type,
             final Permission permission,
@@ -58,16 +57,13 @@ public class AclEntryJpa {
             final Instant expiresAt,
             final Boolean hasExpiration) {
         this.id = id;
-        this.acl = acl;
+        this.aclId = aclId;
         this.userId = userId;
         this.type = type;
         this.permission = permission;
         this.grantedAt = grantedAt;
         this.expiresAt = expiresAt;
         this.hasExpiration = hasExpiration;
-    }
-
-    public AclEntryJpa() {
     }
 
     public static AclEntryJpa fromDomain(final AclJpa acl, final AclEntryType type, final AclEntry aclEntry) {
@@ -79,7 +75,7 @@ public class AclEntryJpa {
 
         return new AclEntryJpa(
                 id,
-                acl,
+                acl.getId(),
                 aclEntry.user().getValue(),
                 type,
                 aclEntry.permission(),
@@ -104,12 +100,12 @@ public class AclEntryJpa {
         this.id = id;
     }
 
-    public AclJpa getAcl() {
-        return acl;
+    public UUID getAclId() {
+        return aclId;
     }
 
-    public void setAcl(AclJpa acl) {
-        this.acl = acl;
+    public void setAclId(UUID aclId) {
+        this.aclId = aclId;
     }
 
     public UUID getUserId() {

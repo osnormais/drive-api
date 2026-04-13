@@ -6,11 +6,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.osnormais.drive.api.domain.folder.Folder;
+import org.osnormais.drive.api.domain.folder.FolderType;
+import org.osnormais.drive.api.domain.user.UserId;
 
 public record GetFolderOutput(
         UUID id,
         String name,
-        Boolean isRoot,
+        FolderType type,
         UUID parentId,
         List<GetFolderOutput.SubFolder> subFolders,
         List<GetFolderOutput.File> files,
@@ -19,6 +21,7 @@ public record GetFolderOutput(
         Instant updatedAt) {
 
     public static GetFolderOutput from(
+            final UserId userId,
             final Folder folder,
             final Set<Folder> subFolders,
             final Set<org.osnormais.drive.api.domain.file.File> files) {
@@ -26,8 +29,8 @@ public record GetFolderOutput(
         return new GetFolderOutput(
                 folder.getId().getValue(),
                 folder.getName().value(),
-                folder.isRoot(),
-                folder.getParentFolder().map(id -> id.getValue()).orElse(null),
+                folder.getType(),
+                folder.getParentFolderFor(userId).getValue(),
                 subFolders.stream().map(GetFolderOutput.SubFolder::from).toList(),
                 files.stream().map(GetFolderOutput.File::from).toList(),
                 folder.getOwner().getValue(),

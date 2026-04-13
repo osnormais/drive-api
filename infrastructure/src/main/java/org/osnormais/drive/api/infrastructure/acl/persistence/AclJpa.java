@@ -1,8 +1,12 @@
 package org.osnormais.drive.api.infrastructure.acl.persistence;
 
+import static java.util.Objects.nonNull;
+
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.osnormais.drive.api.domain.acl.Acl;
 import org.osnormais.drive.api.domain.acl.AclId;
@@ -17,7 +21,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity(name = "Acl")
@@ -43,6 +49,12 @@ public class AclJpa {
     @Column(nullable = false)
     private Instant updatedAt;
 
+    @OneToMany(mappedBy = "aclId", fetch = FetchType.LAZY)
+    private Set<AclEntryJpa> entries;
+
+    public AclJpa() {
+    }
+
     private AclJpa(
             final UUID id,
             final UUID resourceId,
@@ -56,17 +68,32 @@ public class AclJpa {
         this.resourceOwnerId = resourceOwnerId;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.entries = new HashSet<>();
     }
 
     public static AclJpa fromDomain(final Acl acl) {
 
-        return new AclJpa(
+        final AclJpa aclJpa = new AclJpa(
                 acl.getId().getValue(),
                 acl.getResource().resourceId().getValue(),
                 acl.getResource().resourceType(),
                 acl.getResource().owner().getValue(),
                 acl.getCreatedAt(),
                 acl.getUpdatedAt());
+
+        final Set<AclEntryJpa> directEntries = nonNull(acl.getDirectEntries()) ? acl.getDirectEntries()
+                .stream()
+                .map(entry -> AclEntryJpa.fromDomain(aclJpa, AclEntryType.DIRECT, entry))
+                .collect(Collectors.toSet()) : new HashSet<>();
+
+        final Set<AclEntryJpa> inheritedEntries = nonNull(acl.getInheritedEntries()) ? acl.getInheritedEntries()
+                .stream()
+                .map(entry -> AclEntryJpa.fromDomain(aclJpa, AclEntryType.INHERITED, entry))
+                .collect(Collectors.toSet()) : new HashSet<>();
+
+        aclJpa.setEntries(directEntries, inheritedEntries);
+
+        return aclJpa;
 
     }
 
@@ -99,7 +126,10 @@ public class AclJpa {
 
     }
 
-    public AclJpa() {
+    private void setEntries(Set<AclEntryJpa> directEntries, Set<AclEntryJpa> inheritedEntries) {
+        this.entries = new HashSet<>();
+        this.entries.addAll(directEntries);
+        this.entries.addAll(inheritedEntries);
     }
 
     public UUID getId() {
@@ -148,6 +178,14 @@ public class AclJpa {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Set<AclEntryJpa> getEntries() {
+        return entries;
+    }
+
+    public void setEntries(Set<AclEntryJpa> entries) {
+        this.entries = entries;
     }
 
     @Override

@@ -73,6 +73,7 @@ public class FolderUseCaseConfig {
     @Bean
     GetFolderUseCase getFolderUseCase() {
         return new DefaultGetFolderUseCase(
+                userQueryGateway,
                 folderQueryGateway,
                 fileQueryGateway);
     }
@@ -80,6 +81,7 @@ public class FolderUseCaseConfig {
     @Bean
     ShareFolderUseCase shareFolderUseCase() {
         return new DefaultShareFolderUseCase(
+                userQueryGateway,
                 folderQueryGateway,
                 folderCommandGateway,
                 aclQueryGateway,

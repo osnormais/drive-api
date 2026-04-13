@@ -2,6 +2,7 @@ package org.osnormais.drive.api.infrastructure.folder.gateway;
 
 import static java.util.Objects.isNull;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -9,8 +10,10 @@ import java.util.stream.Collectors;
 
 import org.osnormais.drive.api.application.gateway.folder.FolderCommandGateway;
 import org.osnormais.drive.api.application.gateway.folder.FolderQueryGateway;
+import org.osnormais.drive.api.domain.acl.AclResourceType;
 import org.osnormais.drive.api.domain.folder.Folder;
 import org.osnormais.drive.api.domain.folder.FolderId;
+import org.osnormais.drive.api.domain.folder.FolderType;
 import org.osnormais.drive.api.domain.folder.valueobject.FolderName;
 import org.osnormais.drive.api.domain.user.UserId;
 import org.osnormais.drive.api.infrastructure.acl.persistence.AclJpa;
@@ -20,6 +23,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.criteria.JoinType;
 
 @Component
 public class FolderJpaGteway implements FolderCommandGateway, FolderQueryGateway {
@@ -31,9 +36,9 @@ public class FolderJpaGteway implements FolderCommandGateway, FolderQueryGateway
     }
 
     @Override
-    public Optional<Folder> findRootByOwner(final UserId ownerId) {
+    public Optional<Folder> findByOwnerAndType(final UserId ownerId, final FolderType type) {
         return folderRepository
-                .findByOwnerIdAndIsRootTrue(ownerId.getValue())
+                .findByOwnerIdAndType(ownerId.getValue(), type)
                 .map(FolderJpa::toDomain);
     }
 
@@ -43,9 +48,10 @@ public class FolderJpaGteway implements FolderCommandGateway, FolderQueryGateway
 
         final UUID idValue = id.getValue();
         final UUID userIdValue = userId.getValue();
+        final Instant now = Instant.now();
 
         return folderRepository
-                .findOne(withId(idValue).and(isOwnedByUser(userIdValue).or(hasAccessByUser(userIdValue))))
+                .findOne(withId(idValue).and(isOwnedByUser(userIdValue).or(hasAccessByUser(userIdValue, now))))
                 .map(FolderJpa::toDomain);
     }
 
@@ -100,22 +106,35 @@ public class FolderJpaGteway implements FolderCommandGateway, FolderQueryGateway
         return (root, query, cb) -> cb.equal(root.get("ownerId"), userId);
     }
 
-    private static Specification<FolderJpa> hasAccessByUser(final UUID userId) {
+    private static Specification<FolderJpa> hasAccessByUser(final UUID userId, final Instant now) {
         return (root, query, cb) -> {
 
             if (isNull(query))
                 return cb.conjunction();
 
-            final var subQuery = query.subquery(String.class);
+            final var subQuery = query.subquery(UUID.class);
             final var aclRoot = subQuery.from(AclJpa.class);
+
+            final var aclEntry = aclRoot.join("entries", JoinType.LEFT);
+
+            final var isResourceAclMatched = cb.and(
+                    cb.equal(aclRoot.get("resourceId"), root.get("id")),
+                    cb.equal(aclRoot.get("resourceType"), AclResourceType.FOLDER));
+
+            final var isOwner = cb.equal(aclRoot.get("resourceOwnerId"), userId);
+
+            final var isEntryForUser = cb.equal(aclEntry.get("userId"), userId);
+            final var entryNotExpired = cb.or(
+                    cb.isFalse(aclEntry.get("hasExpiration")),
+                    cb.greaterThan(aclEntry.get("expiresAt"), now));
+
+            final var hasValidAclEntry = cb.and(
+                    isEntryForUser,
+                    entryNotExpired);
 
             subQuery
                     .select(aclRoot.get("resourceOwnerId"))
-                    .where(cb.and(
-                            cb.equal(aclRoot.get("resourceOwnerId"), userId),
-                            cb.equal(
-                                    root.get("id"),
-                                    aclRoot.get("resourceId"))));
+                    .where(cb.and(isResourceAclMatched, cb.or(isOwner, hasValidAclEntry)));
 
             return cb.exists(subQuery);
         };
