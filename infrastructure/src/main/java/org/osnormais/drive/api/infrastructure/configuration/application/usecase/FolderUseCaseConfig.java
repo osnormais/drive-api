@@ -12,6 +12,8 @@ import org.osnormais.drive.api.application.usecase.folder.create.CreateFolderUse
 import org.osnormais.drive.api.application.usecase.folder.create.DefaultCreateFolderUseCase;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.DefaultGetFolderUseCase;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.GetFolderUseCase;
+import org.osnormais.drive.api.application.usecase.folder.retrieve.get.inbox.DefaultGetInboxFolderUseCase;
+import org.osnormais.drive.api.application.usecase.folder.retrieve.get.inbox.GetInboxFolderUseCase;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.root.DefaultGetRootFolderUseCase;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.root.GetRootFolderUseCase;
 import org.osnormais.drive.api.application.usecase.folder.sharings.create.DefaultShareFolderUseCase;
@@ -31,7 +33,7 @@ public class FolderUseCaseConfig {
     private final AclCommandGateway aclCommandGateway;
     private final DomainEventDispatcher eventDispatcher;
 
-    public FolderUseCaseConfig(
+    FolderUseCaseConfig(
             final UserQueryGateway userQueryGateway,
             final FileQueryGateway fileQueryGateway,
             final FolderQueryGateway folderQueryGateway,
@@ -51,6 +53,17 @@ public class FolderUseCaseConfig {
     @Bean
     GetRootFolderUseCase getRootFolderUseCase() {
         return new DefaultGetRootFolderUseCase(
+                userQueryGateway,
+                fileQueryGateway,
+                folderQueryGateway,
+                eventDispatcher,
+                folderCommandGateway,
+                aclCommandGateway);
+    }
+
+    @Bean
+    GetInboxFolderUseCase getInboxFolderUseCase() {
+        return new DefaultGetInboxFolderUseCase(
                 userQueryGateway,
                 fileQueryGateway,
                 folderQueryGateway,

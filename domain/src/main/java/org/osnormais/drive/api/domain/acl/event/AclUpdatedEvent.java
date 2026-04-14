@@ -9,29 +9,28 @@ import org.osnormais.drive.api.domain.event.DomainEvent;
 import org.osnormais.drive.api.domain.event.DomainEventEntity;
 import org.osnormais.drive.api.domain.user.User;
 
-public class AclDirectEntryGrantedEvent extends DomainEvent<AclId> {
+public class AclUpdatedEvent extends DomainEvent<AclId> {
 
     private static final Class<Acl> ENTITY_CLASS = Acl.class;
-    private static final String SUB_RESOURCE = "direct_entry";
-    private static final String ACTION = "granted";
+    private static final String ACTION = "updated";
 
-    public AclDirectEntryGrantedEvent() {
+    public AclUpdatedEvent() {
     }
 
-    private AclDirectEntryGrantedEvent(
+    private AclUpdatedEvent(
             final Acl acl,
             final Instant occurredAt,
             final List<DomainEventEntity> relatedEntities) {
         super(
                 acl,
-                SUB_RESOURCE,
+                null,
                 ACTION,
                 occurredAt,
                 relatedEntities);
     }
 
-    public static AclDirectEntryGrantedEvent create(final Acl acl) {
-        return new AclDirectEntryGrantedEvent(
+    public static AclUpdatedEvent create(final Acl acl) {
+        return new AclUpdatedEvent(
                 acl,
                 Instant.now(),
                 List.of(
@@ -43,6 +42,7 @@ public class AclDirectEntryGrantedEvent extends DomainEvent<AclId> {
     }
 
     public static String eventKey() {
-        return DomainEvent.key(ENTITY_CLASS, SUB_RESOURCE, ACTION);
+        return DomainEvent.key(ENTITY_CLASS, null, ACTION);
     }
+
 }

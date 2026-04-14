@@ -6,7 +6,11 @@ import static org.osnormais.drive.api.infrastructure.commons.RestLocationBuilder
 import java.util.UUID;
 
 import org.osnormais.drive.api.application.usecase.folder.create.CreateFolderUseCase;
+import org.osnormais.drive.api.application.usecase.folder.retrieve.get.GetFolderInput;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.GetFolderUseCase;
+import org.osnormais.drive.api.application.usecase.folder.retrieve.get.inbox.GetInboxFolderInput;
+import org.osnormais.drive.api.application.usecase.folder.retrieve.get.inbox.GetInboxFolderUseCase;
+import org.osnormais.drive.api.application.usecase.folder.retrieve.get.root.GetRootFolderInput;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.root.GetRootFolderUseCase;
 import org.osnormais.drive.api.application.usecase.folder.sharings.create.ShareFolderUseCase;
 import org.osnormais.drive.api.infrastructure.api.FolderAPI;
@@ -23,16 +27,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class FolderController implements FolderAPI {
 
     private final GetRootFolderUseCase getRootFolderUseCase;
+    private final GetInboxFolderUseCase getInboxFolderUseCase;
     private final GetFolderUseCase getFolderUseCase;
     private final CreateFolderUseCase createFolderUseCase;
     private final ShareFolderUseCase shareFolderUseCase;
 
     public FolderController(
             final GetRootFolderUseCase getRootFolderUseCase,
+            final GetInboxFolderUseCase getInboxFolderUseCase,
             final GetFolderUseCase getFolderUseCase,
             final CreateFolderUseCase createFolderUseCase,
             final ShareFolderUseCase shareFolderUseCase) {
         this.getRootFolderUseCase = requireNonNull(getRootFolderUseCase);
+        this.getInboxFolderUseCase = requireNonNull(getInboxFolderUseCase);
         this.getFolderUseCase = requireNonNull(getFolderUseCase);
         this.createFolderUseCase = requireNonNull(createFolderUseCase);
         this.shareFolderUseCase = requireNonNull(shareFolderUseCase);
@@ -42,7 +49,16 @@ public class FolderController implements FolderAPI {
     public ResponseEntity<GetFolderResponse> getRootFolder() {
 
         final var output = getRootFolderUseCase
-                .execute(FolderRequestMapper.map(SecurityContext.getAuthenticatedUserId()));
+                .execute(new GetRootFolderInput(SecurityContext.getAuthenticatedUserId()));
+
+        return ResponseEntity.ok(FolderResponsePresenter.map(output));
+    }
+
+    @Override
+    public ResponseEntity<GetFolderResponse> getInboxFolder() {
+
+        final var output = getInboxFolderUseCase
+                .execute(new GetInboxFolderInput(SecurityContext.getAuthenticatedUserId()));
 
         return ResponseEntity.ok(FolderResponsePresenter.map(output));
     }
@@ -51,7 +67,7 @@ public class FolderController implements FolderAPI {
     public ResponseEntity<GetFolderResponse> getFolder(final UUID id) {
 
         final var output = getFolderUseCase
-                .execute(FolderRequestMapper.map(id, SecurityContext.getAuthenticatedUserId()));
+                .execute(new GetFolderInput(id, SecurityContext.getAuthenticatedUserId()));
 
         return ResponseEntity.ok(FolderResponsePresenter.map(output));
     }

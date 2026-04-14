@@ -61,7 +61,9 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
         final Instant now = Instant.now();
 
         return fileRepository
-                .findOne(withId(idValue).and(isOwnedByUser(userIdValue).or(hasAccessByUser(userIdValue, now))))
+                .findOne(withId(idValue)
+                        .and(isOwnedByUser(userIdValue).or(hasAccessByUser(userIdValue, now)))
+                        .and(notDeleted()))
                 .map(FileJpa::toDomain);
     }
 
@@ -80,7 +82,10 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
     @Transactional(readOnly = true)
     @Override
     public Set<File> findAllByFolder(FolderId id) {
-        return fileRepository.findAllByFolderId(id.getValue())
+        return fileRepository
+                .findAll(withFolderId(id.getValue())
+                        .or(withVirtualFolderId(id.getValue()))
+                        .and(notDeleted()))
                 .stream()
                 .map(FileJpa::toDomain)
                 .collect(Collectors.toSet());
@@ -95,6 +100,7 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
         final Instant now = Instant.now();
 
         final Specification<FileJpa> specification = hasAccessByUser(userId.getValue(), now)
+                .and(notDeleted())
                 .and(filterService.build(
                         FileJpa.class,
                         query.filterMethod(),
@@ -143,6 +149,30 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
         return (root, query, cb) -> cb.and(cb.equal(root.get("id"), fileId));
     }
 
+    private static Specification<FileJpa> withFolderId(final UUID folderId) {
+        return (root, query, cb) -> cb.equal(root.get("folderId"), folderId);
+    }
+
+    private static Specification<FileJpa> notDeleted() {
+        return (root, query, cb) -> cb.isNull(root.get("deletedAt"));
+    }
+
+    private static Specification<FileJpa> withVirtualFolderId(final UUID folderId) {
+        return (root, query, cb) -> {
+
+            final var sub = query.subquery(Integer.class);
+            final var subRoot = sub.from(FileJpa.class);
+            final var sharings = subRoot.join("sharings");
+
+            sub.select(cb.literal(1))
+                    .where(
+                            cb.equal(subRoot.get("id"), root.get("id")),
+                            cb.equal(sharings.get("virtualFolder"), folderId));
+
+            return cb.exists(sub);
+        };
+    }
+
     private static Specification<FileJpa> isOwnedByUser(final UUID userId) {
         return (root, query, cb) -> cb.equal(root.get("ownerId"), userId);
     }
@@ -153,31 +183,25 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
             if (isNull(query))
                 return cb.conjunction();
 
-            final var subQuery = query.subquery(UUID.class);
-            final var aclRoot = subQuery.from(AclJpa.class);
+            var isFolderOwner = cb.equal(root.get("ownerId"), userId);
 
-            final var aclEntry = aclRoot.join("entries", JoinType.LEFT);
+            var accessSubquery = query.subquery(Integer.class);
+            var acl = accessSubquery.from(AclJpa.class);
 
-            final var isResourceAclMatched = cb.and(
-                    cb.equal(aclRoot.get("resourceId"), root.get("id")),
-                    cb.equal(aclRoot.get("resourceType"), AclResourceType.FILE));
+            var entries = acl.join("entries", JoinType.LEFT);
 
-            final var isOwner = cb.equal(aclRoot.get("resourceOwnerId"), userId);
+            accessSubquery.select(cb.literal(1))
+                    .where(
+                            cb.equal(acl.get("resourceId"), root.get("id")),
+                            cb.equal(acl.get("resourceType"), AclResourceType.FILE),
+                            cb.or(
+                                    cb.equal(acl.get("resourceOwnerId"), userId),
+                                    cb.and(cb.equal(entries.get("id").get("userId"), userId),
+                                            cb.or(
+                                                    cb.isFalse(entries.get("hasExpiration")),
+                                                    cb.greaterThan(entries.get("expiresAt"), now)))));
 
-            final var isEntryForUser = cb.equal(aclEntry.get("userId"), userId);
-            final var entryNotExpired = cb.or(
-                    cb.isFalse(aclEntry.get("hasExpiration")),
-                    cb.greaterThan(aclEntry.get("expiresAt"), now));
-
-            final var hasValidAclEntry = cb.and(
-                    isEntryForUser,
-                    entryNotExpired);
-
-            subQuery
-                    .select(aclRoot.get("resourceOwnerId"))
-                    .where(cb.and(isResourceAclMatched, cb.or(isOwner, hasValidAclEntry)));
-
-            return cb.exists(subQuery);
+            return cb.or(isFolderOwner, cb.exists(accessSubquery));
         };
     }
 

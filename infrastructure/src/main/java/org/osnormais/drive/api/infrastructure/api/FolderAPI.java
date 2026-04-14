@@ -24,6 +24,10 @@ public interface FolderAPI {
     @GetMapping("root")
     ResponseEntity<GetFolderResponse> getRootFolder();
 
+    @Operation(summary = "Get inbox folder", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("inbox")
+    ResponseEntity<GetFolderResponse> getInboxFolder();
+
     @Operation(summary = "Get folder", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("{id}")
     ResponseEntity<GetFolderResponse> getFolder(@PathVariable("id") UUID id);

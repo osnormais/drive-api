@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.osnormais.drive.api.application.gateway.acl.AclCommandGateway;
 import org.osnormais.drive.api.application.gateway.acl.AclQueryGateway;
 import org.osnormais.drive.api.domain.acl.Acl;
+import org.osnormais.drive.api.domain.acl.AclId;
 import org.osnormais.drive.api.domain.acl.valueobject.AclResource;
 import org.osnormais.drive.api.infrastructure.acl.persistence.AclEntryJpa;
 import org.osnormais.drive.api.infrastructure.acl.persistence.AclEntryJpaRepository;
@@ -25,6 +26,14 @@ public class AclJpaGateway implements AclCommandGateway, AclQueryGateway {
     public AclJpaGateway(final AclJpaRepository aclRepository, final AclEntryJpaRepository aclEntryRepository) {
         this.aclRepository = aclRepository;
         this.aclEntryRepository = aclEntryRepository;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Acl> findById(final AclId id) {
+        return aclRepository
+                .findById(id.getValue())
+                .map(this::toDomain);
     }
 
     @Transactional(readOnly = true)

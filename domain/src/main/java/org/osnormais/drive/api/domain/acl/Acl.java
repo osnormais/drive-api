@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 import org.osnormais.drive.api.domain.AggregateRoot;
 import org.osnormais.drive.api.domain.acl.event.AclCreatedEvent;
-import org.osnormais.drive.api.domain.acl.event.AclDirectEntryGrantedEvent;
+import org.osnormais.drive.api.domain.acl.event.AclUpdatedEvent;
 import org.osnormais.drive.api.domain.acl.valueobject.AclEntry;
 import org.osnormais.drive.api.domain.acl.valueobject.AclResource;
 import org.osnormais.drive.api.domain.event.DomainEvent;
@@ -175,10 +175,28 @@ public class Acl extends AggregateRoot<AclId> implements DomainEventSource {
 
         updatedAt = Instant.now();
 
-        events.add(AclDirectEntryGrantedEvent.create(this));
+        events.add(AclUpdatedEvent.create(this));
 
         return this;
 
+    }
+
+    public Acl inheritFrom(final Acl parentAcl) {
+
+        final Set<AclEntry> newInheritedEntries = parentAcl.inheritEntries();
+
+        if (inheritedEntries.equals(newInheritedEntries))
+            return this;
+
+        inheritedEntries = newInheritedEntries;
+        updatedAt = Instant.now();
+        events.add(AclUpdatedEvent.create(this));
+        return this;
+    }
+
+    @Override
+    public Optional<DomainEvent<?>> nextEvent() {
+        return Optional.ofNullable(this.events.poll());
     }
 
     private Optional<Permission> effectivePermissionFor(final UserId user) {
@@ -191,17 +209,6 @@ public class Acl extends AggregateRoot<AclId> implements DomainEventSource {
                 .filter(entry -> entry.user().equals(user))
                 .map(AclEntry::permission)
                 .min((e1, e2) -> e1.getLevel().compareTo(e2.getLevel()));
-    }
-
-    @Override
-    public Optional<DomainEvent<?>> nextEvent() {
-        return Optional.ofNullable(this.events.poll());
-    }
-
-    private Acl inheritFrom(final Acl parentAcl) {
-        this.inheritedEntries = parentAcl.inheritEntries();
-        this.updatedAt = Instant.now();
-        return this;
     }
 
     private Set<AclEntry> inheritEntries() {

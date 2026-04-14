@@ -40,17 +40,17 @@ spring:
               republishToDlq: false
               dlqTtl: 1000
           ## --------------------------------------- ##
-          # Incoming <- Acl Direct Entry Granted      #
-          aclDirectEntryGranted-in-0:
+          # Incoming <- Acl Updated      #
+          aclUpdated-in-0:
             consumer:
               exchangeType: topic
-              bindingRoutingKey: drive.acl:direct_entry.granted
+              bindingRoutingKey: drive.acl:updated
               queueNameGroupOnly: true
               autoBindDlq: true
               deadLetterExchange: drive.exchange.wait
-              deadLetterQueueName: drive.acl:direct_entry.granted.queue.wait
+              deadLetterQueueName: drive.acl:updated.queue.wait
               dlqDeadLetterExchange: drive.exchange
-              dlqDeadLetterRoutingKey: drive.acl:direct_entry.granted
+              dlqDeadLetterRoutingKey: drive.acl:updated
               republishToDlq: false
               dlqTtl: 1000
           ## --------------------------------------- ##
@@ -67,17 +67,17 @@ spring:
               routingKeyExpression: "'drive.file.created'"
               queueNameGroupOnly: true
           ## --------------------------------------- ##
-          # Outgoing -> Acl Direct Entry Granted      #
-          aclDirectEntryGranted-out-0:
+          # Outgoing -> Acl Updated      #
+          aclUpdated-out-0:
             producer:
               exchangeType: topic
               destination: drive.exchange
-              routingKeyExpression: "'drive.acl:direct_entry.granted'"
-          aclDirectEntryGrantedError-out-0:
+              routingKeyExpression: "'drive.acl:updated'"
+          aclUpdatedError-out-0:
             producer:
               exchangeType: topic
               destination: drive.exchange.error
-              routingKeyExpression: "'drive.acl:direct_entry.granted'"
+              routingKeyExpression: "'drive.acl:updated'"
               queueNameGroupOnly: true
           ## --------------------------------------- ##
           ###### ------- PUBLIC MESSAGES ------- ######
