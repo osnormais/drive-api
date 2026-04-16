@@ -7,6 +7,8 @@ import org.osnormais.drive.api.domain.folder.Folder;
 import org.osnormais.drive.api.domain.folder.FolderId;
 import org.osnormais.drive.api.domain.folder.FolderType;
 import org.osnormais.drive.api.domain.folder.valueobject.FolderName;
+import org.osnormais.drive.api.domain.pagination.Page;
+import org.osnormais.drive.api.domain.pagination.SearchQuery;
 import org.osnormais.drive.api.domain.user.UserId;
 
 public interface FolderQueryGateway {
@@ -18,5 +20,7 @@ public interface FolderQueryGateway {
     Boolean existsByParentIdAndName(FolderId parentFolderId, FolderName name);
 
     Set<Folder> findAllByParent(FolderId id);
+
+    Page<Folder> searchVisible(SearchQuery query, UserId userId);
 
 }

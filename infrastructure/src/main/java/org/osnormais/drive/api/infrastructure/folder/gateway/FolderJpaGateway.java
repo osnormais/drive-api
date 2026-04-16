@@ -15,8 +15,12 @@ import org.osnormais.drive.api.domain.folder.Folder;
 import org.osnormais.drive.api.domain.folder.FolderId;
 import org.osnormais.drive.api.domain.folder.FolderType;
 import org.osnormais.drive.api.domain.folder.valueobject.FolderName;
+import org.osnormais.drive.api.domain.pagination.Page;
+import org.osnormais.drive.api.domain.pagination.SearchQuery;
 import org.osnormais.drive.api.domain.user.UserId;
 import org.osnormais.drive.api.infrastructure.acl.persistence.AclJpa;
+import org.osnormais.drive.api.infrastructure.filter.FilterService;
+import org.osnormais.drive.api.infrastructure.filter.adapter.QueryAdapter;
 import org.osnormais.drive.api.infrastructure.folder.persistence.FolderJpa;
 import org.osnormais.drive.api.infrastructure.folder.persistence.FolderJpaRepository;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,11 +34,16 @@ import jakarta.persistence.criteria.JoinType;
 public class FolderJpaGateway implements FolderCommandGateway, FolderQueryGateway {
 
     private final FolderJpaRepository folderRepository;
+    private final FilterService filterService;
 
-    public FolderJpaGateway(final FolderJpaRepository folderRepository) {
+    public FolderJpaGateway(
+            final FolderJpaRepository folderRepository,
+            final FilterService filterService) {
         this.folderRepository = folderRepository;
+        this.filterService = filterService;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<Folder> findByOwnerAndType(final UserId ownerId, final FolderType type) {
         return folderRepository
@@ -73,6 +82,31 @@ public class FolderJpaGateway implements FolderCommandGateway, FolderQueryGatewa
                 .collect(Collectors.toSet());
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Page<Folder> searchVisible(final SearchQuery query, final UserId userId) {
+        final var page = QueryAdapter.of(query.pagination());
+
+        final Instant now = Instant.now();
+
+        final Specification<FolderJpa> specification = hasAccessByUser(userId.getValue(), now)
+                .and(notDeleted())
+                .and(filterService.build(
+                        FolderJpa.class,
+                        query.filterMethod(),
+                        query.filters()));
+
+        final var pageResult = this.folderRepository.findAll(specification, page);
+
+        return new Page<>(
+                pageResult.getNumber(),
+                pageResult.getSize(),
+                pageResult.getTotalPages(),
+                pageResult.getTotalElements(),
+                pageResult.toList())
+                .map(FolderJpa::toDomain);
+    }
+
     @Transactional(propagation = Propagation.MANDATORY)
     @Override
     public Folder create(final Folder folder) {
@@ -107,6 +141,10 @@ public class FolderJpaGateway implements FolderCommandGateway, FolderQueryGatewa
 
     private static Specification<FolderJpa> withParentId(final UUID folderId) {
         return (root, query, cb) -> cb.and(cb.equal(root.get("parentFolderId"), folderId));
+    }
+
+    private static Specification<FolderJpa> notDeleted() {
+        return (root, query, cb) -> cb.isNull(root.get("deletedAt"));
     }
 
     private static Specification<FolderJpa> withVirtualFolderId(final UUID folderId) {

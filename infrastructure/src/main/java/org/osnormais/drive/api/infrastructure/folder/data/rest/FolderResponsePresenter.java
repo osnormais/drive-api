@@ -7,6 +7,7 @@ import java.util.List;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.GetFolderOutput;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.inbox.GetInboxFolderOutput;
 import org.osnormais.drive.api.application.usecase.folder.retrieve.get.root.GetRootFolderOutput;
+import org.osnormais.drive.api.application.usecase.folder.retrieve.list.ListFolderOutput;
 import org.osnormais.drive.api.domain.folder.FolderType;
 
 public interface FolderResponsePresenter {
@@ -22,6 +23,17 @@ public interface FolderResponsePresenter {
                 mapRootFiles(output.files()),
                 output.createdAt(),
                 output.updatedAt());
+    }
+
+    static ListFolderItemResponse map(final ListFolderOutput.Item item) {
+        return new ListFolderItemResponse(
+                item.id(),
+                item.name(),
+                item.type(),
+                item.parentId(),
+                item.ownerId(),
+                item.createdAt(),
+                item.updatedAt());
     }
 
     static GetFolderResponse map(final GetInboxFolderOutput output) {
