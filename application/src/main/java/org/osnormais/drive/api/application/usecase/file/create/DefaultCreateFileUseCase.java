@@ -8,6 +8,8 @@ import org.osnormais.drive.api.application.common.annotation.Transactional;
 import org.osnormais.drive.api.application.exception.NotFoundException;
 import org.osnormais.drive.api.application.gateway.acl.AclCommandGateway;
 import org.osnormais.drive.api.application.gateway.acl.AclQueryGateway;
+import org.osnormais.drive.api.application.gateway.entitlement.grant.UserEntitlementGrantQueryGateway;
+import org.osnormais.drive.api.application.gateway.entitlement.plan.PlanQueryGateway;
 import org.osnormais.drive.api.application.gateway.file.FileCommandGateway;
 import org.osnormais.drive.api.application.gateway.file.FileQueryGateway;
 import org.osnormais.drive.api.application.gateway.folder.FolderQueryGateway;
@@ -15,6 +17,10 @@ import org.osnormais.drive.api.application.gateway.user.UserQueryGateway;
 import org.osnormais.drive.api.domain.acl.Acl;
 import org.osnormais.drive.api.domain.acl.Permission;
 import org.osnormais.drive.api.domain.acl.valueobject.AclResource;
+import org.osnormais.drive.api.domain.entitlement.grant.UserEntitlementGrant;
+import org.osnormais.drive.api.domain.entitlement.plan.Plan;
+import org.osnormais.drive.api.domain.entitlement.quota.Amount;
+import org.osnormais.drive.api.domain.entitlement.quota.BytesQuota;
 import org.osnormais.drive.api.domain.event.DomainEventDispatcher;
 import org.osnormais.drive.api.domain.exception.DomainException;
 import org.osnormais.drive.api.domain.exception.InconsistentStateException;
@@ -29,7 +35,6 @@ import org.osnormais.drive.api.domain.folder.Folder;
 import org.osnormais.drive.api.domain.folder.FolderId;
 import org.osnormais.drive.api.domain.user.User;
 import org.osnormais.drive.api.domain.user.UserId;
-import org.osnormais.drive.api.domain.user.valueobject.Quota;
 import org.osnormais.drive.api.domain.validation.handler.Notification;
 import org.osnormais.drive.api.domain.validation.handler.ValidationHandler;
 
@@ -41,6 +46,8 @@ public class DefaultCreateFileUseCase extends CreateFileUseCase {
     private final FileCommandGateway fileCommandGateway;
     private final AclQueryGateway aclQueryGateway;
     private final AclCommandGateway aclCommandGateway;
+    private final PlanQueryGateway planQueryGateway;
+    private final UserEntitlementGrantQueryGateway userEntitlementGrantQueryGateway;
 
     private final DomainEventDispatcher eventDispatcher;
 
@@ -51,6 +58,8 @@ public class DefaultCreateFileUseCase extends CreateFileUseCase {
             final FileCommandGateway fileCommandGateway,
             final AclQueryGateway aclQueryGateway,
             final AclCommandGateway aclCommandGateway,
+            final PlanQueryGateway planQueryGateway,
+            final UserEntitlementGrantQueryGateway userEntitlementGrantQueryGateway,
             final DomainEventDispatcher eventDispatcher) {
         this.userQueryGateway = requireNonNull(userQueryGateway);
         this.folderQueryGateway = requireNonNull(folderQueryGateway);
@@ -58,6 +67,8 @@ public class DefaultCreateFileUseCase extends CreateFileUseCase {
         this.fileCommandGateway = requireNonNull(fileCommandGateway);
         this.aclQueryGateway = requireNonNull(aclQueryGateway);
         this.aclCommandGateway = requireNonNull(aclCommandGateway);
+        this.planQueryGateway = requireNonNull(planQueryGateway);
+        this.userEntitlementGrantQueryGateway = requireNonNull(userEntitlementGrantQueryGateway);
         this.eventDispatcher = requireNonNull(eventDispatcher);
     }
 
@@ -105,15 +116,28 @@ public class DefaultCreateFileUseCase extends CreateFileUseCase {
                 .findById(parentFolder.getOwner())
                 .orElseThrow(() -> NotFoundException.create(User.class, parentFolder.getOwner()));
 
-        final Quota availableQuota = owner
-                .getQuota()
-                .remaining(Quota.of(fileQueryGateway.totalSizeByUserId(owner.getId()).bytes()));
+        final BytesQuota planQuota = planQueryGateway
+                .findById(owner.getPlan())
+                .map(Plan::getStorageQuota)
+                .orElse(BytesQuota.of(Amount.zero()));
+
+        final BytesQuota grantedQuota = owner
+                .getActiveGrant()
+                .flatMap(userEntitlementGrantQueryGateway::findById)
+                .map(UserEntitlementGrant::totalActiveStorageQuota)
+                .orElse(BytesQuota.of(Amount.zero()));
+
+        final BytesQuota usedQuota = BytesQuota
+                .of(Amount.of(fileQueryGateway.totalSizeByUserId(owner.getId()).bytes()));
+
+        final BytesQuota actualQuota = planQuota.add(grantedQuota);
 
         final Boolean hasSiblingsWithSameName = fileQueryGateway.existsByFolderIdAndName(parentFolderId, fileName);
 
         final File file = FileCreationService.createFile(
                 hasSiblingsWithSameName,
-                availableQuota,
+                actualQuota.remaining(usedQuota),
+                actualQuota,
                 creator,
                 owner,
                 parentFolder,

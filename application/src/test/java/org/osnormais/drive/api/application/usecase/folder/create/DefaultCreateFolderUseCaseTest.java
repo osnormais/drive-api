@@ -24,12 +24,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.osnormais.drive.api.application.exception.NotFoundException;
 import org.osnormais.drive.api.application.gateway.acl.AclCommandGateway;
 import org.osnormais.drive.api.application.gateway.acl.AclQueryGateway;
+import org.osnormais.drive.api.application.gateway.entitlement.grant.UserEntitlementGrantQueryGateway;
+import org.osnormais.drive.api.application.gateway.entitlement.plan.PlanQueryGateway;
 import org.osnormais.drive.api.application.gateway.folder.FolderCommandGateway;
 import org.osnormais.drive.api.application.gateway.folder.FolderQueryGateway;
 import org.osnormais.drive.api.application.gateway.user.UserQueryGateway;
 import org.osnormais.drive.api.domain.acl.Acl;
 import org.osnormais.drive.api.domain.acl.AclId;
 import org.osnormais.drive.api.domain.acl.valueobject.AclResource;
+import org.osnormais.drive.api.domain.entitlement.plan.PlanId;
 import org.osnormais.drive.api.domain.event.DomainEventContext;
 import org.osnormais.drive.api.domain.event.DomainEventDispatcher;
 import org.osnormais.drive.api.domain.exception.AccessDeniedException;
@@ -41,7 +44,6 @@ import org.osnormais.drive.api.domain.folder.FolderType;
 import org.osnormais.drive.api.domain.folder.valueobject.FolderName;
 import org.osnormais.drive.api.domain.user.User;
 import org.osnormais.drive.api.domain.user.UserId;
-import org.osnormais.drive.api.domain.user.valueobject.Quota;
 
 @ExtendWith(MockitoExtension.class)
 public class DefaultCreateFolderUseCaseTest {
@@ -65,6 +67,12 @@ public class DefaultCreateFolderUseCaseTest {
     AclCommandGateway aclCommandGateway;
 
     @Mock
+    PlanQueryGateway planQueryGateway;
+
+    @Mock
+    UserEntitlementGrantQueryGateway userEntitlementGrantQueryGateway;
+
+    @Mock
     DomainEventDispatcher eventDispatcher;
 
     @Test
@@ -79,7 +87,7 @@ public class DefaultCreateFolderUseCaseTest {
         final var expectedCreatorId = UserId.of(expectedCreatorIdValue);
         final var expectedCreator = User.with(
                 expectedCreatorId,
-                Quota.of(1024L),
+                PlanId.unique(),
                 null,
                 null);
 
@@ -198,7 +206,7 @@ public class DefaultCreateFolderUseCaseTest {
         final var expectedCreatorId = UserId.of(expectedCreatorIdValue);
         final var expectedCreator = User.with(
                 expectedCreatorId,
-                Quota.of(1024L),
+                PlanId.unique(),
                 null,
                 null);
 
@@ -242,7 +250,7 @@ public class DefaultCreateFolderUseCaseTest {
         final var expectedCreatorId = UserId.of(expectedCreatorIdValue);
         final var expectedCreator = User.with(
                 expectedCreatorId,
-                Quota.of(1024L),
+                PlanId.unique(),
                 null,
                 null);
 
@@ -302,7 +310,7 @@ public class DefaultCreateFolderUseCaseTest {
         final var expectedCreatorId = UserId.of(expectedCreatorIdValue);
         final var expectedCreator = User.with(
                 expectedCreatorId,
-                Quota.of(1024L),
+                PlanId.unique(),
                 null,
                 null);
 
@@ -374,7 +382,7 @@ public class DefaultCreateFolderUseCaseTest {
         final var expectedCreatorId = UserId.of(expectedCreatorIdValue);
         final var expectedCreator = User.with(
                 expectedCreatorId,
-                Quota.of(1024L),
+                PlanId.unique(),
                 null,
                 null);
 

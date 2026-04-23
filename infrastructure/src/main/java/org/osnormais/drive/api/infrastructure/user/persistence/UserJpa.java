@@ -1,12 +1,12 @@
 package org.osnormais.drive.api.infrastructure.user.persistence;
 
-import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
+import org.osnormais.drive.api.domain.entitlement.grant.GrantId;
+import org.osnormais.drive.api.domain.entitlement.plan.PlanId;
 import org.osnormais.drive.api.domain.user.User;
 import org.osnormais.drive.api.domain.user.UserId;
-import org.osnormais.drive.api.domain.user.valueobject.Quota;
-import org.osnormais.drive.api.domain.user.valueobject.QuotaRequest;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,40 +21,32 @@ public class UserJpa {
     private UUID id;
 
     @Column(nullable = false)
-    private Long quotaBytes;
+    private UUID planId;
 
-    private Long requestedQuotaBytes;
-
-    private Instant requestedQuotaAt;
+    private UUID activeGrantId;
 
     private UserJpa(
             final UUID id,
-            final Long quotaBytes,
-            final Long requestedQuotaBytes,
-            final Instant requestedQuotaAt) {
+            final UUID planId,
+            final UUID activeGrantId) {
         this.id = id;
-        this.quotaBytes = quotaBytes;
-        this.requestedQuotaBytes = requestedQuotaBytes;
-        this.requestedQuotaAt = requestedQuotaAt;
+        this.planId = planId;
+        this.activeGrantId = activeGrantId;
     }
 
     public User toDomain() {
-
         return User.with(
                 UserId.of(getId()),
-                Quota.of(getQuotaBytes()),
-                (requestedQuotaBytes != null || requestedQuotaAt != null)
-                        ? new QuotaRequest(new Quota(requestedQuotaBytes), requestedQuotaAt)
-                        : null,
+                PlanId.of(getPlanId()),
+                Optional.ofNullable(getActiveGrantId()).map(GrantId::of).orElse(null),
                 null);
     }
 
     public static UserJpa fromDomain(final User user) {
         return new UserJpa(
                 user.getId().getValue(),
-                user.getQuota().bytes(),
-                user.getQuotaRequest().map(QuotaRequest::requestedQuota).map(Quota::bytes).orElse(null),
-                user.getQuotaRequest().map(QuotaRequest::requestedAt).orElse(null));
+                user.getPlan().getValue(),
+                user.getActiveGrant().map(GrantId::getValue).orElse(null));
     }
 
     public UserJpa() {
@@ -68,28 +60,20 @@ public class UserJpa {
         this.id = id;
     }
 
-    public Long getQuotaBytes() {
-        return quotaBytes;
+    public UUID getPlanId() {
+        return planId;
     }
 
-    public void setQuotaBytes(Long quotaBytes) {
-        this.quotaBytes = quotaBytes;
+    public void setPlanId(UUID planId) {
+        this.planId = planId;
     }
 
-    public Long getRequestedQuotaBytes() {
-        return requestedQuotaBytes;
+    public UUID getActiveGrantId() {
+        return activeGrantId;
     }
 
-    public void setRequestedQuotaBytes(Long requestedQuotaBytes) {
-        this.requestedQuotaBytes = requestedQuotaBytes;
-    }
-
-    public Instant getRequestedQuotaAt() {
-        return requestedQuotaAt;
-    }
-
-    public void setRequestedQuotaAt(Instant requestedQuotaAt) {
-        this.requestedQuotaAt = requestedQuotaAt;
+    public void setActiveGrantId(UUID activeGrantId) {
+        this.activeGrantId = activeGrantId;
     }
 
     @Override

@@ -4,6 +4,8 @@ import static java.util.Objects.requireNonNull;
 
 import org.osnormais.drive.api.application.gateway.acl.AclCommandGateway;
 import org.osnormais.drive.api.application.gateway.acl.AclQueryGateway;
+import org.osnormais.drive.api.application.gateway.entitlement.grant.UserEntitlementGrantQueryGateway;
+import org.osnormais.drive.api.application.gateway.entitlement.plan.PlanQueryGateway;
 import org.osnormais.drive.api.application.gateway.file.FileCommandGateway;
 import org.osnormais.drive.api.application.gateway.file.FileQueryGateway;
 import org.osnormais.drive.api.application.gateway.folder.FolderQueryGateway;
@@ -27,6 +29,8 @@ public class FileUseCaseConfig {
     private final FileCommandGateway fileCommandGateway;
     private final AclQueryGateway aclQueryGateway;
     private final AclCommandGateway aclCommandGateway;
+    private final PlanQueryGateway planQueryGateway;
+    private final UserEntitlementGrantQueryGateway userEntitlementGrantQueryGateway;
     private final DomainEventDispatcher eventDispatcher;
 
     public FileUseCaseConfig(
@@ -36,6 +40,8 @@ public class FileUseCaseConfig {
             FileCommandGateway fileCommandGateway,
             AclQueryGateway aclQueryGateway,
             AclCommandGateway aclCommandGateway,
+            PlanQueryGateway planQueryGateway,
+            UserEntitlementGrantQueryGateway userEntitlementGrantQueryGateway,
             DomainEventDispatcher eventDispatcher) {
         this.userQueryGateway = requireNonNull(userQueryGateway);
         this.folderQueryGateway = requireNonNull(folderQueryGateway);
@@ -43,6 +49,8 @@ public class FileUseCaseConfig {
         this.fileCommandGateway = requireNonNull(fileCommandGateway);
         this.aclQueryGateway = requireNonNull(aclQueryGateway);
         this.aclCommandGateway = requireNonNull(aclCommandGateway);
+        this.planQueryGateway = requireNonNull(planQueryGateway);
+        this.userEntitlementGrantQueryGateway = requireNonNull(userEntitlementGrantQueryGateway);
         this.eventDispatcher = requireNonNull(eventDispatcher);
     }
 
@@ -55,6 +63,8 @@ public class FileUseCaseConfig {
                 fileCommandGateway,
                 aclQueryGateway,
                 aclCommandGateway,
+                planQueryGateway,
+                userEntitlementGrantQueryGateway,
                 eventDispatcher);
     }
 

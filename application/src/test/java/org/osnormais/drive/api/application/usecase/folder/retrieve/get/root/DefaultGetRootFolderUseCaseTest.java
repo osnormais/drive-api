@@ -30,6 +30,7 @@ import org.osnormais.drive.api.application.gateway.folder.FolderCommandGateway;
 import org.osnormais.drive.api.application.gateway.folder.FolderQueryGateway;
 import org.osnormais.drive.api.application.gateway.user.UserQueryGateway;
 import org.osnormais.drive.api.domain.acl.Acl;
+import org.osnormais.drive.api.domain.entitlement.plan.PlanId;
 import org.osnormais.drive.api.domain.event.DomainEventContext;
 import org.osnormais.drive.api.domain.event.DomainEventDispatcher;
 import org.osnormais.drive.api.domain.event.DomainEventSource;
@@ -45,7 +46,6 @@ import org.osnormais.drive.api.domain.folder.FolderType;
 import org.osnormais.drive.api.domain.folder.valueobject.FolderName;
 import org.osnormais.drive.api.domain.user.User;
 import org.osnormais.drive.api.domain.user.UserId;
-import org.osnormais.drive.api.domain.user.valueobject.Quota;
 
 @ExtendWith(MockitoExtension.class)
 public class DefaultGetRootFolderUseCaseTest {
@@ -79,7 +79,7 @@ public class DefaultGetRootFolderUseCaseTest {
 
         final var expectedOwner = User.with(
                 expectedOwnerId,
-                Quota.of(1024L),
+                PlanId.unique(),
                 null,
                 null);
 
@@ -157,7 +157,7 @@ public class DefaultGetRootFolderUseCaseTest {
 
         final var expectedOwner = User.with(
                 expectedOwnerId,
-                Quota.of(1024L),
+                PlanId.unique(),
                 null,
                 null);
 

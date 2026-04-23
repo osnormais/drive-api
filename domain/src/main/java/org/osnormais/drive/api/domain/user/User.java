@@ -7,30 +7,30 @@ import java.util.Optional;
 import java.util.Queue;
 
 import org.osnormais.drive.api.domain.AggregateRoot;
+import org.osnormais.drive.api.domain.entitlement.grant.GrantId;
+import org.osnormais.drive.api.domain.entitlement.plan.PlanId;
 import org.osnormais.drive.api.domain.event.DomainEvent;
 import org.osnormais.drive.api.domain.event.DomainEventSource;
 import org.osnormais.drive.api.domain.exception.ValidationException;
-import org.osnormais.drive.api.domain.user.valueobject.Quota;
-import org.osnormais.drive.api.domain.user.valueobject.QuotaRequest;
 import org.osnormais.drive.api.domain.validation.ValidationError;
 import org.osnormais.drive.api.domain.validation.handler.Notification;
 import org.osnormais.drive.api.domain.validation.handler.ValidationHandler;
 
 public class User extends AggregateRoot<UserId> implements DomainEventSource {
 
-    private Quota quota;
-    private Optional<QuotaRequest> quotaRequest;
+    private PlanId plan;
+    private Optional<GrantId> activeGrant;
 
     private final Queue<DomainEvent<?>> events;
 
     private User(
             final UserId id,
-            final Quota quota,
-            final Optional<QuotaRequest> quotaRequest,
+            final PlanId plan,
+            final GrantId activeGrant,
             final Queue<DomainEvent<?>> events) {
         super(id);
-        this.quota = quota;
-        this.quotaRequest = quotaRequest;
+        this.plan = plan;
+        this.activeGrant = Optional.ofNullable(activeGrant);
 
         this.events = isNull(events) ? new LinkedList<>() : new LinkedList<>(events);
 
@@ -41,21 +41,20 @@ public class User extends AggregateRoot<UserId> implements DomainEventSource {
     @Override
     public void validate(ValidationHandler handler) {
 
-        if (isNull(quota))
-            handler.append(new ValidationError("'User.quota' cannot be null."));
-        else
-            quota.validate(handler);
+        if (isNull(plan))
+            handler.append(new ValidationError("'User.plan' cannot be null."));
 
-        quotaRequest.ifPresent(qr -> qr.validate(handler));
+        if (isNull(activeGrant))
+            handler.append(new ValidationError("'User.activeGrant' cannot be null."));
 
     }
 
     public static User with(
             final UserId id,
-            final Quota quota,
-            final QuotaRequest quotaRequest,
+            final PlanId plan,
+            final GrantId activeGrant,
             final Queue<DomainEvent<?>> events) {
-        return new User(id, quota, Optional.ofNullable(quotaRequest), events);
+        return new User(id, plan, activeGrant, events);
     }
 
     @Override
@@ -70,12 +69,12 @@ public class User extends AggregateRoot<UserId> implements DomainEventSource {
             throw ValidationException.with("'User' validation failed", notification);
     }
 
-    public Quota getQuota() {
-        return quota;
+    public PlanId getPlan() {
+        return plan;
     }
 
-    public Optional<QuotaRequest> getQuotaRequest() {
-        return quotaRequest;
+    public Optional<GrantId> getActiveGrant() {
+        return activeGrant;
     }
 
 }

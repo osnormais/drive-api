@@ -4,12 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 import org.junit.jupiter.api.Test;
+import org.osnormais.drive.api.domain.entitlement.grant.GrantId;
+import org.osnormais.drive.api.domain.entitlement.plan.PlanId;
 import org.osnormais.drive.api.domain.exception.FolderAlreadyExistsException;
 import org.osnormais.drive.api.domain.folder.Folder;
 import org.osnormais.drive.api.domain.folder.valueobject.FolderName;
 import org.osnormais.drive.api.domain.user.User;
 import org.osnormais.drive.api.domain.user.UserId;
-import org.osnormais.drive.api.domain.user.valueobject.Quota;
 
 public class FolderCreationServiceTest {
 
@@ -19,8 +20,8 @@ public class FolderCreationServiceTest {
         final Boolean hasSiblingsWithSameName = false;
         final User creator = User.with(
                 UserId.unique(),
-                Quota.of(1024L),
-                null,
+                PlanId.unique(),
+                GrantId.unique(),
                 null);
         final Folder parentFolder = Folder.createRoot(creator.getId());
         final FolderName name = FolderName.of("folder name");
@@ -43,8 +44,8 @@ public class FolderCreationServiceTest {
         final Boolean hasSiblingsWithSameName = true;
         final User creator = User.with(
                 UserId.unique(),
-                Quota.of(1024L),
-                null,
+                PlanId.unique(),
+                GrantId.unique(),
                 null);
         final Folder parentFolder = Folder.createRoot(creator.getId());
         final FolderName name = FolderName.of("folder name");
