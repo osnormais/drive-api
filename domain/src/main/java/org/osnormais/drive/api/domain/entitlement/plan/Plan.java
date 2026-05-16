@@ -5,7 +5,6 @@ import static java.util.Objects.isNull;
 import org.osnormais.drive.api.domain.AggregateRoot;
 import org.osnormais.drive.api.domain.entitlement.quota.BandwidthQuota;
 import org.osnormais.drive.api.domain.entitlement.quota.BytesQuota;
-import org.osnormais.drive.api.domain.entitlement.quota.ParallelOperationsQuota;
 import org.osnormais.drive.api.domain.entitlement.quota.TotalCountQuota;
 import org.osnormais.drive.api.domain.validation.ValidationError;
 import org.osnormais.drive.api.domain.validation.handler.ValidationHandler;
@@ -15,7 +14,6 @@ public class Plan extends AggregateRoot<PlanId> {
     private PlanName name;
     private BytesQuota storageQuota;
     private BandwidthQuota bandwidthQuota;
-    private ParallelOperationsQuota parallelOperationsQuota;
     private TotalCountQuota maxFilesQuota;
 
     private Plan(
@@ -23,13 +21,11 @@ public class Plan extends AggregateRoot<PlanId> {
             final PlanName name,
             final BytesQuota storageQuota,
             final BandwidthQuota bandwidthQuota,
-            final ParallelOperationsQuota parallelOperationsQuota,
             final TotalCountQuota maxFilesQuota) {
         super(id);
         this.name = name;
         this.storageQuota = storageQuota;
         this.bandwidthQuota = bandwidthQuota;
-        this.parallelOperationsQuota = parallelOperationsQuota;
         this.maxFilesQuota = maxFilesQuota;
     }
 
@@ -38,9 +34,13 @@ public class Plan extends AggregateRoot<PlanId> {
             final PlanName name,
             final BytesQuota storageQuota,
             final BandwidthQuota bandwidthQuota,
-            final ParallelOperationsQuota parallelOperationsQuota,
             final TotalCountQuota maxFilesQuota) {
-        return new Plan(id, name, storageQuota, bandwidthQuota, parallelOperationsQuota, maxFilesQuota);
+        return new Plan(
+                id,
+                name,
+                storageQuota,
+                bandwidthQuota,
+                maxFilesQuota);
     }
 
     @Override
@@ -61,11 +61,6 @@ public class Plan extends AggregateRoot<PlanId> {
         else
             bandwidthQuota.validate(handler);
 
-        if (isNull(parallelOperationsQuota))
-            handler.append(new ValidationError("'Plan.parallelOperationsQuota' cannot be null."));
-        else
-            parallelOperationsQuota.validate(handler);
-
         if (isNull(maxFilesQuota))
             handler.append(new ValidationError("'Plan.maxFilesQuota' cannot be null."));
         else
@@ -83,10 +78,6 @@ public class Plan extends AggregateRoot<PlanId> {
 
     public BandwidthQuota getBandwidthQuota() {
         return bandwidthQuota;
-    }
-
-    public ParallelOperationsQuota getParallelOperationsQuota() {
-        return parallelOperationsQuota;
     }
 
     public TotalCountQuota getMaxFilesQuota() {

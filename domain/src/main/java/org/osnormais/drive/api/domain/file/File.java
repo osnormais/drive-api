@@ -18,7 +18,7 @@ import org.osnormais.drive.api.domain.file.valueobject.Checksum;
 import org.osnormais.drive.api.domain.file.valueobject.Content;
 import org.osnormais.drive.api.domain.file.valueobject.FileName;
 import org.osnormais.drive.api.domain.file.valueobject.FileSharing;
-import org.osnormais.drive.api.domain.file.valueobject.Size;
+import org.osnormais.drive.api.domain.file.valueobject.FileSize;
 import org.osnormais.drive.api.domain.folder.FolderId;
 import org.osnormais.drive.api.domain.user.UserId;
 import org.osnormais.drive.api.domain.validation.ValidationError;
@@ -33,7 +33,7 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
     private FolderId folder;
 
     private final Checksum checksum;
-    private final Size size;
+    private final FileSize size;
     private FileName name;
     private Content content;
 
@@ -52,7 +52,7 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
             final FolderId folder,
             final FileName name,
             final Checksum checksum,
-            final Size size,
+            final FileSize size,
             final Content content,
             final Instant createdAt,
             final Instant updatedAt,
@@ -84,7 +84,7 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
             final FolderId folder,
             final FileName name,
             final Checksum checksum,
-            final Size size,
+            final FileSize size,
             final Content content,
             final Instant createdAt,
             final Instant updatedAt,
@@ -105,38 +105,6 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
                 deletedAt,
                 sharings,
                 events);
-    }
-
-    public static File create(
-            final UserId creator,
-            final UserId owner,
-            final FolderId folder,
-            final FileName name,
-            final Checksum checksum,
-            final Size size,
-            final Content content) {
-
-        final Instant now = Instant.now();
-
-        final File file = new File(
-                FileId.unique(),
-                creator,
-                owner,
-                folder,
-                name,
-                checksum,
-                size,
-                content,
-                now,
-                now,
-                null,
-                null,
-                null);
-
-        file.events.add(FileCreatedEvent.create(file));
-
-        return file;
-
     }
 
     @Override
@@ -167,6 +135,38 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
 
         if (isNull(updatedAt))
             handler.append(new ValidationError("'File.updatedAt' should not be null"));
+
+    }
+
+    public static File create(
+            final UserId creator,
+            final UserId owner,
+            final FolderId folder,
+            final FileName name,
+            final Checksum checksum,
+            final FileSize size,
+            final Content content) {
+
+        final Instant now = Instant.now();
+
+        final File file = new File(
+                FileId.unique(),
+                creator,
+                owner,
+                folder,
+                name,
+                checksum,
+                size,
+                content,
+                now,
+                now,
+                null,
+                null,
+                null);
+
+        file.events.add(FileCreatedEvent.create(file));
+
+        return file;
 
     }
 
@@ -212,7 +212,7 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
         return checksum;
     }
 
-    public Size getSize() {
+    public FileSize getSize() {
         return size;
     }
 

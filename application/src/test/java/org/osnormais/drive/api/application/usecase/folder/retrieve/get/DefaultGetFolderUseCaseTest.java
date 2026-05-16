@@ -29,7 +29,7 @@ import org.osnormais.drive.api.domain.file.FileId;
 import org.osnormais.drive.api.domain.file.valueobject.Checksum;
 import org.osnormais.drive.api.domain.file.valueobject.Content;
 import org.osnormais.drive.api.domain.file.valueobject.FileName;
-import org.osnormais.drive.api.domain.file.valueobject.Size;
+import org.osnormais.drive.api.domain.file.valueobject.FileSize;
 import org.osnormais.drive.api.domain.folder.Folder;
 import org.osnormais.drive.api.domain.folder.FolderId;
 import org.osnormais.drive.api.domain.folder.FolderType;
@@ -97,7 +97,7 @@ public class DefaultGetFolderUseCaseTest {
                 expectedFolderId,
                 FileName.of("file0.txt"),
                 Checksum.of(Checksum.Algorithm.SHA_256, "SHA256HASH"),
-                Size.of(2048L),
+                FileSize.of(2048L),
                 Content.of("text/plain"),
                 now,
                 now,

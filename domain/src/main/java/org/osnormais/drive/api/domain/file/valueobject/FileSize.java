@@ -4,17 +4,17 @@ import org.osnormais.drive.api.domain.ValueObject;
 import org.osnormais.drive.api.domain.validation.ValidationError;
 import org.osnormais.drive.api.domain.validation.handler.ValidationHandler;
 
-public record Size(long bytes) implements ValueObject {
+public record FileSize(long bytes) implements ValueObject {
 
-    public static Size of(final long bytes) {
-        return new Size(bytes);
+    public static FileSize of(final long bytes) {
+        return new FileSize(bytes);
     }
 
     @Override
     public void validate(final ValidationHandler handler) {
 
         if (bytes <= 0)
-            handler.append(ValidationError.with("Size.bytes must be greater than 0"));
+            handler.append(ValidationError.with("FileSize.bytes must be greater than 0"));
 
     }
 

@@ -9,7 +9,6 @@ import org.osnormais.drive.api.domain.entitlement.plan.PlanName;
 import org.osnormais.drive.api.domain.entitlement.quota.Amount;
 import org.osnormais.drive.api.domain.entitlement.quota.BandwidthQuota;
 import org.osnormais.drive.api.domain.entitlement.quota.BytesQuota;
-import org.osnormais.drive.api.domain.entitlement.quota.ParallelOperationsQuota;
 import org.osnormais.drive.api.domain.entitlement.quota.TotalCountQuota;
 
 import jakarta.persistence.Column;
@@ -37,11 +36,6 @@ public class PlanJpa {
     @Column(nullable = false)
     private Boolean bandwidthQuotaIsUnlimited;
 
-    private Long parallelOperationsQuotaCount;
-
-    @Column(nullable = false)
-    private Boolean parallelOperationsQuotaIsUnlimited;
-
     private Long maxFilesQuotaCount;
 
     @Column(nullable = false)
@@ -54,8 +48,6 @@ public class PlanJpa {
             final Boolean storageQuotaIsUnlimited,
             final Long bandwidthQuotaBytes,
             final Boolean bandwidthQuotaIsUnlimited,
-            final Long parallelOperationsQuotaCount,
-            final Boolean parallelOperationsQuotaIsUnlimited,
             final Long maxFilesQuotaCount,
             final Boolean maxFilesQuotaIsUnlimited) {
         this.id = id;
@@ -64,8 +56,6 @@ public class PlanJpa {
         this.storageQuotaIsUnlimited = storageQuotaIsUnlimited;
         this.bandwidthQuotaBytes = bandwidthQuotaBytes;
         this.bandwidthQuotaIsUnlimited = bandwidthQuotaIsUnlimited;
-        this.parallelOperationsQuotaCount = parallelOperationsQuotaCount;
-        this.parallelOperationsQuotaIsUnlimited = parallelOperationsQuotaIsUnlimited;
         this.maxFilesQuotaCount = maxFilesQuotaCount;
         this.maxFilesQuotaIsUnlimited = maxFilesQuotaIsUnlimited;
     }
@@ -84,9 +74,6 @@ public class PlanJpa {
                 BandwidthQuota.with(
                         Optional.ofNullable(getBandwidthQuotaBytes()).map(Amount::of),
                         getBandwidthQuotaIsUnlimited()),
-                ParallelOperationsQuota.with(
-                        Optional.ofNullable(getParallelOperationsQuotaCount()).map(Amount::of),
-                        getParallelOperationsQuotaIsUnlimited()),
                 TotalCountQuota.with(
                         Optional.ofNullable(getMaxFilesQuotaCount()).map(Amount::of),
                         getMaxFilesQuotaIsUnlimited()));
@@ -100,8 +87,6 @@ public class PlanJpa {
                 plan.getStorageQuota().isUnlimited(),
                 plan.getBandwidthQuota().amount().map(Amount::value).orElse(null),
                 plan.getBandwidthQuota().isUnlimited(),
-                plan.getParallelOperationsQuota().amount().map(Amount::value).orElse(null),
-                plan.getParallelOperationsQuota().isUnlimited(),
                 plan.getMaxFilesQuota().amount().map(Amount::value).orElse(null),
                 plan.getMaxFilesQuota().isUnlimited());
     }
@@ -152,22 +137,6 @@ public class PlanJpa {
 
     public void setBandwidthQuotaIsUnlimited(Boolean bandwidthQuotaIsUnlimited) {
         this.bandwidthQuotaIsUnlimited = bandwidthQuotaIsUnlimited;
-    }
-
-    public Long getParallelOperationsQuotaCount() {
-        return parallelOperationsQuotaCount;
-    }
-
-    public void setParallelOperationsQuotaCount(Long parallelOperationsQuotaCount) {
-        this.parallelOperationsQuotaCount = parallelOperationsQuotaCount;
-    }
-
-    public Boolean getParallelOperationsQuotaIsUnlimited() {
-        return parallelOperationsQuotaIsUnlimited;
-    }
-
-    public void setParallelOperationsQuotaIsUnlimited(Boolean parallelOperationsQuotaIsUnlimited) {
-        this.parallelOperationsQuotaIsUnlimited = parallelOperationsQuotaIsUnlimited;
     }
 
     public Long getMaxFilesQuotaCount() {

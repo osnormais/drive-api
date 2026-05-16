@@ -39,7 +39,7 @@ import org.osnormais.drive.api.domain.file.FileId;
 import org.osnormais.drive.api.domain.file.valueobject.Checksum;
 import org.osnormais.drive.api.domain.file.valueobject.Content;
 import org.osnormais.drive.api.domain.file.valueobject.FileName;
-import org.osnormais.drive.api.domain.file.valueobject.Size;
+import org.osnormais.drive.api.domain.file.valueobject.FileSize;
 import org.osnormais.drive.api.domain.folder.Folder;
 import org.osnormais.drive.api.domain.folder.FolderId;
 import org.osnormais.drive.api.domain.folder.FolderType;
@@ -202,7 +202,7 @@ public class DefaultGetRootFolderUseCaseTest {
                 expectedRootFolderId,
                 FileName.of("file0"),
                 Checksum.of(Checksum.Algorithm.SHA_256, "SHA256"),
-                Size.of(1024L),
+                FileSize.of(1024L),
                 Content.of("file"),
                 now,
                 now,

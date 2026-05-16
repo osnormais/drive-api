@@ -12,7 +12,7 @@ import org.osnormais.drive.api.domain.file.FileId;
 import org.osnormais.drive.api.domain.file.valueobject.Checksum;
 import org.osnormais.drive.api.domain.file.valueobject.Content;
 import org.osnormais.drive.api.domain.file.valueobject.FileName;
-import org.osnormais.drive.api.domain.file.valueobject.Size;
+import org.osnormais.drive.api.domain.file.valueobject.FileSize;
 import org.osnormais.drive.api.domain.folder.FolderId;
 import org.osnormais.drive.api.domain.user.UserId;
 
@@ -132,7 +132,7 @@ public class FileJpa {
                 FolderId.of(getFolderId()),
                 FileName.of(getName()),
                 Checksum.of(getChecksumAlgorithm(), getChecksumValue()),
-                Size.of(getSizeInBytes()),
+                FileSize.of(getSizeInBytes()),
                 Content.of(getContentType()),
                 getCreatedAt(),
                 getUpdatedAt(),

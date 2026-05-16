@@ -1,0 +1,21 @@
+package org.osnormais.drive.api.domain.transferchannel.valueobject;
+
+import org.osnormais.drive.api.domain.ValueObject;
+import org.osnormais.drive.api.domain.validation.ValidationError;
+import org.osnormais.drive.api.domain.validation.handler.ValidationHandler;
+
+public record ParallelChunkLimit(int value) implements ValueObject {
+
+    public static ParallelChunkLimit of(final int value) {
+        return new ParallelChunkLimit(value);
+    }
+
+    @Override
+    public void validate(final ValidationHandler handler) {
+
+        if (value < 1)
+            handler.append(ValidationError.with("'value' must be greater than or equal to 1"));
+
+    }
+
+}
