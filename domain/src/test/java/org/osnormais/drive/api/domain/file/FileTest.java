@@ -20,7 +20,7 @@ import org.osnormais.drive.api.domain.file.valueobject.Checksum;
 import org.osnormais.drive.api.domain.file.valueobject.Content;
 import org.osnormais.drive.api.domain.file.valueobject.FileName;
 import org.osnormais.drive.api.domain.file.valueobject.FileSharing;
-import org.osnormais.drive.api.domain.file.valueobject.Size;
+import org.osnormais.drive.api.domain.file.valueobject.FileSize;
 import org.osnormais.drive.api.domain.folder.FolderId;
 import org.osnormais.drive.api.domain.user.UserId;
 
@@ -40,7 +40,7 @@ public class FileTest {
             final var expectedFolder = FolderId.unique();
             final var expectedName = FileName.of("text.txt");
             final var expectedChecksum = Checksum.of(Checksum.Algorithm.CRC_32, "12345678");
-            final var expectedSize = Size.of(1024L);
+            final var expectedSize = FileSize.of(1024L);
             final var expectedContent = Content.of("text/plain; charset=UTF-8");
             final var expectedCreatedAt = now;
             final var expectedUpdatedAt = now.plus(1l, ChronoUnit.HOURS);
@@ -92,7 +92,7 @@ public class FileTest {
             final FolderId expectedFolder = null;
             final FileName expectedName = null;
             final Checksum expectedChecksum = null;
-            final Size expectedSize = null;
+            final FileSize expectedSize = null;
             final Content expectedContent = null;
             final Instant expectedCreatedAt = null;
             final Instant expectedUpdatedAt = null;
@@ -149,7 +149,7 @@ public class FileTest {
             final var expectedFolder = FolderId.unique();
             final var expectedName = FileName.of("text.txt");
             final var expectedChecksum = Checksum.of(Checksum.Algorithm.CRC_32, "12345678");
-            final var expectedSize = Size.of(1024L);
+            final var expectedSize = FileSize.of(1024L);
             final var expectedContent = Content.of("text/plain; charset=UTF-8");
 
             final var actualFile = assertDoesNotThrow(() -> File.create(
@@ -199,7 +199,7 @@ public class FileTest {
                     expectedFolder,
                     FileName.of("file.txt"),
                     Checksum.of(Checksum.Algorithm.CRC_32, "ABC123"),
-                    Size.of(512L),
+                    FileSize.of(512L),
                     Content.of("text/plain"),
                     now,
                     now,
@@ -230,7 +230,7 @@ public class FileTest {
                     expectedActualFolder,
                     FileName.of("file.txt"),
                     Checksum.of(Checksum.Algorithm.CRC_32, "ABC123"),
-                    Size.of(512L),
+                    FileSize.of(512L),
                     Content.of("text/plain"),
                     now,
                     now,
@@ -265,7 +265,7 @@ public class FileTest {
                     expectedActualFolder,
                     FileName.of("file.txt"),
                     Checksum.of(Checksum.Algorithm.CRC_32, "ABC123"),
-                    Size.of(512L),
+                    FileSize.of(512L),
                     Content.of("text/plain"),
                     now,
                     now,
@@ -299,7 +299,7 @@ public class FileTest {
                     expectedActualFolder,
                     FileName.of("file.txt"),
                     Checksum.of(Checksum.Algorithm.CRC_32, "ABC123"),
-                    Size.of(512L),
+                    FileSize.of(512L),
                     Content.of("text/plain"),
                     now,
                     now,

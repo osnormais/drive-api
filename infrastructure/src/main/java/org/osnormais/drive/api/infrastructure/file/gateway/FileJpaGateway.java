@@ -14,7 +14,7 @@ import org.osnormais.drive.api.domain.acl.AclResourceType;
 import org.osnormais.drive.api.domain.file.File;
 import org.osnormais.drive.api.domain.file.FileId;
 import org.osnormais.drive.api.domain.file.valueobject.FileName;
-import org.osnormais.drive.api.domain.file.valueobject.Size;
+import org.osnormais.drive.api.domain.file.valueobject.FileSize;
 import org.osnormais.drive.api.domain.folder.FolderId;
 import org.osnormais.drive.api.domain.pagination.Page;
 import org.osnormais.drive.api.domain.pagination.SearchQuery;
@@ -69,8 +69,8 @@ public class FileJpaGateway implements FileCommandGateway, FileQueryGateway {
 
     @Transactional(readOnly = true)
     @Override
-    public Size totalSizeByUserId(final UserId userId) {
-        return Size.of(fileRepository.sumSizeInBytesByOwnerId(userId.getValue()));
+    public FileSize totalSizeByUserId(final UserId userId) {
+        return FileSize.of(fileRepository.sumSizeInBytesByOwnerId(userId.getValue()));
     }
 
     @Transactional(readOnly = true)

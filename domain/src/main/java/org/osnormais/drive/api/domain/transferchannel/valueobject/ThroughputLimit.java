@@ -1,0 +1,21 @@
+package org.osnormais.drive.api.domain.transferchannel.valueobject;
+
+import org.osnormais.drive.api.domain.ValueObject;
+import org.osnormais.drive.api.domain.validation.ValidationError;
+import org.osnormais.drive.api.domain.validation.handler.ValidationHandler;
+
+public record ThroughputLimit(long bytesPerSecond) implements ValueObject {
+
+    public static ThroughputLimit create(long bytesPerSecond) {
+        return new ThroughputLimit(bytesPerSecond);
+    }
+
+    @Override
+    public void validate(final ValidationHandler handler) {
+
+        if (bytesPerSecond <= 0)
+            handler.append(ValidationError.with("bytesPerSecond must be greater than or equal to 0"));
+
+    }
+
+}

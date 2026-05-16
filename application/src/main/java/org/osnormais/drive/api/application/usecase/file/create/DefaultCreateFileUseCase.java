@@ -30,7 +30,7 @@ import org.osnormais.drive.api.domain.file.service.FileCreationService;
 import org.osnormais.drive.api.domain.file.valueobject.Checksum;
 import org.osnormais.drive.api.domain.file.valueobject.Content;
 import org.osnormais.drive.api.domain.file.valueobject.FileName;
-import org.osnormais.drive.api.domain.file.valueobject.Size;
+import org.osnormais.drive.api.domain.file.valueobject.FileSize;
 import org.osnormais.drive.api.domain.folder.Folder;
 import org.osnormais.drive.api.domain.folder.FolderId;
 import org.osnormais.drive.api.domain.user.User;
@@ -80,7 +80,7 @@ public class DefaultCreateFileUseCase extends CreateFileUseCase {
         final FolderId parentFolderId = FolderId.of(input.parentFolderId());
         final FileName fileName = FileName.of(input.name());
         final Content content = Content.of(input.contentType());
-        final Size size = Size.of(input.sizeInBytes());
+        final FileSize size = FileSize.of(input.sizeInBytes());
         final Checksum checksum = Checksum.of(input.checksumAlgorithm(), input.checksumValue());
 
         final ValidationHandler handler = Notification.create();

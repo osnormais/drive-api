@@ -6,7 +6,7 @@ import java.util.Set;
 import org.osnormais.drive.api.domain.file.File;
 import org.osnormais.drive.api.domain.file.FileId;
 import org.osnormais.drive.api.domain.file.valueobject.FileName;
-import org.osnormais.drive.api.domain.file.valueobject.Size;
+import org.osnormais.drive.api.domain.file.valueobject.FileSize;
 import org.osnormais.drive.api.domain.folder.FolderId;
 import org.osnormais.drive.api.domain.pagination.Page;
 import org.osnormais.drive.api.domain.pagination.SearchQuery;
@@ -18,7 +18,7 @@ public interface FileQueryGateway {
 
     Optional<File> findVisibleById(FileId id, UserId userId);
 
-    Size totalSizeByUserId(UserId userId);
+    FileSize totalSizeByUserId(UserId userId);
 
     Boolean existsByFolderIdAndName(FolderId parentFolderId, FileName fileName);
 

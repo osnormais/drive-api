@@ -15,7 +15,8 @@ public class Plan extends AggregateRoot<PlanId> {
     private PlanName name;
     private BytesQuota storageQuota;
     private BandwidthQuota bandwidthQuota;
-    private ParallelOperationsQuota parallelOperationsQuota;
+    private ParallelOperationsQuota parallelUploadQuota;
+    private ParallelOperationsQuota parallelDownloadQuota;
     private TotalCountQuota maxFilesQuota;
 
     private Plan(
@@ -23,13 +24,15 @@ public class Plan extends AggregateRoot<PlanId> {
             final PlanName name,
             final BytesQuota storageQuota,
             final BandwidthQuota bandwidthQuota,
-            final ParallelOperationsQuota parallelOperationsQuota,
+            final ParallelOperationsQuota parallelUploadQuota,
+            final ParallelOperationsQuota parallelDownloadQuota,
             final TotalCountQuota maxFilesQuota) {
         super(id);
         this.name = name;
         this.storageQuota = storageQuota;
         this.bandwidthQuota = bandwidthQuota;
-        this.parallelOperationsQuota = parallelOperationsQuota;
+        this.parallelUploadQuota = parallelUploadQuota;
+        this.parallelDownloadQuota = parallelDownloadQuota;
         this.maxFilesQuota = maxFilesQuota;
     }
 
@@ -38,9 +41,17 @@ public class Plan extends AggregateRoot<PlanId> {
             final PlanName name,
             final BytesQuota storageQuota,
             final BandwidthQuota bandwidthQuota,
-            final ParallelOperationsQuota parallelOperationsQuota,
+            final ParallelOperationsQuota parallelUploadQuota,
+            final ParallelOperationsQuota parallelDownloadQuota,
             final TotalCountQuota maxFilesQuota) {
-        return new Plan(id, name, storageQuota, bandwidthQuota, parallelOperationsQuota, maxFilesQuota);
+        return new Plan(
+                id,
+                name,
+                storageQuota,
+                bandwidthQuota,
+                parallelUploadQuota,
+                parallelDownloadQuota,
+                maxFilesQuota);
     }
 
     @Override
@@ -61,10 +72,15 @@ public class Plan extends AggregateRoot<PlanId> {
         else
             bandwidthQuota.validate(handler);
 
-        if (isNull(parallelOperationsQuota))
-            handler.append(new ValidationError("'Plan.parallelOperationsQuota' cannot be null."));
+        if (isNull(parallelUploadQuota))
+            handler.append(new ValidationError("'Plan.parallelUploadQuota' cannot be null."));
         else
-            parallelOperationsQuota.validate(handler);
+            parallelUploadQuota.validate(handler);
+
+        if (isNull(parallelDownloadQuota))
+            handler.append(new ValidationError("'Plan.parallelDownloadQuota' cannot be null."));
+        else
+            parallelDownloadQuota.validate(handler);
 
         if (isNull(maxFilesQuota))
             handler.append(new ValidationError("'Plan.maxFilesQuota' cannot be null."));
@@ -85,8 +101,12 @@ public class Plan extends AggregateRoot<PlanId> {
         return bandwidthQuota;
     }
 
-    public ParallelOperationsQuota getParallelOperationsQuota() {
-        return parallelOperationsQuota;
+    public ParallelOperationsQuota getParallelUploadQuota() {
+        return parallelUploadQuota;
+    }
+
+    public ParallelOperationsQuota getParallelDownloadQuota() {
+        return parallelDownloadQuota;
     }
 
     public TotalCountQuota getMaxFilesQuota() {

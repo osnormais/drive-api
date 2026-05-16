@@ -37,10 +37,15 @@ public class PlanJpa {
     @Column(nullable = false)
     private Boolean bandwidthQuotaIsUnlimited;
 
-    private Long parallelOperationsQuotaCount;
+    private Long parallelUploadQuotaCount;
 
     @Column(nullable = false)
-    private Boolean parallelOperationsQuotaIsUnlimited;
+    private Boolean parallelUploadQuotaIsUnlimited;
+
+    private Long parallelDownloadQuotaCount;
+
+    @Column(nullable = false)
+    private Boolean parallelDownloadQuotaIsUnlimited;
 
     private Long maxFilesQuotaCount;
 
@@ -54,8 +59,10 @@ public class PlanJpa {
             final Boolean storageQuotaIsUnlimited,
             final Long bandwidthQuotaBytes,
             final Boolean bandwidthQuotaIsUnlimited,
-            final Long parallelOperationsQuotaCount,
-            final Boolean parallelOperationsQuotaIsUnlimited,
+            final Long parallelUploadQuotaCount,
+            final Boolean parallelUploadQuotaIsUnlimited,
+            final Long parallelDownloadQuotaCount,
+            final Boolean parallelDownloadQuotaIsUnlimited,
             final Long maxFilesQuotaCount,
             final Boolean maxFilesQuotaIsUnlimited) {
         this.id = id;
@@ -64,8 +71,10 @@ public class PlanJpa {
         this.storageQuotaIsUnlimited = storageQuotaIsUnlimited;
         this.bandwidthQuotaBytes = bandwidthQuotaBytes;
         this.bandwidthQuotaIsUnlimited = bandwidthQuotaIsUnlimited;
-        this.parallelOperationsQuotaCount = parallelOperationsQuotaCount;
-        this.parallelOperationsQuotaIsUnlimited = parallelOperationsQuotaIsUnlimited;
+        this.parallelUploadQuotaCount = parallelUploadQuotaCount;
+        this.parallelUploadQuotaIsUnlimited = parallelUploadQuotaIsUnlimited;
+        this.parallelDownloadQuotaCount = parallelDownloadQuotaCount;
+        this.parallelDownloadQuotaIsUnlimited = parallelDownloadQuotaIsUnlimited;
         this.maxFilesQuotaCount = maxFilesQuotaCount;
         this.maxFilesQuotaIsUnlimited = maxFilesQuotaIsUnlimited;
     }
@@ -85,8 +94,11 @@ public class PlanJpa {
                         Optional.ofNullable(getBandwidthQuotaBytes()).map(Amount::of),
                         getBandwidthQuotaIsUnlimited()),
                 ParallelOperationsQuota.with(
-                        Optional.ofNullable(getParallelOperationsQuotaCount()).map(Amount::of),
-                        getParallelOperationsQuotaIsUnlimited()),
+                        Optional.ofNullable(getParallelUploadQuotaCount()).map(Amount::of),
+                        getParallelUploadQuotaIsUnlimited()),
+                ParallelOperationsQuota.with(
+                        Optional.ofNullable(getParallelDownloadQuotaCount()).map(Amount::of),
+                        getParallelDownloadQuotaIsUnlimited()),
                 TotalCountQuota.with(
                         Optional.ofNullable(getMaxFilesQuotaCount()).map(Amount::of),
                         getMaxFilesQuotaIsUnlimited()));
@@ -100,8 +112,10 @@ public class PlanJpa {
                 plan.getStorageQuota().isUnlimited(),
                 plan.getBandwidthQuota().amount().map(Amount::value).orElse(null),
                 plan.getBandwidthQuota().isUnlimited(),
-                plan.getParallelOperationsQuota().amount().map(Amount::value).orElse(null),
-                plan.getParallelOperationsQuota().isUnlimited(),
+                plan.getParallelUploadQuota().amount().map(Amount::value).orElse(null),
+                plan.getParallelUploadQuota().isUnlimited(),
+                plan.getParallelDownloadQuota().amount().map(Amount::value).orElse(null),
+                plan.getParallelDownloadQuota().isUnlimited(),
                 plan.getMaxFilesQuota().amount().map(Amount::value).orElse(null),
                 plan.getMaxFilesQuota().isUnlimited());
     }
@@ -154,20 +168,36 @@ public class PlanJpa {
         this.bandwidthQuotaIsUnlimited = bandwidthQuotaIsUnlimited;
     }
 
-    public Long getParallelOperationsQuotaCount() {
-        return parallelOperationsQuotaCount;
+    public Long getParallelUploadQuotaCount() {
+        return parallelUploadQuotaCount;
     }
 
-    public void setParallelOperationsQuotaCount(Long parallelOperationsQuotaCount) {
-        this.parallelOperationsQuotaCount = parallelOperationsQuotaCount;
+    public void setParallelUploadQuotaCount(Long parallelUploadQuotaCount) {
+        this.parallelUploadQuotaCount = parallelUploadQuotaCount;
     }
 
-    public Boolean getParallelOperationsQuotaIsUnlimited() {
-        return parallelOperationsQuotaIsUnlimited;
+    public Boolean getParallelUploadQuotaIsUnlimited() {
+        return parallelUploadQuotaIsUnlimited;
     }
 
-    public void setParallelOperationsQuotaIsUnlimited(Boolean parallelOperationsQuotaIsUnlimited) {
-        this.parallelOperationsQuotaIsUnlimited = parallelOperationsQuotaIsUnlimited;
+    public void setParallelUploadQuotaIsUnlimited(Boolean parallelUploadQuotaIsUnlimited) {
+        this.parallelUploadQuotaIsUnlimited = parallelUploadQuotaIsUnlimited;
+    }
+
+    public Long getParallelDownloadQuotaCount() {
+        return parallelDownloadQuotaCount;
+    }
+
+    public void setParallelDownloadQuotaCount(Long parallelDownloadQuotaCount) {
+        this.parallelDownloadQuotaCount = parallelDownloadQuotaCount;
+    }
+
+    public Boolean getParallelDownloadQuotaIsUnlimited() {
+        return parallelDownloadQuotaIsUnlimited;
+    }
+
+    public void setParallelDownloadQuotaIsUnlimited(Boolean parallelDownloadQuotaIsUnlimited) {
+        this.parallelDownloadQuotaIsUnlimited = parallelDownloadQuotaIsUnlimited;
     }
 
     public Long getMaxFilesQuotaCount() {
