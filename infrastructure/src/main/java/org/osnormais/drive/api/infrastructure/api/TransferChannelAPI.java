@@ -3,7 +3,6 @@ package org.osnormais.drive.api.infrastructure.api;
 import java.util.UUID;
 
 import org.osnormais.drive.api.domain.transferchannel.TransferChannelType;
-import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.CreateTransferChannelResponse;
 import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.GetTransferChannelTokenResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,8 +21,7 @@ public interface TransferChannelAPI {
 
     @Operation(summary = "Create transfer channel", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
-    ResponseEntity<CreateTransferChannelResponse> createTrasnferChannel(
-            @RequestHeader("X-Idempotency-Key") UUID idempotencyKey,
+    ResponseEntity<GetTransferChannelTokenResponse> createTrasnferChannel(
             @RequestHeader("X-File-Id") UUID fileId,
             @RequestHeader("X-Type") TransferChannelType type);
 

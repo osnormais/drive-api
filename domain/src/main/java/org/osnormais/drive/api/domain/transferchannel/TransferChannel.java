@@ -7,6 +7,7 @@ import java.time.Instant;
 
 import org.osnormais.drive.api.domain.AggregateRoot;
 import org.osnormais.drive.api.domain.exception.TransferChannelExpiredException;
+import org.osnormais.drive.api.domain.exception.TransferChannelNotOwnedByUserException;
 import org.osnormais.drive.api.domain.file.FileId;
 import org.osnormais.drive.api.domain.transferchannel.valueobject.ChunkPermission;
 import org.osnormais.drive.api.domain.transferchannel.valueobject.ChunkSpecification;
@@ -92,6 +93,18 @@ public class TransferChannel extends AggregateRoot<TransferChannelId> {
 
         return ChunkPermission.create(chunkIndex, type, targetExpiresAt);
 
+    }
+
+    public TransferChannel ensureBelongsTo(final UserId user) {
+        if (!this.user.equals(user))
+            throw TransferChannelNotOwnedByUserException.with(user);
+        return this;
+    }
+
+    public TransferChannel ensureNotExpired() {
+        if (expiresAt.isBefore(Instant.now()))
+            throw TransferChannelExpiredException.create();
+        return this;
     }
 
     public TransferChannelType getType() {

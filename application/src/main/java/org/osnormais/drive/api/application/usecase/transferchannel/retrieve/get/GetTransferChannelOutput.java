@@ -1,19 +1,19 @@
-package org.osnormais.drive.api.application.usecase.transferchannel.create;
+package org.osnormais.drive.api.application.usecase.transferchannel.retrieve.get;
 
 import java.time.Instant;
 import java.util.UUID;
 
 import org.osnormais.drive.api.domain.transferchannel.TransferChannel;
 
-public record CreateTransferChannelOutput(
+public record GetTransferChannelOutput(
         UUID id,
         UUID userId,
         UUID fileId,
         Instant expiresAt,
         Long throughputLimit) {
 
-    public static CreateTransferChannelOutput from(final TransferChannel transferChannel) {
-        return new CreateTransferChannelOutput(
+    public static GetTransferChannelOutput from(final TransferChannel transferChannel) {
+        return new GetTransferChannelOutput(
                 transferChannel.getId().getValue(),
                 transferChannel.getUser().getValue(),
                 transferChannel.getFile().getValue(),
