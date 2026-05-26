@@ -99,6 +99,7 @@ public class DefaultGetFolderUseCaseTest {
                 Checksum.of(Checksum.Algorithm.SHA_256, "SHA256HASH"),
                 FileSize.of(2048L),
                 Content.of("text/plain"),
+                null,
                 now,
                 now,
                 null,

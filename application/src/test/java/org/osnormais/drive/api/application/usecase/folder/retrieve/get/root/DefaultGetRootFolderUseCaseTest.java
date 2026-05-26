@@ -204,6 +204,7 @@ public class DefaultGetRootFolderUseCaseTest {
                 Checksum.of(Checksum.Algorithm.SHA_256, "SHA256"),
                 FileSize.of(1024L),
                 Content.of("file"),
+                null,
                 now,
                 now,
                 null,
