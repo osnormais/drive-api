@@ -2,6 +2,7 @@ package org.osnormais.drive.api.infrastructure.api.controller;
 
 import static java.util.Objects.requireNonNull;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -14,8 +15,6 @@ import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.chun
 import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.chunk.permission.GetTransferChannelPermissionInput.Range;
 import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.chunk.permission.GetTransferChannelPermissionOutput;
 import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.chunk.permission.GetTransferChannelPermissionUseCase;
-import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.get.GetTransferChannelInput;
-import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.get.GetTransferChannelOutput;
 import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.get.GetTransferChannelUseCase;
 import org.osnormais.drive.api.domain.transferchannel.TransferChannelType;
 import org.osnormais.drive.api.infrastructure.api.TransferChannelAPI;
@@ -68,14 +67,33 @@ public class TransferChannelController implements TransferChannelAPI {
         final GetTransferChannelPermissionOutput output = getTransferChannelPermissionUseCase
                 .execute(new GetTransferChannelPermissionInput(SecurityContext.getAuthenticatedUserId(), id, rangeSet));
 
-        final Set<ChunkToken> chunkTokens = output.chunks()
+        final Set<ChunkToken> chunkTokens = output
+                .chunks()
                 .stream()
-                .map(chunkInfo -> new ChunkToken(chunkInfo.chunkIndex(), "chunkInfo.token()"))
+                .map(chunkInfo -> new ChunkToken(
+                        chunkInfo.chunkIndex(),
+                        generateToken(
+                                output.fileId(),
+                                output.type(),
+                                output.expiresAt(),
+                                chunkInfo.chunkIndex(),
+                                chunkInfo.chunkOffset(),
+                                chunkInfo.chunkSize())))
                 .collect(Collectors.toSet());
 
         return ResponseEntity
                 .ok(new GetTransferChannelTokensResponse(output.fileId(), output.expiresAt(), chunkTokens));
 
+    }
+
+    private String generateToken(
+            UUID fileId,
+            String type,
+            Instant expiresAt,
+            Long chunkIndex,
+            Long chunkOffset,
+            Long chunkSize) {
+        return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
     }
 
 }
