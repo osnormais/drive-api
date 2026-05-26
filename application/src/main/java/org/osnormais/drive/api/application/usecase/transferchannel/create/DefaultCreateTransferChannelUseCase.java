@@ -17,12 +17,18 @@ import org.osnormais.drive.api.domain.file.File;
 import org.osnormais.drive.api.domain.file.FileId;
 import org.osnormais.drive.api.domain.transferchannel.TransferChannel;
 import org.osnormais.drive.api.domain.transferchannel.service.TransferChannelCreationService;
+import org.osnormais.drive.api.domain.transferchannel.valueobject.ChunkSize;
+import org.osnormais.drive.api.domain.transferchannel.valueobject.ParallelChunkLimit;
+import org.osnormais.drive.api.domain.transferchannel.valueobject.ThroughputLimit;
 import org.osnormais.drive.api.domain.user.User;
 import org.osnormais.drive.api.domain.user.UserId;
 
 public class DefaultCreateTransferChannelUseCase extends CreateTransferChannelUseCase {
 
+    private final ThroughputLimit maxRateLimitPerChunk;
+    private final ParallelChunkLimit maxParallelChunks;
     private final BandwidthQuota maxBandwidthQuota;
+    private final ChunkSize targetChunkSize;
     private final Duration validDuration;
 
     private final UserQueryGateway userQueryGateway;
@@ -31,13 +37,19 @@ public class DefaultCreateTransferChannelUseCase extends CreateTransferChannelUs
     private final TransferChannelCommandGateway transferChannelCommandGateway;
 
     public DefaultCreateTransferChannelUseCase(
+            final Long maxRateLimitPerChunkBytesPerSecond,
+            final Integer maxParallelChunks,
             final Long maxBandwidthQuotaBytesPerSecond,
+            final Long targetChunkSizeBytes,
             final Long validDurationSeconds,
             final UserQueryGateway userQueryGateway,
             final FileQueryGateway fileQueryGateway,
             final PlanQueryGateway planQueryGateway,
             final TransferChannelCommandGateway transferChannelCommandGateway) {
+        this.maxRateLimitPerChunk = ThroughputLimit.create(requireNonNull(maxRateLimitPerChunkBytesPerSecond));
+        this.maxParallelChunks = ParallelChunkLimit.of(requireNonNull(maxParallelChunks));
         this.maxBandwidthQuota = BandwidthQuota.of(Amount.of(requireNonNull(maxBandwidthQuotaBytesPerSecond)));
+        this.targetChunkSize = ChunkSize.of(requireNonNull(targetChunkSizeBytes));
         this.validDuration = Duration.ofSeconds(requireNonNull(validDurationSeconds));
         this.userQueryGateway = requireNonNull(userQueryGateway);
         this.fileQueryGateway = requireNonNull(fileQueryGateway);
@@ -65,13 +77,18 @@ public class DefaultCreateTransferChannelUseCase extends CreateTransferChannelUs
                 .orElseThrow(() -> NotFoundException.create(Plan.class, user.getPlan()));
 
         final TransferChannel transferChannel = TransferChannelCreationService.upload(
+                maxRateLimitPerChunk,
+                maxParallelChunks,
+                maxBandwidthQuota,
+                targetChunkSize,
                 validDuration,
                 user,
                 userPlan,
-                file,
-                maxBandwidthQuota);
+                file);
 
-        return CreateTransferChannelOutput.from(transferChannelCommandGateway.create(transferChannel));
+        transferChannelCommandGateway.create(transferChannel);
+
+        return CreateTransferChannelOutput.from(transferChannel);
 
     }
 

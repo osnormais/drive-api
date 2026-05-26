@@ -15,7 +15,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class TransferChannelUseCaseConfig {
 
+    private static final Long DEFAULT_MAX_RATE_LIMIT_PER_CHUNK_BYTES_PER_SECOND = 1024 * 1024L; // 1 MB/s
+    private static final Integer DEFAULT_MAX_PARALLEL_CHUNKS = 5;
     private static final Long DEFAULT_MAX_BANDWIDTH_BYTES_PER_SECOND = 512 * 1024L; // 512 KB/s
+    private static final Long DEFAULT_TARGET_CHUNK_SIZE_BYTES = 5 * 1024 * 1024L; // 5 MB
     private static final Long DEFAULT_MAX_DURATION_SECONDS = 5L * 60L; // 5 minutes
 
     private final FileQueryGateway fileQueryGateway;
@@ -40,7 +43,10 @@ public class TransferChannelUseCaseConfig {
     @Bean
     CreateTransferChannelUseCase createTransferChannelUseCase() {
         return new DefaultCreateTransferChannelUseCase(
+                DEFAULT_MAX_RATE_LIMIT_PER_CHUNK_BYTES_PER_SECOND,
+                DEFAULT_MAX_PARALLEL_CHUNKS,
                 DEFAULT_MAX_BANDWIDTH_BYTES_PER_SECOND,
+                DEFAULT_TARGET_CHUNK_SIZE_BYTES,
                 DEFAULT_MAX_DURATION_SECONDS,
                 userQueryGateway,
                 fileQueryGateway,

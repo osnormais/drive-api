@@ -9,16 +9,14 @@ public record CreateTransferChannelOutput(
         UUID id,
         UUID userId,
         UUID fileId,
-        Instant expiresAt,
-        Long throughputLimit) {
+        Instant expiresAt) {
 
     public static CreateTransferChannelOutput from(final TransferChannel transferChannel) {
         return new CreateTransferChannelOutput(
                 transferChannel.getId().getValue(),
                 transferChannel.getUser().getValue(),
                 transferChannel.getFile().getValue(),
-                transferChannel.getExpiresAt(),
-                transferChannel.getChunkSpecification().throughputLimit().bytesPerSecond());
+                transferChannel.getExpiresAt());
     }
 
 }

@@ -16,9 +16,8 @@ public class TransferChannelInMemGateway implements TransferChannelQueryGateway,
     private static final Map<TransferChannelId, TransferChannel> TRANSFER_CHANNELS = new HashMap<>();
 
     @Override
-    public TransferChannel create(final TransferChannel transferChannel) {
+    public void create(final TransferChannel transferChannel) {
         TRANSFER_CHANNELS.put(transferChannel.getId(), transferChannel);
-        return transferChannel;
     }
 
     @Override

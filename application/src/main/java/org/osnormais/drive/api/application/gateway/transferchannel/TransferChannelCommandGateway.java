@@ -4,6 +4,6 @@ import org.osnormais.drive.api.domain.transferchannel.TransferChannel;
 
 public interface TransferChannelCommandGateway {
 
-    TransferChannel create(TransferChannel transferChannel);
+    void create(TransferChannel transferChannel);
 
 }
