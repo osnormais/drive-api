@@ -1,6 +1,9 @@
 package org.osnormais.drive.api.infrastructure.file.persistence;
 
+import static java.util.Objects.isNull;
+
 import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -13,6 +16,7 @@ import org.osnormais.drive.api.domain.file.valueobject.Checksum;
 import org.osnormais.drive.api.domain.file.valueobject.Content;
 import org.osnormais.drive.api.domain.file.valueobject.FileName;
 import org.osnormais.drive.api.domain.file.valueobject.FileSize;
+import org.osnormais.drive.api.domain.file.valueobject.Publication;
 import org.osnormais.drive.api.domain.folder.FolderId;
 import org.osnormais.drive.api.domain.user.UserId;
 
@@ -57,6 +61,14 @@ public class FileJpa {
 
     private String contentType;
 
+    private Instant publishedAt;
+
+    @Enumerated(EnumType.STRING)
+    private Publication.Status publicationStatus;
+
+    @Column(length = 400)
+    private String publicationErrorMessage;
+
     @Column(nullable = false)
     private Instant createdAt;
 
@@ -83,6 +95,9 @@ public class FileJpa {
             final Long sizeInBytes,
             final String name,
             final String contentType,
+            final Instant publishedAt,
+            final Publication.Status publicationStatus,
+            final String publicationErrorMessage,
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt,
@@ -96,6 +111,9 @@ public class FileJpa {
         this.sizeInBytes = sizeInBytes;
         this.name = name;
         this.contentType = contentType;
+        this.publishedAt = publishedAt;
+        this.publicationStatus = publicationStatus;
+        this.publicationErrorMessage = publicationErrorMessage;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
@@ -114,6 +132,13 @@ public class FileJpa {
                 file.getSize().bytes(),
                 file.getName().value(),
                 file.getContent().type(),
+                file.getPublication().map(Publication::publishedAt).orElse(null),
+                file.getPublication().map(Publication::status).orElse(null),
+                file.getPublication()
+                        .map(Publication::error)
+                        .orElse(Optional.empty())
+                        .map(Publication.Error::message)
+                        .orElse(null),
                 file.getCreatedAt(),
                 file.getUpdatedAt(),
                 file.getDeletedAt(),
@@ -134,6 +159,14 @@ public class FileJpa {
                 Checksum.of(getChecksumAlgorithm(), getChecksumValue()),
                 FileSize.of(getSizeInBytes()),
                 Content.of(getContentType()),
+                isNull(publishedAt)
+                        ? null
+                        : new Publication(
+                                publishedAt,
+                                publicationStatus,
+                                Optional.ofNullable(isNull(publicationErrorMessage)
+                                        ? null
+                                        : new Publication.Error(publicationErrorMessage))),
                 getCreatedAt(),
                 getUpdatedAt(),
                 getDeletedAt(),
@@ -215,6 +248,30 @@ public class FileJpa {
 
     public void setContentType(String contentType) {
         this.contentType = contentType;
+    }
+
+    public Instant getPublishedAt() {
+        return publishedAt;
+    }
+
+    public void setPublishedAt(Instant publishedAt) {
+        this.publishedAt = publishedAt;
+    }
+
+    public Publication.Status getPublicationStatus() {
+        return publicationStatus;
+    }
+
+    public void setPublicationStatus(Publication.Status publicationStatus) {
+        this.publicationStatus = publicationStatus;
+    }
+
+    public String getPublicationErrorMessage() {
+        return publicationErrorMessage;
+    }
+
+    public void setPublicationErrorMessage(String publicationErrorMessage) {
+        this.publicationErrorMessage = publicationErrorMessage;
     }
 
     public Instant getCreatedAt() {
