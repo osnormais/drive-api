@@ -88,7 +88,15 @@ public class DefaultCreateTransferChannelUseCase extends CreateTransferChannelUs
                     user,
                     userPlan,
                     file);
-            case DOWNLOAD -> null;
+            case DOWNLOAD -> TransferChannelCreationService.download(
+                    maxRateLimitPerChunk,
+                    maxParallelChunks,
+                    maxBandwidthQuota,
+                    targetChunkSize,
+                    validDuration,
+                    user,
+                    userPlan,
+                    file);
         };
 
         transferChannelCommandGateway.create(transferChannel);
