@@ -7,9 +7,9 @@ import java.time.Instant;
 
 import org.osnormais.drive.api.domain.AggregateRoot;
 import org.osnormais.drive.api.domain.exception.TransferChannelExpiredException;
+import org.osnormais.drive.api.domain.exception.TransferChannelFileMismatchException;
 import org.osnormais.drive.api.domain.exception.TransferChannelNotOwnedByUserException;
 import org.osnormais.drive.api.domain.file.FileId;
-import org.osnormais.drive.api.domain.transferchannel.valueobject.ChunkPermission;
 import org.osnormais.drive.api.domain.transferchannel.valueobject.ChunkSpecification;
 import org.osnormais.drive.api.domain.user.UserId;
 import org.osnormais.drive.api.domain.validation.ValidationError;
@@ -80,19 +80,10 @@ public class TransferChannel extends AggregateRoot<TransferChannelId> {
 
     }
 
-    public ChunkPermission allowChunk(final Long chunkIndex, final Duration validDuration) {
-
-        final Instant now = Instant.now();
-
-        if (expiresAt.isBefore(now))
-            throw TransferChannelExpiredException.create();
-
-        final Instant targetExpiresAt = now.plus(validDuration);
-        if (this.expiresAt.isBefore(targetExpiresAt))
-            return ChunkPermission.create(chunkIndex, type, expiresAt);
-
-        return ChunkPermission.create(chunkIndex, type, targetExpiresAt);
-
+    public TransferChannel ensureBelongsToFile(final FileId file) {
+        if (!this.file.equals(file))
+            throw TransferChannelFileMismatchException.with(file);
+        return this;
     }
 
     public TransferChannel ensureBelongsTo(final UserId user) {
@@ -105,6 +96,11 @@ public class TransferChannel extends AggregateRoot<TransferChannelId> {
         if (expiresAt.isBefore(Instant.now()))
             throw TransferChannelExpiredException.create();
         return this;
+    }
+
+    public Instant resolvePermissionExpiresAt(final Duration validDuration) {
+        final Instant targetExpiresAt = Instant.now().plus(validDuration);
+        return expiresAt.isBefore(targetExpiresAt) ? expiresAt : targetExpiresAt;
     }
 
     public TransferChannelType getType() {
