@@ -7,6 +7,8 @@ import org.osnormais.drive.api.application.gateway.transferchannel.TransferChann
 import org.osnormais.drive.api.application.gateway.user.UserQueryGateway;
 import org.osnormais.drive.api.application.usecase.transferchannel.create.CreateTransferChannelUseCase;
 import org.osnormais.drive.api.application.usecase.transferchannel.create.DefaultCreateTransferChannelUseCase;
+import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.chunk.permission.DefaultGetTransferChannelPermissionUseCase;
+import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.chunk.permission.GetTransferChannelPermissionUseCase;
 import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.get.DefaultGetTransferChannelUseCase;
 import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.get.GetTransferChannelUseCase;
 import org.springframework.context.annotation.Bean;
@@ -57,6 +59,15 @@ public class TransferChannelUseCaseConfig {
     @Bean
     GetTransferChannelUseCase getTransferChannelUseCase() {
         return new DefaultGetTransferChannelUseCase(userQueryGateway, transferChannelQueryGateway);
+    }
+
+    @Bean
+    GetTransferChannelPermissionUseCase getTransferChannelPermissionUseCase() {
+        return new DefaultGetTransferChannelPermissionUseCase(
+                userQueryGateway,
+                transferChannelQueryGateway,
+                fileQueryGateway,
+                DEFAULT_MAX_DURATION_SECONDS);
     }
 
 }

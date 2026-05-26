@@ -19,7 +19,7 @@ import org.osnormais.drive.api.domain.transferchannel.service.ChunkPermissionGen
 import org.osnormais.drive.api.domain.user.User;
 import org.osnormais.drive.api.domain.user.UserId;
 
-public abstract class DefaultGetTransferChannelPermissionUseCase extends GetTransferChannelPermissionUseCase {
+public class DefaultGetTransferChannelPermissionUseCase extends GetTransferChannelPermissionUseCase {
 
     private final UserQueryGateway userQueryGateway;
     private final TransferChannelQueryGateway transferChannelQueryGateway;
@@ -30,11 +30,11 @@ public abstract class DefaultGetTransferChannelPermissionUseCase extends GetTran
             final UserQueryGateway userQueryGateway,
             final TransferChannelQueryGateway transferChannelQueryGateway,
             final FileQueryGateway fileQueryGateway,
-            final Duration validDuration) {
+            final Long validDurationSeconds) {
         this.userQueryGateway = requireNonNull(userQueryGateway);
         this.transferChannelQueryGateway = requireNonNull(transferChannelQueryGateway);
         this.fileQueryGateway = requireNonNull(fileQueryGateway);
-        this.validDuration = requireNonNull(validDuration);
+        this.validDuration = Duration.ofSeconds(requireNonNull(validDurationSeconds));
     }
 
     @Override

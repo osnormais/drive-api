@@ -101,7 +101,7 @@ public class DefaultCreateTransferChannelUseCase extends CreateTransferChannelUs
 
         transferChannelCommandGateway.create(transferChannel);
 
-        return CreateTransferChannelOutput.from(transferChannel);
+        return CreateTransferChannelOutput.from(transferChannel, file.getSize());
 
     }
 
