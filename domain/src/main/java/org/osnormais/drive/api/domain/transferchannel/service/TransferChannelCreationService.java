@@ -27,6 +27,9 @@ public final class TransferChannelCreationService {
             final Plan userPlan,
             final File file) {
 
+        if (file.isPublished())
+            throw new IllegalStateException("File is already published and cannot be uploaded again.");
+
         return create(
                 TransferChannelType.UPLOAD,
                 maxRateLimitPerChunk,
@@ -49,6 +52,9 @@ public final class TransferChannelCreationService {
             final User user,
             final Plan userPlan,
             final File file) {
+
+        if (!file.isPublished())
+            throw new IllegalStateException("File is not published and cannot be downloaded.");
 
         return create(
                 TransferChannelType.DOWNLOAD,
