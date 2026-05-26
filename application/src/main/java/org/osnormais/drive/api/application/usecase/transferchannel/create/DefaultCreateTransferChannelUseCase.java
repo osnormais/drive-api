@@ -16,6 +16,7 @@ import org.osnormais.drive.api.domain.entitlement.quota.BandwidthQuota;
 import org.osnormais.drive.api.domain.file.File;
 import org.osnormais.drive.api.domain.file.FileId;
 import org.osnormais.drive.api.domain.transferchannel.TransferChannel;
+import org.osnormais.drive.api.domain.transferchannel.TransferChannelType;
 import org.osnormais.drive.api.domain.transferchannel.service.TransferChannelCreationService;
 import org.osnormais.drive.api.domain.transferchannel.valueobject.ChunkSize;
 import org.osnormais.drive.api.domain.transferchannel.valueobject.ParallelChunkLimit;
@@ -63,6 +64,7 @@ public class DefaultCreateTransferChannelUseCase extends CreateTransferChannelUs
 
         final UserId userId = UserId.of(input.userId());
         final FileId fileId = FileId.of(input.fileId());
+        final TransferChannelType type = input.transferChannelType();
 
         final User user = userQueryGateway
                 .findById(userId)
@@ -76,15 +78,18 @@ public class DefaultCreateTransferChannelUseCase extends CreateTransferChannelUs
                 .findById(user.getPlan())
                 .orElseThrow(() -> NotFoundException.create(Plan.class, user.getPlan()));
 
-        final TransferChannel transferChannel = TransferChannelCreationService.upload(
-                maxRateLimitPerChunk,
-                maxParallelChunks,
-                maxBandwidthQuota,
-                targetChunkSize,
-                validDuration,
-                user,
-                userPlan,
-                file);
+        final TransferChannel transferChannel = switch (type) {
+            case UPLOAD -> TransferChannelCreationService.upload(
+                    maxRateLimitPerChunk,
+                    maxParallelChunks,
+                    maxBandwidthQuota,
+                    targetChunkSize,
+                    validDuration,
+                    user,
+                    userPlan,
+                    file);
+            case DOWNLOAD -> null;
+        };
 
         transferChannelCommandGateway.create(transferChannel);
 

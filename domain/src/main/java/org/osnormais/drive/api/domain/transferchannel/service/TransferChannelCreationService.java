@@ -27,6 +27,53 @@ public final class TransferChannelCreationService {
             final Plan userPlan,
             final File file) {
 
+        return create(
+                TransferChannelType.UPLOAD,
+                maxRateLimitPerChunk,
+                maxParallelChunks,
+                maxBandwidthQuota,
+                targetChunkSize,
+                validDuration,
+                user,
+                userPlan,
+                file);
+
+    }
+
+    public static TransferChannel download(
+            final ThroughputLimit maxRateLimitPerChunk,
+            final ParallelChunkLimit maxParallelChunks,
+            final BandwidthQuota maxBandwidthQuota,
+            final ChunkSize targetChunkSize,
+            final Duration validDuration,
+            final User user,
+            final Plan userPlan,
+            final File file) {
+
+        return create(
+                TransferChannelType.DOWNLOAD,
+                maxRateLimitPerChunk,
+                maxParallelChunks,
+                maxBandwidthQuota,
+                targetChunkSize,
+                validDuration,
+                user,
+                userPlan,
+                file);
+
+    }
+
+    private static TransferChannel create(
+            final TransferChannelType type,
+            final ThroughputLimit maxRateLimitPerChunk,
+            final ParallelChunkLimit maxParallelChunks,
+            final BandwidthQuota maxBandwidthQuota,
+            final ChunkSize targetChunkSize,
+            final Duration validDuration,
+            final User user,
+            final Plan userPlan,
+            final File file) {
+
         final BandwidthQuota planBandwidthQuota = userPlan.getBandwidthQuota();
 
         final BandwidthQuota effectiveTargetBandwidthQuota = planBandwidthQuota.isUnlimited()
@@ -44,7 +91,7 @@ public final class TransferChannelCreationService {
                 validDuration,
                 user.getId(),
                 file.getId(),
-                TransferChannelType.UPLOAD,
+                type,
                 chunkSpecification);
 
     }
