@@ -6,4 +6,8 @@ import java.util.UUID;
 
 public record GetTransferChannelTokensResponse(UUID fileId, Instant expiresAt, Set<ChunkToken> chunkTokens) {
 
+    public record ChunkToken(Long index, String token) {
+
+    }
+
 }

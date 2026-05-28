@@ -11,6 +11,8 @@ public record GetTransferChannelResponse(
         Long totalChunks,
         UUID userId,
         UUID fileId,
+        Integer maxParallelChunks,
+        Long throughputLimit,
         Instant expiresAt) {
 
     public static GetTransferChannelResponse from(final GetTransferChannelOutput output) {
@@ -20,6 +22,8 @@ public record GetTransferChannelResponse(
                 output.totalChunks(),
                 output.userId(),
                 output.fileId(),
+                output.maxParallelChunks(),
+                output.throughputLimit(),
                 output.expiresAt());
     }
 

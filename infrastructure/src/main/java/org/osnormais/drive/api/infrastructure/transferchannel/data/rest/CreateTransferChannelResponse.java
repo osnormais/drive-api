@@ -11,6 +11,8 @@ public record CreateTransferChannelResponse(
         Long totalChunks,
         UUID userId,
         UUID fileId,
+        Integer maxParallelChunks,
+        Long throughputLimit,
         Instant expiresAt) {
 
     public static CreateTransferChannelResponse from(final CreateTransferChannelOutput output) {
@@ -20,6 +22,8 @@ public record CreateTransferChannelResponse(
                 output.totalChunks(),
                 output.userId(),
                 output.fileId(),
+                output.maxParallelChunks(),
+                output.throughputLimit(),
                 output.expiresAt());
     }
 

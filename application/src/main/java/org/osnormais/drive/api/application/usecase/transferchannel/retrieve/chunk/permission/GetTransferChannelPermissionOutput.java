@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.osnormais.drive.api.domain.transferchannel.TransferChannel;
 import org.osnormais.drive.api.domain.transferchannel.service.ChunkPermissionGenerationService.ChunkPermission;
 
 public record GetTransferChannelPermissionOutput(
@@ -12,14 +13,20 @@ public record GetTransferChannelPermissionOutput(
         UUID fileId,
         String type,
         Instant expiresAt,
+        Integer maxParallelChunks,
+        Long throughputLimit,
         Set<ChunkInfo> chunks) {
 
-    public static GetTransferChannelPermissionOutput from(final ChunkPermission chunkPermission) {
+    public static GetTransferChannelPermissionOutput from(
+            final TransferChannel transferChannel,
+            final ChunkPermission chunkPermission) {
         return new GetTransferChannelPermissionOutput(
                 chunkPermission.userId().getValue(),
                 chunkPermission.fileId().getValue(),
                 chunkPermission.type().name(),
                 chunkPermission.expiresAt(),
+                transferChannel.getChunkSpecification().parallelChunkLimit().value(),
+                transferChannel.getChunkSpecification().throughputLimit().bytesPerSecond(),
                 chunkPermission.chunks().stream().map(ChunkInfo::from).collect(Collectors.toSet()));
     }
 

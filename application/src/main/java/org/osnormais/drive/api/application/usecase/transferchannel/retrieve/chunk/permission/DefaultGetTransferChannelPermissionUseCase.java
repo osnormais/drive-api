@@ -69,7 +69,7 @@ public class DefaultGetTransferChannelPermissionUseCase extends GetTransferChann
                 chunkIndexes,
                 validDuration);
 
-        return GetTransferChannelPermissionOutput.from(permission);
+        return GetTransferChannelPermissionOutput.from(transferChannel, permission);
     }
 
 }

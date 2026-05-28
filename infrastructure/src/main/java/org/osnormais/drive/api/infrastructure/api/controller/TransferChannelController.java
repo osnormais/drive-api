@@ -24,10 +24,10 @@ import org.osnormais.drive.api.domain.transferchannel.TransferChannelType;
 import org.osnormais.drive.api.infrastructure.api.TransferChannelAPI;
 import org.osnormais.drive.api.infrastructure.commons.SecurityContext;
 import org.osnormais.drive.api.infrastructure.token.TokenGenerator;
-import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.ChunkToken;
 import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.CreateTransferChannelResponse;
 import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.GetTransferChannelResponse;
 import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.GetTransferChannelTokensResponse;
+import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.GetTransferChannelTokensResponse.ChunkToken;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -100,6 +100,8 @@ public class TransferChannelController implements TransferChannelAPI {
                                 output.expiresAt(),
                                 output.fileId(),
                                 output.type(),
+                                output.maxParallelChunks(),
+                                output.throughputLimit(),
                                 chunkInfo.chunkIndex(),
                                 chunkInfo.chunkOffset(),
                                 chunkInfo.chunkSize())))
@@ -115,6 +117,8 @@ public class TransferChannelController implements TransferChannelAPI {
             Instant expiresAt,
             UUID fileId,
             String type,
+            Integer maxParallelChunks,
+            Long throughputLimit,
             Long chunkIndex,
             Long chunkOffset,
             Long chunkSize) {
@@ -124,6 +128,8 @@ public class TransferChannelController implements TransferChannelAPI {
                 put("actor", actor.toString());
                 put("file", fileId.toString());
                 put("type", type);
+                put("maxParallelChunks", maxParallelChunks);
+                put("throughputLimit", throughputLimit);
                 put("chunkIndex", chunkIndex);
                 put("chunkOffset", chunkOffset);
                 put("chunkSize", chunkSize);

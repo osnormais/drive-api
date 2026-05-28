@@ -11,6 +11,8 @@ public record GetTransferChannelOutput(
         Long totalChunks,
         UUID userId,
         UUID fileId,
+        Integer maxParallelChunks,
+        Long throughputLimit,
         Instant expiresAt) {
 
     public static GetTransferChannelOutput from(final TransferChannel transferChannel) {
@@ -20,6 +22,8 @@ public record GetTransferChannelOutput(
                 transferChannel.getChunkSpecification().chunkSize().bytes(),
                 transferChannel.getUser().getValue(),
                 transferChannel.getFile().getValue(),
+                transferChannel.getChunkSpecification().parallelChunkLimit().value(),
+                transferChannel.getChunkSpecification().throughputLimit().bytesPerSecond(),
                 transferChannel.getExpiresAt());
     }
 

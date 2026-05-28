@@ -12,6 +12,8 @@ public record CreateTransferChannelOutput(
         Long totalChunks,
         UUID userId,
         UUID fileId,
+        Integer maxParallelChunks,
+        Long throughputLimit,
         Instant expiresAt) {
 
     public static CreateTransferChannelOutput from(final TransferChannel transferChannel, final FileSize fileSize) {
@@ -21,6 +23,8 @@ public record CreateTransferChannelOutput(
                 transferChannel.getChunkSpecification().totalChunks(fileSize.bytes()),
                 transferChannel.getUser().getValue(),
                 transferChannel.getFile().getValue(),
+                transferChannel.getChunkSpecification().parallelChunkLimit().value(),
+                transferChannel.getChunkSpecification().throughputLimit().bytesPerSecond(),
                 transferChannel.getExpiresAt());
     }
 
