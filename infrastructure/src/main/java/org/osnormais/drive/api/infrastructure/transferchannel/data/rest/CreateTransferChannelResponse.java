@@ -3,9 +3,9 @@ package org.osnormais.drive.api.infrastructure.transferchannel.data.rest;
 import java.time.Instant;
 import java.util.UUID;
 
-import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.get.GetTransferChannelOutput;
+import org.osnormais.drive.api.application.usecase.transferchannel.create.CreateTransferChannelOutput;
 
-public record GetTransferChannelResponse(
+public record CreateTransferChannelResponse(
         UUID id,
         String type,
         Long totalChunks,
@@ -13,8 +13,8 @@ public record GetTransferChannelResponse(
         UUID fileId,
         Instant expiresAt) {
 
-    public static GetTransferChannelResponse from(final GetTransferChannelOutput output) {
-        return new GetTransferChannelResponse(
+    public static CreateTransferChannelResponse from(final CreateTransferChannelOutput output) {
+        return new CreateTransferChannelResponse(
                 output.id(),
                 output.type(),
                 output.totalChunks(),

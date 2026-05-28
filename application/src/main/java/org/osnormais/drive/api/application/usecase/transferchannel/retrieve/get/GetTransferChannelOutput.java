@@ -7,6 +7,8 @@ import org.osnormais.drive.api.domain.transferchannel.TransferChannel;
 
 public record GetTransferChannelOutput(
         UUID id,
+        String type,
+        Long totalChunks,
         UUID userId,
         UUID fileId,
         Instant expiresAt) {
@@ -14,6 +16,8 @@ public record GetTransferChannelOutput(
     public static GetTransferChannelOutput from(final TransferChannel transferChannel) {
         return new GetTransferChannelOutput(
                 transferChannel.getId().getValue(),
+                transferChannel.getType().name(),
+                transferChannel.getChunkSpecification().chunkSize().bytes(),
                 transferChannel.getUser().getValue(),
                 transferChannel.getFile().getValue(),
                 transferChannel.getExpiresAt());

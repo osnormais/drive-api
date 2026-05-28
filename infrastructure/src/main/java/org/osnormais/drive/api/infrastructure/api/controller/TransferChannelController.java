@@ -17,12 +17,15 @@ import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.chun
 import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.chunk.permission.GetTransferChannelPermissionInput.Range;
 import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.chunk.permission.GetTransferChannelPermissionOutput;
 import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.chunk.permission.GetTransferChannelPermissionUseCase;
+import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.get.GetTransferChannelInput;
+import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.get.GetTransferChannelOutput;
 import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.get.GetTransferChannelUseCase;
 import org.osnormais.drive.api.domain.transferchannel.TransferChannelType;
 import org.osnormais.drive.api.infrastructure.api.TransferChannelAPI;
 import org.osnormais.drive.api.infrastructure.commons.SecurityContext;
 import org.osnormais.drive.api.infrastructure.token.TokenGenerator;
 import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.ChunkToken;
+import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.CreateTransferChannelResponse;
 import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.GetTransferChannelResponse;
 import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.GetTransferChannelTokensResponse;
 import org.springframework.http.ResponseEntity;
@@ -49,14 +52,24 @@ public class TransferChannelController implements TransferChannelAPI {
     }
 
     @Override
-    public ResponseEntity<GetTransferChannelResponse> createTrasnferChannel(
+    public ResponseEntity<CreateTransferChannelResponse> createTrasnferChannel(
             final UUID fileId,
             final TransferChannelType type) {
 
         final CreateTransferChannelOutput output = createTransferChannelUseCase.execute(
                 new CreateTransferChannelInput(SecurityContext.getAuthenticatedUserId(), fileId, type));
 
-        return ResponseEntity.ok(new GetTransferChannelResponse(output.id(), output.totalChunks(), output.expiresAt()));
+        return ResponseEntity.ok(CreateTransferChannelResponse.from(output));
+
+    }
+
+    @Override
+    public ResponseEntity<GetTransferChannelResponse> getTransferChannel(final UUID id) {
+
+        final GetTransferChannelOutput output = getTransferChannelUseCase.execute(
+                new GetTransferChannelInput(SecurityContext.getAuthenticatedUserId(), id));
+
+        return ResponseEntity.ok(GetTransferChannelResponse.from(output));
 
     }
 
