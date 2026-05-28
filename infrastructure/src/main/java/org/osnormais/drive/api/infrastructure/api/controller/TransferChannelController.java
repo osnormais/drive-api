@@ -72,8 +72,10 @@ public class TransferChannelController implements TransferChannelAPI {
                 .map(range -> new Range(Long.parseLong(range[0]), Long.parseLong(range[1])))
                 .collect(Collectors.toSet());
 
+        final UUID authenticatedUserId = SecurityContext.getAuthenticatedUserId();
+
         final GetTransferChannelPermissionOutput output = getTransferChannelPermissionUseCase
-                .execute(new GetTransferChannelPermissionInput(SecurityContext.getAuthenticatedUserId(), id, rangeSet));
+                .execute(new GetTransferChannelPermissionInput(authenticatedUserId, id, rangeSet));
 
         final Set<ChunkToken> chunkTokens = output
                 .chunks()
@@ -81,9 +83,10 @@ public class TransferChannelController implements TransferChannelAPI {
                 .map(chunkInfo -> new ChunkToken(
                         chunkInfo.chunkIndex(),
                         generateToken(
+                                authenticatedUserId,
+                                output.expiresAt(),
                                 output.fileId(),
                                 output.type(),
-                                output.expiresAt(),
                                 chunkInfo.chunkIndex(),
                                 chunkInfo.chunkOffset(),
                                 chunkInfo.chunkSize())))
@@ -95,16 +98,18 @@ public class TransferChannelController implements TransferChannelAPI {
     }
 
     private String generateToken(
+            UUID actor,
+            Instant expiresAt,
             UUID fileId,
             String type,
-            Instant expiresAt,
             Long chunkIndex,
             Long chunkOffset,
             Long chunkSize) {
 
         Map<String, Object> map = new HashMap<String, Object>() {
             {
-                put("fileId", fileId.toString());
+                put("actor", actor.toString());
+                put("file", fileId.toString());
                 put("type", type);
                 put("chunkIndex", chunkIndex);
                 put("chunkOffset", chunkOffset);
