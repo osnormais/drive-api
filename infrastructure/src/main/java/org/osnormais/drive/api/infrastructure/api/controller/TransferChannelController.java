@@ -2,10 +2,7 @@ package org.osnormais.drive.api.infrastructure.api.controller;
 
 import static java.util.Objects.requireNonNull;
 
-import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,6 +25,7 @@ import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.CreateTr
 import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.GetTransferChannelResponse;
 import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.GetTransferChannelTokensResponse;
 import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.GetTransferChannelTokensResponse.ChunkToken;
+import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.TransferChannelTokenData;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -96,15 +94,19 @@ public class TransferChannelController implements TransferChannelAPI {
                 .map(chunkInfo -> new ChunkToken(
                         chunkInfo.chunkIndex(),
                         generateToken(
-                                output.actorId(),
-                                output.expiresAt(),
-                                output.fileId(),
-                                output.type(),
-                                output.maxParallelChunks(),
-                                output.throughputLimit(),
-                                chunkInfo.chunkIndex(),
-                                chunkInfo.chunkOffset(),
-                                chunkInfo.chunkSize())))
+
+                                new TransferChannelTokenData(
+                                        output.actorId().toString(),
+                                        output.expiresAt(),
+                                        output.fileId().toString(),
+                                        output.type(),
+                                        output.maxParallelChunks(),
+                                        output.throughputLimit(),
+                                        chunkInfo.chunkIndex(),
+                                        chunkInfo.chunkOffset(),
+                                        chunkInfo.chunkSize())
+
+                        )))
                 .collect(Collectors.toSet());
 
         return ResponseEntity
@@ -112,32 +114,8 @@ public class TransferChannelController implements TransferChannelAPI {
 
     }
 
-    private String generateToken(
-            UUID actor,
-            Instant expiresAt,
-            UUID fileId,
-            String type,
-            Integer maxParallelChunks,
-            Long throughputLimit,
-            Long chunkIndex,
-            Long chunkOffset,
-            Long chunkSize) {
-
-        Map<String, Object> map = new HashMap<String, Object>() {
-            {
-                put("actor", actor.toString());
-                put("file", fileId.toString());
-                put("type", type);
-                put("maxParallelChunks", maxParallelChunks);
-                put("throughputLimit", throughputLimit);
-                put("chunkIndex", chunkIndex);
-                put("chunkOffset", chunkOffset);
-                put("chunkSize", chunkSize);
-            }
-        };
-
-        return tokenGenerator.generate(map, expiresAt);
-
+    private String generateToken(TransferChannelTokenData tokenData) {
+        return tokenGenerator.generate(tokenData.toMap(), tokenData.expiresAt());
     }
 
 }
