@@ -67,7 +67,7 @@ public class TransferChannelController implements TransferChannelAPI {
     public ResponseEntity<GetTransferChannelResponse> getTransferChannel(final UUID id) {
 
         final GetTransferChannelOutput output = getTransferChannelUseCase.execute(
-                new GetTransferChannelInput(SecurityContext.getAuthenticatedUserId(), id));
+                new GetTransferChannelInput(id, SecurityContext.getAuthenticatedUserId()));
 
         return ResponseEntity.ok(GetTransferChannelResponse.from(output));
 
