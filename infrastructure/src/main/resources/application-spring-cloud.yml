@@ -21,10 +21,10 @@ spring:
             max-attempts: 1
             concurrency: ${application.messaging.private.consumer.file-created.concurrency}
         ## --------------------------------------- ##
-        # Incoming <- Acl Updated      #
+        # Incoming <- Acl Updated                   #
         aclUpdated-in-0:
           destination: drive.exchange
-          group: drive.acl:updated.queue
+          group: drive.acl.updated.queue
           consumer:
             max-attempts: 1
             concurrency: ${application.messaging.private.consumer.acl-updated.concurrency}
@@ -37,13 +37,13 @@ spring:
           producer:
             requiredGroups: drive.file.created.queue.error
         ## --------------------------------------- ##
-        # Outgoing -> Acl Updated      #
+        # Outgoing -> Acl Updated                   #
         aclUpdated-out-0:
           destination: drive.exchange
         aclUpdatedError-out-0:
           destination: drive.exchange.error
           producer:
-            requiredGroups: drive.acl:updated.queue.error
+            requiredGroups: drive.acl.updated.queue.error
         ## --------------------------------------- ##
         ###### ------- PUBLIC MESSAGES ------- ######
         ## --------------------------------------- ##
