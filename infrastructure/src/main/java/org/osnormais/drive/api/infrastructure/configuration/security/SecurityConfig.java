@@ -42,7 +42,7 @@ public class SecurityConfig {
                                 "/swagger-ui.html")
                         .permitAll()
                         .anyRequest()
-                        .permitAll())
+                        .authenticated())
                 .oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(new KeycloakJwtConverter())))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
