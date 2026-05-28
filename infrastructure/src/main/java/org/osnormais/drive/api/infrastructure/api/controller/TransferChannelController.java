@@ -3,7 +3,9 @@ package org.osnormais.drive.api.infrastructure.api.controller;
 import static java.util.Objects.requireNonNull;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,6 +21,7 @@ import org.osnormais.drive.api.application.usecase.transferchannel.retrieve.get.
 import org.osnormais.drive.api.domain.transferchannel.TransferChannelType;
 import org.osnormais.drive.api.infrastructure.api.TransferChannelAPI;
 import org.osnormais.drive.api.infrastructure.commons.SecurityContext;
+import org.osnormais.drive.api.infrastructure.token.TokenGenerator;
 import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.ChunkToken;
 import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.GetTransferChannelResponse;
 import org.osnormais.drive.api.infrastructure.transferchannel.data.rest.GetTransferChannelTokensResponse;
@@ -28,14 +31,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TransferChannelController implements TransferChannelAPI {
 
+    private final TokenGenerator tokenGenerator;
+
     private final CreateTransferChannelUseCase createTransferChannelUseCase;
     private final GetTransferChannelUseCase getTransferChannelUseCase;
     private final GetTransferChannelPermissionUseCase getTransferChannelPermissionUseCase;
 
     public TransferChannelController(
+            final TokenGenerator tokenGenerator,
             final CreateTransferChannelUseCase createTransferChannelUseCase,
             final GetTransferChannelUseCase getTransferChannelUseCase,
             final GetTransferChannelPermissionUseCase getTransferChannelPermissionUseCase) {
+        this.tokenGenerator = requireNonNull(tokenGenerator);
         this.createTransferChannelUseCase = requireNonNull(createTransferChannelUseCase);
         this.getTransferChannelUseCase = requireNonNull(getTransferChannelUseCase);
         this.getTransferChannelPermissionUseCase = requireNonNull(getTransferChannelPermissionUseCase);
@@ -93,7 +100,19 @@ public class TransferChannelController implements TransferChannelAPI {
             Long chunkIndex,
             Long chunkOffset,
             Long chunkSize) {
-        return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
+
+        Map<String, Object> map = new HashMap<String, Object>() {
+            {
+                put("fileId", fileId.toString());
+                put("type", type);
+                put("chunkIndex", chunkIndex);
+                put("chunkOffset", chunkOffset);
+                put("chunkSize", chunkSize);
+            }
+        };
+
+        return tokenGenerator.generate(map, expiresAt);
+
     }
 
 }

@@ -9,6 +9,7 @@ spring:
       - ${application.vendor.concurrency-tracker}
       - ${application.vendor.database}
       - ${application.vendor.messaging}
+      - ${application.token.signature.private-key.source}
 
 application:
   name: drive-api
@@ -26,6 +27,11 @@ application:
   outbox:
     relay:
       fixed-rate: ${OUTBOX_RELAY_FIXED_RATE:60000}
+  token:
+    signature:
+      algorithm: ${TOKEN_SIGNATURE_ALGORITHM:ECDSA256}
+      private-key:
+        source: ${TOKEN_SIGNATURE_PRIVATE_KEY_SOURCE:env}
   vendor:
     concurrency-tracker: ${VENDOR_CONCURRENCY_TRACKER:inmemory}
     database: ${VENDOR_DATABASE:postgres}
