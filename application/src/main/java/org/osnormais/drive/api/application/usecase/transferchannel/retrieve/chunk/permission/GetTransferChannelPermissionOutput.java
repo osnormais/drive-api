@@ -7,10 +7,16 @@ import java.util.stream.Collectors;
 
 import org.osnormais.drive.api.domain.transferchannel.service.ChunkPermissionGenerationService.ChunkPermission;
 
-public record GetTransferChannelPermissionOutput(UUID fileId, String type, Instant expiresAt, Set<ChunkInfo> chunks) {
+public record GetTransferChannelPermissionOutput(
+        UUID actorId,
+        UUID fileId,
+        String type,
+        Instant expiresAt,
+        Set<ChunkInfo> chunks) {
 
     public static GetTransferChannelPermissionOutput from(final ChunkPermission chunkPermission) {
         return new GetTransferChannelPermissionOutput(
+                chunkPermission.userId().getValue(),
                 chunkPermission.fileId().getValue(),
                 chunkPermission.type().name(),
                 chunkPermission.expiresAt(),

@@ -83,7 +83,7 @@ public class TransferChannelController implements TransferChannelAPI {
                 .map(chunkInfo -> new ChunkToken(
                         chunkInfo.chunkIndex(),
                         generateToken(
-                                authenticatedUserId,
+                                output.actorId(),
                                 output.expiresAt(),
                                 output.fileId(),
                                 output.type(),

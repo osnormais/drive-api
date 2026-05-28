@@ -37,6 +37,7 @@ public final class ChunkPermissionGenerationService {
                 .collect(Collectors.toSet());
 
         return new ChunkPermission(
+                actorId,
                 transferChannel.getType(),
                 file.getId(),
                 chunksInfo,
@@ -56,7 +57,12 @@ public final class ChunkPermissionGenerationService {
 
     }
 
-    public record ChunkPermission(TransferChannelType type, FileId fileId, Set<ChunkInfo> chunks, Instant expiresAt) {
+    public record ChunkPermission(
+            UserId userId,
+            TransferChannelType type,
+            FileId fileId,
+            Set<ChunkInfo> chunks,
+            Instant expiresAt) {
 
         public record ChunkInfo(Long chunkIndex, Long chunkOffset, ChunkSize chunkSize) {
         }
