@@ -68,6 +68,7 @@ public class TransferChannelController implements TransferChannelAPI {
         final Set<Range> rangeSet = List.of(ranges.split(";"))
                 .stream()
                 .map(range -> range.split("-"))
+                .filter(range -> range.length == 2)
                 .map(range -> new Range(Long.parseLong(range[0]), Long.parseLong(range[1])))
                 .collect(Collectors.toSet());
 
