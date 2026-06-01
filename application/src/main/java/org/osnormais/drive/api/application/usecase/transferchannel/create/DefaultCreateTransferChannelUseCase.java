@@ -47,7 +47,7 @@ public class DefaultCreateTransferChannelUseCase extends CreateTransferChannelUs
             final FileQueryGateway fileQueryGateway,
             final PlanQueryGateway planQueryGateway,
             final TransferChannelCommandGateway transferChannelCommandGateway) {
-        this.maxRateLimitPerChunk = ThroughputLimit.create(requireNonNull(maxRateLimitPerChunkBytesPerSecond));
+        this.maxRateLimitPerChunk = ThroughputLimit.of(requireNonNull(maxRateLimitPerChunkBytesPerSecond));
         this.maxParallelChunks = ParallelChunkLimit.of(requireNonNull(maxParallelChunks));
         this.maxBandwidthQuota = BandwidthQuota.of(Amount.of(requireNonNull(maxBandwidthQuotaBytesPerSecond)));
         this.targetChunkSize = ChunkSize.of(requireNonNull(targetChunkSizeBytes));

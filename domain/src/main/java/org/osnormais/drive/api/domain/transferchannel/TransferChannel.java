@@ -9,10 +9,12 @@ import org.osnormais.drive.api.domain.AggregateRoot;
 import org.osnormais.drive.api.domain.exception.TransferChannelExpiredException;
 import org.osnormais.drive.api.domain.exception.TransferChannelFileMismatchException;
 import org.osnormais.drive.api.domain.exception.TransferChannelNotOwnedByUserException;
+import org.osnormais.drive.api.domain.exception.ValidationException;
 import org.osnormais.drive.api.domain.file.FileId;
 import org.osnormais.drive.api.domain.transferchannel.valueobject.ChunkSpecification;
 import org.osnormais.drive.api.domain.user.UserId;
 import org.osnormais.drive.api.domain.validation.ValidationError;
+import org.osnormais.drive.api.domain.validation.handler.Notification;
 import org.osnormais.drive.api.domain.validation.handler.ValidationHandler;
 
 public class TransferChannel extends AggregateRoot<TransferChannelId> {
@@ -36,6 +38,24 @@ public class TransferChannel extends AggregateRoot<TransferChannelId> {
         this.file = file;
         this.expiresAt = expiresAt;
         this.chunkSpecification = chunkSpecification;
+
+        selfValidate();
+    }
+
+    public static TransferChannel with(
+            final TransferChannelId id,
+            final TransferChannelType type,
+            final UserId user,
+            final FileId file,
+            final Instant expiresAt,
+            final ChunkSpecification chunkSpecification) {
+        return new TransferChannel(
+                id,
+                type,
+                user,
+                file,
+                expiresAt,
+                chunkSpecification);
     }
 
     @Override
@@ -101,6 +121,13 @@ public class TransferChannel extends AggregateRoot<TransferChannelId> {
     public Instant resolvePermissionExpiresAt(final Duration validDuration) {
         final Instant targetExpiresAt = Instant.now().plus(validDuration);
         return expiresAt.isBefore(targetExpiresAt) ? expiresAt : targetExpiresAt;
+    }
+
+    private void selfValidate() {
+        final ValidationHandler notification = Notification.create();
+        validate(notification);
+        if (notification.hasErrors())
+            throw ValidationException.with("'TransferChannel' validation failed", notification);
     }
 
     public TransferChannelType getType() {

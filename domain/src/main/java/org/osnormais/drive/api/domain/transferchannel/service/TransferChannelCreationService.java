@@ -116,7 +116,7 @@ public final class TransferChannelCreationService {
 
         if (targetWithinMaxPerChunk)
             return new ChunkSpecification(
-                    ThroughputLimit.create(targetBps),
+                    ThroughputLimit.of(targetBps),
                     targetChunkSize,
                     ParallelChunkLimit.of(1));
 

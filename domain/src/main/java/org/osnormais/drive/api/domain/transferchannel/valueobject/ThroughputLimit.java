@@ -6,7 +6,7 @@ import org.osnormais.drive.api.domain.validation.handler.ValidationHandler;
 
 public record ThroughputLimit(long bytesPerSecond) implements ValueObject {
 
-    public static ThroughputLimit create(long bytesPerSecond) {
+    public static ThroughputLimit of(long bytesPerSecond) {
         return new ThroughputLimit(bytesPerSecond);
     }
 
