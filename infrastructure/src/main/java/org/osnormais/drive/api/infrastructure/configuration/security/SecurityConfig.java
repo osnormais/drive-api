@@ -75,6 +75,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(allowedMethods);
         configuration.setAllowedHeaders(allowedHeaders);
         configuration.setAllowCredentials(allowCredentials);
+        configuration.addExposedHeader("location");
         return configuration;
     }
 
