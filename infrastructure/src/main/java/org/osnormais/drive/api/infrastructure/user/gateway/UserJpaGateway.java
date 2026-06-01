@@ -13,11 +13,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class UserJpaGteway implements UserCommandGateway, UserQueryGateway {
+public class UserJpaGateway implements UserCommandGateway, UserQueryGateway {
 
     private final UserJpaRepository userRepository;
 
-    public UserJpaGteway(final UserJpaRepository userRepository) {
+    public UserJpaGateway(final UserJpaRepository userRepository) {
         this.userRepository = userRepository;
     }
 

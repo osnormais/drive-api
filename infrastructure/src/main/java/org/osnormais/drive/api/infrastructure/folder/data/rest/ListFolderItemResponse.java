@@ -12,6 +12,6 @@ public record ListFolderItemResponse(
         UUID parentId,
         UUID ownerId,
         Instant createdAt,
-        Instant updatedAtt) {
+        Instant updatedAt) {
 
 }

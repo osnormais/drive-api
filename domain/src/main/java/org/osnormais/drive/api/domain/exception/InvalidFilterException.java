@@ -11,12 +11,12 @@ public class InvalidFilterException extends SilentDomainException {
         super(message, errors);
     }
 
-    public static InvalidFilterException filter(final String passedFilter, final String exemple) {
+    public static InvalidFilterException filter(final String passedFilter, final String example) {
         return new InvalidFilterException(
                 "The filter is invalid.",
                 List.of(
                         Error.with("Invalid filter: " + passedFilter),
-                        Error.with("Example of a valid filter: " + exemple)));
+                        Error.with("Example of a valid filter: " + example)));
     }
 
     public static InvalidFilterException field(

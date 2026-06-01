@@ -23,7 +23,7 @@ public interface TransferChannelAPI {
 
     @Operation(summary = "Create transfer channel", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
-    ResponseEntity<CreateTransferChannelResponse> createTrasnferChannel(
+    ResponseEntity<CreateTransferChannelResponse> createTransferChannel(
             @RequestHeader("X-File-Id") UUID fileId,
             @RequestHeader("X-Type") TransferChannelType type);
 

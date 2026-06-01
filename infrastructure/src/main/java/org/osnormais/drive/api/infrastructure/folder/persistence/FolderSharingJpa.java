@@ -32,7 +32,7 @@ public class FolderSharingJpa {
         return new FolderSharingJpa(
                 folderSharing.sharedTo().getValue(),
                 folderSharing.sharedBy().getValue(),
-                folderSharing.virtuaFolder().getValue(),
+                folderSharing.virtualFolder().getValue(),
                 folderSharing.sharedAt());
     }
 

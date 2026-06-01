@@ -216,7 +216,7 @@ public class Folder extends AggregateRoot<FolderId> implements DomainEventSource
                 .stream()
                 .filter(sharing -> sharing.sharedTo().equals(user))
                 .findFirst()
-                .map(FolderSharing::virtuaFolder)
+                .map(FolderSharing::virtualFolder)
                 .orElse(parentFolder.orElse(getId()));
 
     }

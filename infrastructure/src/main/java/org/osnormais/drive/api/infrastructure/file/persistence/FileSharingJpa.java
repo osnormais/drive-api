@@ -32,7 +32,7 @@ public class FileSharingJpa {
         return new FileSharingJpa(
                 fileSharing.sharedTo().getValue(),
                 fileSharing.sharedBy().getValue(),
-                fileSharing.virtuaFolder().getValue(),
+                fileSharing.virtualFolder().getValue(),
                 fileSharing.sharedAt());
     }
 

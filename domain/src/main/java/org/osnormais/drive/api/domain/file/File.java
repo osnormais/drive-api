@@ -191,7 +191,7 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
                 .stream()
                 .filter(sharing -> sharing.sharedTo().equals(user))
                 .findFirst()
-                .map(FileSharing::virtuaFolder)
+                .map(FileSharing::virtualFolder)
                 .orElse(folder);
 
     }

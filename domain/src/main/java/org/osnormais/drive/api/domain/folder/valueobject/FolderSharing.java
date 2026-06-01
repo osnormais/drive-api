@@ -13,19 +13,19 @@ import org.osnormais.drive.api.domain.validation.handler.ValidationHandler;
 public record FolderSharing(
         UserId sharedTo,
         UserId sharedBy,
-        FolderId virtuaFolder,
+        FolderId virtualFolder,
         Instant sharedAt) implements ValueObject {
 
-    public static FolderSharing create(final UserId sharedTo, final UserId sharedBy, final FolderId virtuaFolder) {
-        return new FolderSharing(sharedTo, sharedBy, virtuaFolder, Instant.now());
+    public static FolderSharing create(final UserId sharedTo, final UserId sharedBy, final FolderId virtualFolder) {
+        return new FolderSharing(sharedTo, sharedBy, virtualFolder, Instant.now());
     }
 
     public static FolderSharing with(
             final UserId sharedTo,
             final UserId sharedBy,
-            final FolderId virtuaFolder,
+            final FolderId virtualFolder,
             final Instant sharedAt) {
-        return new FolderSharing(sharedTo, sharedBy, virtuaFolder, sharedAt);
+        return new FolderSharing(sharedTo, sharedBy, virtualFolder, sharedAt);
     }
 
     @Override
@@ -41,10 +41,10 @@ public record FolderSharing(
         else
             sharedBy.validate(handler);
 
-        if (isNull(virtuaFolder))
+        if (isNull(virtualFolder))
             handler.append(ValidationError.with("Virtual folder is required"));
         else
-            virtuaFolder.validate(handler);
+            virtualFolder.validate(handler);
 
         if (isNull(sharedAt))
             handler.append(ValidationError.with("Shared at timestamp is required"));

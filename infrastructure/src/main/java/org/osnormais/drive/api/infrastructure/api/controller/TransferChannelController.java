@@ -50,7 +50,7 @@ public class TransferChannelController implements TransferChannelAPI {
     }
 
     @Override
-    public ResponseEntity<CreateTransferChannelResponse> createTrasnferChannel(
+    public ResponseEntity<CreateTransferChannelResponse> createTransferChannel(
             final UUID fileId,
             final TransferChannelType type) {
 
