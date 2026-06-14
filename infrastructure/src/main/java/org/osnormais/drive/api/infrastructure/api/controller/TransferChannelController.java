@@ -93,6 +93,8 @@ public class TransferChannelController implements TransferChannelAPI {
                 .stream()
                 .map(chunkInfo -> new ChunkToken(
                         chunkInfo.chunkIndex(),
+                        chunkInfo.chunkOffset(),
+                        chunkInfo.chunkSize(),
                         generateToken(
 
                                 new TransferChannelTokenData(

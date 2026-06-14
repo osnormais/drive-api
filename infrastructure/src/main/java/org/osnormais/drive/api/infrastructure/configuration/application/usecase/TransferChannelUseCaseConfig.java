@@ -58,7 +58,7 @@ public class TransferChannelUseCaseConfig {
 
     @Bean
     GetTransferChannelUseCase getTransferChannelUseCase() {
-        return new DefaultGetTransferChannelUseCase(userQueryGateway, transferChannelQueryGateway);
+        return new DefaultGetTransferChannelUseCase(userQueryGateway, transferChannelQueryGateway, fileQueryGateway);
     }
 
     @Bean
