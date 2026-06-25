@@ -15,10 +15,14 @@ public record Publication(
         Publication.Status status,
         Optional<Publication.Error> error) implements ValueObject {
 
+    public static Publication pending() {
+        return new Publication(null, Status.PENDING, Optional.empty());
+    }
+
     @Override
     public void validate(final ValidationHandler handler) {
 
-        if (isNull(publishedAt))
+        if (isNull(publishedAt) && Status.SUCCESS.equals(status))
             handler.append(new ValidationError("Publication.publishedAt should not be null"));
 
         if (isNull(status))
@@ -36,7 +40,7 @@ public record Publication(
     }
 
     public enum Status {
-        SUCCESS, ERROR
+        PENDING, SUCCESS, ERROR
     }
 
     public record Error(String message) implements ValueObject {

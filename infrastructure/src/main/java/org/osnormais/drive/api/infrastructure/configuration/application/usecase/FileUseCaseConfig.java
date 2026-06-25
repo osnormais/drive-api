@@ -12,6 +12,8 @@ import org.osnormais.drive.api.application.gateway.folder.FolderQueryGateway;
 import org.osnormais.drive.api.application.gateway.user.UserQueryGateway;
 import org.osnormais.drive.api.application.usecase.file.create.CreateFileUseCase;
 import org.osnormais.drive.api.application.usecase.file.create.DefaultCreateFileUseCase;
+import org.osnormais.drive.api.application.usecase.file.publication.init.DefaultInitFilePublicationUseCase;
+import org.osnormais.drive.api.application.usecase.file.publication.init.InitFilePublicationUseCase;
 import org.osnormais.drive.api.application.usecase.file.retrieve.get.DefaultGetFileUseCase;
 import org.osnormais.drive.api.application.usecase.file.retrieve.get.GetFileUseCase;
 import org.osnormais.drive.api.application.usecase.file.retrieve.list.DefaultListFileUseCase;
@@ -65,6 +67,14 @@ public class FileUseCaseConfig {
                 aclCommandGateway,
                 planQueryGateway,
                 userEntitlementGrantQueryGateway,
+                eventDispatcher);
+    }
+
+    @Bean
+    InitFilePublicationUseCase initFilePublicationUseCase() {
+        return new DefaultInitFilePublicationUseCase(
+                fileQueryGateway,
+                fileCommandGateway,
                 eventDispatcher);
     }
 

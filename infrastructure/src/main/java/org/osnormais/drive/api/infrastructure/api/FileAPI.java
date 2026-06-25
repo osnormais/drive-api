@@ -30,6 +30,10 @@ public interface FileAPI {
     @PostMapping
     ResponseEntity<Void> create(@RequestBody CreateFileRequest request);
 
+    @Operation(summary = "Publish file", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("{id}/publication")
+    ResponseEntity<Void> publish(@PathVariable("id") UUID id);
+
     @Operation(summary = "Get file", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("{id}")
     ResponseEntity<GetFileResponse> getFile(@PathVariable("id") UUID id);

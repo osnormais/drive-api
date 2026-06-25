@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.osnormais.drive.api.application.usecase.file.create.CreateFileUseCase;
+import org.osnormais.drive.api.application.usecase.file.publication.init.InitFilePublicationInput;
+import org.osnormais.drive.api.application.usecase.file.publication.init.InitFilePublicationUseCase;
 import org.osnormais.drive.api.application.usecase.file.retrieve.get.GetFileInput;
 import org.osnormais.drive.api.application.usecase.file.retrieve.get.GetFileUseCase;
 import org.osnormais.drive.api.application.usecase.file.retrieve.list.ListFileInput;
@@ -35,14 +37,17 @@ public class FileController implements FileAPI {
     private final CreateFileUseCase createFileUseCase;
     private final GetFileUseCase getFileUseCase;
     private final ListFileUseCase listFilesUseCase;
+    private final InitFilePublicationUseCase initFilePublicationUseCase;
 
     public FileController(
             final CreateFileUseCase createFileUseCase,
             final GetFileUseCase getFileUseCase,
-            final ListFileUseCase listFilesUseCase) {
+            final ListFileUseCase listFilesUseCase,
+            final InitFilePublicationUseCase initFilePublicationUseCase) {
         this.createFileUseCase = createFileUseCase;
         this.getFileUseCase = getFileUseCase;
         this.listFilesUseCase = listFilesUseCase;
+        this.initFilePublicationUseCase = initFilePublicationUseCase;
     }
 
     @Override
@@ -54,6 +59,12 @@ public class FileController implements FileAPI {
         return ResponseEntity
                 .created(buildLocation("/{id}", output.id()))
                 .build();
+    }
+
+    @Override
+    public ResponseEntity<Void> publish(UUID id) {
+        initFilePublicationUseCase.execute(new InitFilePublicationInput(id, SecurityContext.getAuthenticatedUserId()));
+        return ResponseEntity.noContent().build();
     }
 
     @Override

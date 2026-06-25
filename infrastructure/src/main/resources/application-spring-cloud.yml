@@ -52,3 +52,8 @@ spring:
           binder: public-binder
           destination: integration.exchange
         ## --------------------------------------- ##
+        # Outgoing -> File Publication Initiated      #
+        filePublicationInitiatedIntegration-out-0:
+          binder: public-binder
+          destination: integration.exchange
+        ## --------------------------------------- ##

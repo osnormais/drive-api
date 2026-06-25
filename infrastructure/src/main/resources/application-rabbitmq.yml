@@ -87,6 +87,12 @@ spring:
               exchangeType: topic
               routingKeyExpression: "'drive.file.created'"
           ## --------------------------------------- ##
+          # Outgoing -> File Publication Initiated      #
+          filePublicationInitiatedIntegration-out-0:            
+            producer:
+              exchangeType: topic
+              routingKeyExpression: "'drive.file:publication.initiated'"
+          ## --------------------------------------- ##
 
 rabbitmq:
   host: ${RABBITMQ_HOST:localhost}
