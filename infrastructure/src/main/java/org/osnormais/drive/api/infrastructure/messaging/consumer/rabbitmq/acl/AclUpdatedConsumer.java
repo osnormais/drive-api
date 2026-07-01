@@ -15,7 +15,7 @@ public class AclUpdatedConsumer extends RabbitMQMessageConsumer<AclDomainEventMe
 
     public AclUpdatedConsumer(
             final Long maxRetryAttempts,
-            final MessageProducer<AclDomainEventMessage> errorMessageProducer,
+            final MessageProducer<Message<AclDomainEventMessage>> errorMessageProducer,
             final RecalculateInheritedAclEntryUseCase recalculateInheritedAclEntryUseCase) {
         super(maxRetryAttempts, errorMessageProducer, Set.of());
         this.recalculateInheritedAclEntryUseCase = recalculateInheritedAclEntryUseCase;

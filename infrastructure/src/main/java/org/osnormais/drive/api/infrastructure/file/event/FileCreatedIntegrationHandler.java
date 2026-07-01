@@ -6,7 +6,7 @@ import org.osnormais.drive.api.application.gateway.file.FileQueryGateway;
 import org.osnormais.drive.api.domain.event.DomainEventHandler;
 import org.osnormais.drive.api.domain.file.File;
 import org.osnormais.drive.api.domain.file.event.FileCreatedEvent;
-import org.osnormais.drive.api.infrastructure.file.data.message.FileIntegrationMessage;
+import org.osnormais.drive.api.infrastructure.file.data.message.integration.drive.DriveFileIntegrationMessage;
 import org.osnormais.drive.api.infrastructure.messaging.producer.springcloud.file.FileCreatedIntegrationProducer;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +28,7 @@ public class FileCreatedIntegrationHandler extends DomainEventHandler<FileCreate
     public void handle(final FileCreatedEvent event) {
 
         final File file = fileQueryGateway.findById(event.getIdentifier()).orElseThrow();
-        fileCreatedIntegrationProducer.produce(FileIntegrationMessage.of(file));
+        fileCreatedIntegrationProducer.produce(DriveFileIntegrationMessage.of(file));
 
     }
 

@@ -1,4 +1,4 @@
-package org.osnormais.drive.api.infrastructure.file.data.message;
+package org.osnormais.drive.api.infrastructure.file.data.message.integration.drive;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.osnormais.drive.api.domain.file.File;
 import org.osnormais.drive.api.domain.file.valueobject.Checksum;
 
-public record FileIntegrationMessage(
+public record DriveFileIntegrationMessage(
         UUID id,
         UUID creatorId,
         UUID ownerId,
@@ -21,8 +21,8 @@ public record FileIntegrationMessage(
         Instant updatedAt,
         Instant deletedAt) implements Serializable {
 
-    public static FileIntegrationMessage of(final File file) {
-        return new FileIntegrationMessage(
+    public static DriveFileIntegrationMessage of(final File file) {
+        return new DriveFileIntegrationMessage(
                 file.getId().getValue(),
                 file.getCreator().getValue(),
                 file.getOwner().getValue(),

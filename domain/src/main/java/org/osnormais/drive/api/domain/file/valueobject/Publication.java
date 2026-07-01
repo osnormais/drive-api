@@ -15,6 +15,14 @@ public record Publication(
         Publication.Status status,
         Optional<Publication.Error> error) implements ValueObject {
 
+    public static Publication success() {
+        return new Publication(Instant.now(), Status.SUCCESS, Optional.empty());
+    }
+
+    public static Publication error(final String message) {
+        return new Publication(null, Status.ERROR, Optional.of(new Publication.Error(message)));
+    }
+
     public static Publication pending() {
         return new Publication(null, Status.PENDING, Optional.empty());
     }
@@ -44,6 +52,11 @@ public record Publication(
     }
 
     public record Error(String message) implements ValueObject {
+
+        public Error {
+            if (isNull(message) || message.isBlank())
+                message = "Publication error";
+        }
 
         @Override
         public void validate(final ValidationHandler handler) {

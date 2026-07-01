@@ -15,6 +15,8 @@ import org.osnormais.drive.api.domain.event.DomainEventSource;
 import org.osnormais.drive.api.domain.exception.CreatorPermissionRequiredException;
 import org.osnormais.drive.api.domain.exception.ValidationException;
 import org.osnormais.drive.api.domain.file.event.FileCreatedEvent;
+import org.osnormais.drive.api.domain.file.event.FilePublicationCompletedEvent;
+import org.osnormais.drive.api.domain.file.event.FilePublicationFailedEvent;
 import org.osnormais.drive.api.domain.file.event.FilePublicationInitiedEvent;
 import org.osnormais.drive.api.domain.file.valueobject.Checksum;
 import org.osnormais.drive.api.domain.file.valueobject.Content;
@@ -210,6 +212,32 @@ public class File extends AggregateRoot<FileId> implements DomainEventSource {
         this.updatedAt = Instant.now();
 
         this.events.add(FilePublicationInitiedEvent.create(this));
+
+        return this;
+    }
+
+    public File successPublication() {
+
+        if (publication.map(Publication::status).filter(Publication.Status.SUCCESS::equals).isPresent())
+            return this;
+
+        this.publication = Optional.of(Publication.success());
+        this.updatedAt = Instant.now();
+
+        this.events.add(FilePublicationCompletedEvent.create(this));
+
+        return this;
+    }
+
+    public File failPublication(final String errorMessage) {
+
+        if (publication.map(Publication::status).filter(Publication.Status.SUCCESS::equals).isPresent())
+            return this;
+
+        this.publication = Optional.of(Publication.error(errorMessage));
+        this.updatedAt = Instant.now();
+
+        this.events.add(FilePublicationFailedEvent.create(this));
 
         return this;
     }
