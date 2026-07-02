@@ -14,7 +14,7 @@ public class AclUpdatedEvent extends DomainEvent<AclId> {
     private static final Class<Acl> ENTITY_CLASS = Acl.class;
     private static final String ACTION = "updated";
 
-    public AclUpdatedEvent() {
+    AclUpdatedEvent() {
     }
 
     private AclUpdatedEvent(

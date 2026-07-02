@@ -15,7 +15,7 @@ public class FolderSharedEvent extends DomainEvent<FolderId> {
     private static final Class<Folder> ENTITY_CLASS = Folder.class;
     private static final String ACTION = "shared";
 
-    public FolderSharedEvent() {
+    FolderSharedEvent() {
     }
 
     private FolderSharedEvent(

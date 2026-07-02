@@ -16,7 +16,7 @@ public class FileCreatedEvent extends DomainEvent<FileId> {
     private static final Class<? extends Entity<?>> ENTITY_CLASS = File.class;
     private static final String ACTION = "created";
 
-    public FileCreatedEvent() {
+    FileCreatedEvent() {
     }
 
     private FileCreatedEvent(

@@ -17,7 +17,7 @@ public class FilePublicationFailedEvent extends DomainEvent<FileId> {
     private static final String SUB_RESOURCE = "publication";
     private static final String ACTION = "failed";
 
-    public FilePublicationFailedEvent() {
+    FilePublicationFailedEvent() {
     }
 
     private FilePublicationFailedEvent(

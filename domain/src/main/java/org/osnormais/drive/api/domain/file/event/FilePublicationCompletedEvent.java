@@ -17,7 +17,7 @@ public class FilePublicationCompletedEvent extends DomainEvent<FileId> {
     private static final String SUB_RESOURCE = "publication";
     private static final String ACTION = "completed";
 
-    public FilePublicationCompletedEvent() {
+    FilePublicationCompletedEvent() {
     }
 
     private FilePublicationCompletedEvent(
