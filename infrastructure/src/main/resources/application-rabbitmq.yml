@@ -1,0 +1,170 @@
+spring:
+  cloud:
+    stream:
+      binders:
+        private-binder:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                host: ${rabbitmq.host}
+                port: ${rabbitmq.port}
+                virtual-host: ${rabbitmq.private-virtual-host}
+                username: ${rabbitmq.username}
+                password: ${rabbitmq.password}
+        public-binder:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                host: ${rabbitmq.host}
+                port: ${rabbitmq.port}
+                virtual-host: ${rabbitmq.public-virtual-host}
+                username: ${rabbitmq.username}
+                password: ${rabbitmq.password}
+      rabbit:
+        bindings:
+
+          ###### (INIT) DOMAIN EVENTS
+          ## (INIT) File Created
+          # OUT -> File Created
+          fileCreated-out-0:
+            producer:
+              exchangeType: topic
+              destination: drive.exchange
+              routingKeyExpression: "'drive.file.created'"
+          # IN <- File Created
+          fileCreated-in-0:
+            consumer:
+              exchangeType: topic
+              bindingRoutingKey: drive.file.created
+              queueNameGroupOnly: true
+              autoBindDlq: true
+              deadLetterExchange: drive.exchange.wait
+              deadLetterQueueName: drive.file.created.queue.wait
+              dlqDeadLetterExchange: drive.exchange
+              dlqDeadLetterRoutingKey: drive.file.created
+              republishToDlq: false
+              dlqTtl: 1000
+          # OUT -> File Created [error]
+          fileCreatedError-out-0:
+            producer:
+              exchangeType: topic
+              destination: drive.exchange.error
+              routingKeyExpression: "'drive.file.created'"
+              queueNameGroupOnly: true
+          ## (END) File Created
+          ## (INIT) Acl Updated
+          # OUT -> Acl Updated
+          aclUpdated-out-0:
+            producer:
+              exchangeType: topic
+              destination: drive.exchange
+              routingKeyExpression: "'drive.acl.updated'"
+          # IN <- Acl Updated
+          aclUpdated-in-0:
+            consumer:
+              exchangeType: topic
+              bindingRoutingKey: drive.acl.updated
+              queueNameGroupOnly: true
+              autoBindDlq: true
+              deadLetterExchange: drive.exchange.wait
+              deadLetterQueueName: drive.acl.updated.queue.wait
+              dlqDeadLetterExchange: drive.exchange
+              dlqDeadLetterRoutingKey: drive.acl.updated
+              republishToDlq: false
+              dlqTtl: 1000
+          # OUT -> Acl Updated [error]
+          aclUpdatedError-out-0:
+            producer:
+              exchangeType: topic
+              destination: drive.exchange.error
+              routingKeyExpression: "'drive.acl.updated'"
+              queueNameGroupOnly: true
+          ## (END) Acl Updated
+          ###### (END) DOMAIN EVENTS
+
+          ###### (INIT) PRIVATE COMMANDS
+          ## (INIT) Finalize-File-Publication
+          # OUT -> Finalize-File-Publication
+          finalizeFilePublicationCommand-out-0:
+            producer:
+              exchangeType: topic
+              routingKeyExpression: "'finalize-file-publication'"
+          # IN <- Finalize-File-Publication
+          finalizeFilePublicationCommand-in-0:
+            consumer:
+              exchangeType: topic
+              bindingRoutingKey: finalize-file-publication
+              queueNameGroupOnly: true
+              autoBindDlq: true
+              deadLetterExchange: command.exchange.wait
+              deadLetterQueueName: command:finalize-file-publication.queue.wait
+              dlqDeadLetterExchange: command.exchange
+              dlqDeadLetterRoutingKey: finalize-file-publication
+              republishToDlq: false
+              dlqTtl: 1000
+          # OUT -> Finalize-File-Publication (error)
+          finalizeFilePublicationCommandError-out-0:
+            producer:
+              exchangeType: topic
+              routingKeyExpression: "'finalize-file-publication'"
+              queueNameGroupOnly: true
+          ## (END) Finalize-File-Publication
+          ###### (END) PRIVATE COMMANDS
+
+          ##### (INIT) INTEGRATION MESSAGES
+          ## (INIT) File Created
+          # OUT -> File Created
+          fileCreatedIntegration-out-0:            
+            producer:
+              exchangeType: topic
+              routingKeyExpression: "'drive.file.created'"
+          ## (END) File Created
+          ## (INIT) File Publication Initiated
+          # OUT -> File Publication Initiated
+          filePublicationInitiatedIntegration-out-0:            
+            producer:
+              exchangeType: topic
+              routingKeyExpression: "'drive.file:publication.initiated'"
+          ## (END) File Publication Initiated
+
+          ### (INIT) STORAGE
+          ## (INIT) File Publication Finalized (STORAGE)
+          # IN <- file publication finalized integration (STORAGE)
+          storageFilePublicationFinalizedIntegration-in-0:
+            consumer:
+              exchangeType: topic
+              bindingRoutingKey: drive.file:publication.finalized
+              queueNameGroupOnly: true
+              autoBindDlq: true
+              deadLetterExchange: drive.exchange.wait
+              deadLetterQueueName: drive.storage.file:publication.finalized.queue.wait
+              dlqDeadLetterExchange: drive.exchange
+              dlqDeadLetterRoutingKey: drive.storage.file:publication.finalized
+              republishToDlq: false
+              dlqTtl: 1000
+          # OUT -> File Publication Finalized Integration [error] (PRIVATE)
+          storageFilePublicationFinalizedIntegrationError-out-0:
+            producer:
+              exchangeType: topic
+              routingKeyExpression: "'drive.storage.file:publication.finalized'"
+              queueNameGroupOnly: true
+          ## (END) File Publication Finalized (STORAGE)
+          ### (END) STORAGE
+
+
+          ##### (END) INTEGRATION MESSAGES
+
+
+
+
+          #filePublicationFinalizedIntegration
+
+rabbitmq:
+  host: ${RABBITMQ_HOST:localhost}
+  port: ${RABBITMQ_PORT:5672}
+  public-virtual-host: ${RABBITMQ_PUBLIC_VIRTUAL_HOST:/}
+  private-virtual-host: ${RABBITMQ_PRIVATE_VIRTUAL_HOST:/}
+  username: ${RABBITMQ_USERNAME:rabbitmq}
+  password: ${RABBITMQ_PASSWORD:rabbitmq}

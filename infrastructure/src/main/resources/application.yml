@@ -1,0 +1,46 @@
+server:
+  port: ${application.server.port}
+spring:
+  profiles:
+    active:
+      - hibernate
+      - security
+      - spring-cloud
+      - ${application.vendor.concurrency-tracker}
+      - ${application.vendor.database}
+      - ${application.vendor.messaging}
+      - ${application.token.signature.private-key.source}
+
+application:
+  name: drive-api
+  server:
+    port: ${SERVER_PORT:8080}
+  messaging:
+    private:
+      consumer:
+        file-created:
+          concurrency: ${PRIVATE_CONSUMER_FILE_CREATED_CONCURRENCY:1}
+          max-attempts: ${PRIVATE_CONSUMER_FILE_CREATED_MAX_ATTEMPTS:5}
+        acl-updated:
+          concurrency: ${PRIVATE_CONSUMER_ACL_UPDATED_CONCURRENCY:1}
+          max-attempts: ${PRIVATE_CONSUMER_ACL_UPDATED_MAX_ATTEMPTS:5}
+        finalize-file-publication-command:
+          concurrency: ${PRIVATE_CONSUMER_FINALIZE_FILE_PUBLICATION_COMMAND_CONCURRENCY:1}
+          max-attempts: ${PRIVATE_CONSUMER_FINALIZE_FILE_PUBLICATION_COMMAND_MAX_ATTEMPTS:5}
+    public:
+      consumer:
+        storage-file-publication-finalized:
+          concurrency: ${PUBLIC_CONSUMER_STORAGE_FILE_PUBLICATION_FINALIZED_CONCURRENCY:1}
+          max-attempts: ${PUBLIC_CONSUMER_STORAGE_FILE_PUBLICATION_FINALIZED_MAX_ATTEMPTS:5}
+  outbox:
+    relay:
+      fixed-rate: ${OUTBOX_RELAY_FIXED_RATE:60000}
+  token:
+    signature:
+      algorithm: ${TOKEN_SIGNATURE_ALGORITHM:ECDSA256}
+      private-key:
+        source: ${TOKEN_SIGNATURE_PRIVATE_KEY_SOURCE:env}
+  vendor:
+    concurrency-tracker: ${VENDOR_CONCURRENCY_TRACKER:inmemory}
+    database: ${VENDOR_DATABASE:postgres}
+    messaging: ${VENDOR_MESSAGING:rabbitmq}

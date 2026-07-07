@@ -1,0 +1,107 @@
+spring:
+  cloud:
+    function:
+      definition: fileCreatedConsumer;aclUpdatedConsumer;storageFilePublicationFinalizedIntegrationConsumer;finalizeFilePublicationCommandConsumer
+    stream:
+      function:
+        bindings:
+          fileCreatedConsumer-in-0: fileCreated-in-0
+          aclUpdatedConsumer-in-0: aclUpdated-in-0
+          storageFilePublicationFinalizedIntegrationConsumer-in-0: storageFilePublicationFinalizedIntegration-in-0
+          finalizeFilePublicationCommandConsumer-in-0: finalizeFilePublicationCommand-in-0
+      default-binder: private-binder
+      default:
+        content-type: application/json
+      bindings:
+
+        ###### (INIT) DOMAIN EVENTS
+        ## (INIT) File Created
+        # OUT -> File Created
+        fileCreated-out-0:
+          destination: drive.exchange
+        # IN <- File Created
+        fileCreated-in-0:
+          destination: drive.exchange
+          group: drive.file.created.queue
+          consumer:
+            max-attempts: 1
+            concurrency: ${application.messaging.private.consumer.file-created.concurrency}
+        # OUT -> File Created [error]
+        fileCreatedError-out-0:
+          destination: drive.exchange.error
+          producer:
+            requiredGroups: drive.file.created.queue.error
+        ## (END) File Created
+        ## (INIT) Acl Updated
+        # OUT -> Acl Updated
+        aclUpdated-out-0:
+          destination: drive.exchange
+        # IN <- Acl Updated
+        aclUpdated-in-0:
+          destination: drive.exchange
+          group: drive.acl.updated.queue
+          consumer:
+            max-attempts: 1
+            concurrency: ${application.messaging.private.consumer.acl-updated.concurrency}
+        # OUT -> Acl Updated [error]
+        aclUpdatedError-out-0:
+          destination: drive.exchange.error
+          producer:
+            requiredGroups: drive.acl.updated.queue.error
+        ## (END) Acl Updated
+        ###### (END) DOMAIN EVENTS
+
+        ###### (INIT) PRIVATE COMMANDS
+        ## (INIT) Finalize-File-Publication
+        # OUT -> Finalize-File-Publication
+        finalizeFilePublicationCommand-out-0:
+          destination: command.exchange
+        # IN <- Finalize-File-Publication
+        finalizeFilePublicationCommand-in-0:
+          destination: command.exchange
+          group: command:finalize-file-publication.queue
+          consumer:
+            max-attempts: 1
+            concurrency: ${application.messaging.private.consumer.finalize-file-publication-command.concurrency}
+        # OUT -> Finalize-File-Publication (error)
+        finalizeFilePublicationCommandError-out-0:
+          destination: command.exchange.error
+          producer:
+            requiredGroups: command:finalize-file-publication.queue.error
+        ## (END) Finalize-File-Publication
+        ###### (END) PRIVATE COMMANDS
+
+        ##### (INIT) INTEGRATION MESSAGES
+        ## (INIT) File Created
+        # OUT -> File Created
+        fileCreatedIntegration-out-0:
+          binder: public-binder
+          destination: integration.exchange
+        ## (END) File Created
+        ## (INIT) File Publication Initiated
+        # OUT -> File Publication Initiated
+        filePublicationInitiatedIntegration-out-0:
+          binder: public-binder
+          destination: integration.exchange
+        ## (END) File Publication Initiated
+
+        ### (INIT) STORAGE
+        ## (INIT) File Publication Finalized (STORAGE)
+        # IN <- file publication finalized integration (STORAGE)
+        storageFilePublicationFinalizedIntegration-in-0:
+          binder: public-binder
+          destination: integration.exchange
+          group: drive.storage.file:publication.finalized.queue
+          consumer:
+            max-attempts: 1
+            concurrency: ${application.messaging.public.consumer.storage-file-publication-finalized.concurrency}
+        # OUT -> File Publication Finalized Integration [error]
+        storageFilePublicationFinalizedIntegrationError-out-0:
+          binder: public-binder
+          destination: storage.exchange.error
+          producer:
+            requiredGroups: drive.storage.file:publication.finalized.queue.error
+        ## (END) File Publication Finalized (STORAGE)
+        ### (END) STORAGE
+        ##### (END) INTEGRATION MESSAGES
+

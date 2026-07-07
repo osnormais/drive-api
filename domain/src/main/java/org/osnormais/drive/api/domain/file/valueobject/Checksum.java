@@ -1,0 +1,32 @@
+package org.osnormais.drive.api.domain.file.valueobject;
+
+import static java.util.Objects.isNull;
+
+import org.osnormais.drive.api.domain.ValueObject;
+import org.osnormais.drive.api.domain.validation.ValidationError;
+import org.osnormais.drive.api.domain.validation.handler.ValidationHandler;
+
+public record Checksum(Algorithm algorithm, String value) implements ValueObject {
+
+    public enum Algorithm {
+        CRC_32,
+        MD5,
+        SHA_256;
+    }
+
+    public static Checksum of(final Algorithm algorithm, final String value) {
+        return new Checksum(algorithm, value);
+    }
+
+    @Override
+    public void validate(final ValidationHandler handler) {
+
+        if (isNull(algorithm))
+            handler.append(new ValidationError("'Checksum.algorithm' should not be null"));
+
+        if (isNull(value))
+            handler.append(new ValidationError("'Checksum.value' should not be null"));
+
+    }
+
+}

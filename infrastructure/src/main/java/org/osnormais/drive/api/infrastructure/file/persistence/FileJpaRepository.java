@@ -1,0 +1,26 @@
+package org.osnormais.drive.api.infrastructure.file.persistence;
+
+import java.util.Set;
+import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+public interface FileJpaRepository extends JpaRepository<FileJpa, UUID>, JpaSpecificationExecutor<FileJpa> {
+
+    Set<FileJpa> findAllByFolderId(UUID folderId);
+
+    Boolean existsByNameAndFolderId(String name, UUID folderId);
+
+    @Query("""
+                select
+                    coalesce(sum(f.sizeInBytes), 0)
+                from File f
+                where f.ownerId = :ownerId
+                and f.deletedAt is null
+            """)
+    Long sumSizeInBytesByOwnerId(@Param("ownerId") UUID ownerId);
+
+}
